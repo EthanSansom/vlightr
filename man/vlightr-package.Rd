@@ -8,4 +8,12 @@
 \description{
 Provides a vector superclass with persistant conditional formatting. `highlight` an arbitrary vector to color, emphasize, or otherwise reformat elements of interest when printed for easier EDA and bug catching.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/EthanSansom/vlightr}
+  \item Report bugs at \url{https://github.com/EthanSansom/vlightr/issues}
+}
+
+}
 \keyword{internal}
