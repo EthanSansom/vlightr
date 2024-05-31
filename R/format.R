@@ -12,7 +12,7 @@ format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
       x = x_data,
       fn = init_formatter,
       x_name = .x_name,
-      fn_name = glue::glue('`attr(,"init_formatter")`'),
+      fn_name = 'attr(,"init_formatter")',
       fn_is = "formatter"
     )
   }
@@ -28,7 +28,7 @@ format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
       x = x_data,
       fn = conditions[[i]],
       x_name = .x_name,
-      fn_name = glue::glue('`attr(,"conditions")[[{i}]]`'),
+      fn_name = glue::glue('attr(,"conditions")[[{i}]]'),
       fn_is = "condition"
     )
     if (format_once) {
@@ -39,7 +39,7 @@ format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
       x = formatted[format_at],
       fn = formatters[[i]],
       x_name = .x_name,
-      fn_name = glue::glue('`attr(,"formatters")[[{i}]]`'),
+      fn_name = glue::glue('attr(,"formatters")[[{i}]]'),
       fn_is = "formatter"
     )
   }
@@ -50,7 +50,7 @@ format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
     x = formatted,
     fn = last_formatter,
     x_name = .x_name,
-    fn_name = glue::glue('`attr(,"last_formatter")`'),
+    fn_name = 'attr(,"last_formatter")',
     fn_is = "formatter",
     error_class = "vlightr_last_formatter_error"
   )
@@ -63,6 +63,7 @@ evalidate_highlight_fn <- function(
     fn,
     fn_name,
     fn_is = c("condition", "formatter"),
+    fn_env = rlang::caller_env(),
     x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = "vlightr_error"
@@ -70,10 +71,14 @@ evalidate_highlight_fn <- function(
 
   fn_is <- rlang::arg_match(fn_is)
   result <- rlang::try_fetch(
-    fn(x),
+    eval(fn(x), envir = fn_env),
     error = function(cnd) {
+      # `cnd$call` won't be a valid call name most of the time, but will appear
+      # as something like "attr(,"conditions")[[1]]()", which will provide more
+      # context in the error chain.
+      cnd$call <- rlang::call2(fn_name)
       cli::cli_abort(
-        paste0("Can't evalutate {fn_is} ", fn_name, "."),
+        "{.cls vlightr_highlight} vector has a malformed {.code format()} method.",
         parent = cnd,
         call = error_call,
         class = error_class
@@ -94,16 +99,16 @@ evalidate_highlight_fn <- function(
   }
 
   valid_class <- switch(fn_is, condition = "logical", formatter = "character")
-  header <- paste(
-    "Call", fn_name, "must produce a {.cls {valid_class}} vector",
-    "of length 1 or `length({x_name})`."
+  header <- paste0(
+    "{upper1(fn_is)} `", fn_name, "` must produce a {.cls {valid_class}} ",
+    "vector of length 1 or `length({x_name})`."
   )
   type_bullet <- if (!is_valid_class(result)) {
-    "Call produced {.obj_type_friendly {result}}."
+    "Produced {.obj_type_friendly {result}}."
   }
   len_bullets <- if (length(result) %notin% c(1, length(x))) {
     c(
-      i = "Call result has length {length(result)}.",
+      i = "Produced a length {length(result)} result.",
       i = "{.arg {x_name}} has length {length(x)}."
     )
   }
