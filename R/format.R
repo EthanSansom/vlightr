@@ -123,6 +123,73 @@ evalidate_highlight_fn <- function(
   )
 }
 
+describe_highlight <- function(x) {
+
+  conditions <- get_conditions(x)
+  x_data <- get_data(x)
+  if (rlang::is_empty(conditions)) {
+    cli::cli_text("A {.cls {class(x_data)}} vector with no conditional formatting.")
+    return(invisible(x))
+  }
+
+  x_name <- rlang::caller_arg(x)
+  formatted <- format(x, .x_name = x_name)
+  precedence <- order(get_precedence(x))
+  description <- get_description(x)[precedence]
+  conditions <- conditions[precedence]
+
+  format_once <- get_format_once(x)
+  is_unformatted <- rep(TRUE, length(x))
+  formatted_using <- vector("list", length(x))
+  for (i in seq_along(conditions)) {
+    format_at <- evalidate_highlight_fn(
+      x = x_data,
+      fn = conditions[[i]],
+      x_name = x_name,
+      fn_name = glue::glue('attr({x_name},"conditions")[[{i}]]'),
+      fn_is = "condition"
+    )
+    if (format_once) {
+      format_at <- is_unformatted & format_at
+    }
+    is_unformatted <- is_unformatted & !format_at
+    formatted_using[format_at] <- lapply(formatted_using[format_at], `c`, i)
+  }
+
+  any_formatted <- !all(is_unformatted)
+  if (any_formatted) {
+    unique_formats_at <- !duplicated(formatted_using) & !is_unformatted
+    examples <- mapply(
+      formatted_element = formatted[unique_formats_at],
+      formats_used = formatted_using[unique_formats_at],
+      \(formatted_element, formats_used) {
+        glue::glue(
+          "Element formatted using {oxford(formats_used, last = 'and')}: ",
+          "{formatted_element}"
+        )
+      }
+    )
+
+    # Re-order according to the earliest formatters used for each example. A
+    # `sort_ragged <- \(x) x[order_ragged(x)]` would do the following:
+    #> formatted_using <- list(c(1, 2), 1, c(2, 4), c(2, 1))
+    #> sort_ragged(formatted_using) -> list(1, c(1, 2) c(2, 3), c(2, 4))
+    examples <- examples[order_ragged(formatted_using[unique_formats_at])]
+  }
+
+  cli::cli_text(
+    "A conditionally formatted {.cls {class(x_data)}} vector with ",
+    "{length(description)} conditional format{?s}:"
+  )
+  cli::cli_ol(description)
+  if (any_formatted) {
+    cli::cat_line()
+    cli::cli_text("Examples:")
+    cli::cli_ul(examples)
+  }
+  return(invisible(x))
+}
+
 # TODO:
 # - change the `highlight_format.class` methods below as required
 # - make sure to credit `ivs` for these
