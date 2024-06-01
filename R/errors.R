@@ -387,3 +387,24 @@ upper1 <- function(x) {
   substr(x, 1, 1) <- toupper(substr(x, 1, 1))
   x
 }
+
+commas <- function(x, n = NULL) {
+  if (!is.null(n) && length(x) > n) {
+    length(x) <- n
+    paste0(paste(x, collapse = ", "), ", ...")
+  } else {
+    paste(x, collapse = ", ")
+  }
+}
+
+oxford <- function(x, sep = ", ", last = "or", n = NULL) {
+  x_len <- length(x)
+  if (x_len == 1) {
+    return(paste(x))
+  }
+  if (!is.null(n) && x_len > n) {
+    paste0(paste(x, collapse = sep), sep, "...")
+  }
+  if (x_len == 2) sep <- " "
+  paste(paste(x[-x_len], collapse = sep), last, x[[x_len]], sep = sep)
+}
