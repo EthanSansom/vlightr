@@ -2,6 +2,8 @@
 % Please edit documentation in R/highlight.R
 \name{highlight}
 \alias{highlight}
+\alias{hl}
+\alias{highlight_case}
 \title{Conditionally format a vector}
 \usage{
 highlight(
@@ -13,6 +15,27 @@ highlight(
   format_once = FALSE,
   init_formatter = NULL,
   last_formatter = NULL
+)
+
+hl(
+  x = logical(),
+  conditions = list(),
+  formatters = list(),
+  description = NULL,
+  precedence = NULL,
+  format_once = FALSE,
+  init_formatter = NULL,
+  last_formatter = NULL
+)
+
+highlight_case(
+  x,
+  ...,
+  .description = NULL,
+  .precedence = NULL,
+  .format_once = TRUE,
+  .init_formatter = NULL,
+  .last_formatter = NULL
 )
 }
 \arguments{
@@ -30,73 +53,181 @@ size 1.
 
 Atomic vector types \code{"logical"}, \code{"integer"}, \code{"double"}, \code{"complex"},
 \code{"character"}, and \code{"raw"} meet these criteria. As do vectors defined
-via the vctrs package.}
+via the vctrs package and many others.}
 
 \item{conditions}{\verb{[function / list]}
 
-A vectorized predicate function (i.e. a function which returns a logical
-vector the same length as it's input) or a list of such functions.}
+Functions that indicate which elements of \code{x} to format. Can be a:
+\itemize{
+\item Function, e.g. \code{is.na}
+\item A purrr-style lambda, e.g. \code{~ nchar(.x) > 0}
+\item A list of functions or lambdas, e.g. \code{list(~ .x < mean(.x), is.infinite)}
+}
+
+Each function in \code{conditions} will receive \code{x} as it's input and must return
+a logical vector the same length as \code{x} or of length 1 (in which case the
+result will be recycled to the length of \code{x}).
+
+Elements of \code{x} for which \code{conditions[[i]](x)} is \code{TRUE} are formatted using
+the formatter function \code{formatters[[i]]}. Consequently, an equal number of
+\code{conditions} and \code{formatters} must be supplied.}
 
 \item{formatters}{\verb{[function / list]}
 
-A vectorized formatter function (i.e. a function which returns a character
-vector the same length as it's input) or a list of such functions.
+Character manipulation functions used to format \code{x}. Can be a:
+\itemize{
+\item Function, e.g. \link[cli:ansi-styles]{cli::style_bold}
+\item A purrr-style lambda, e.g. \code{~ paste0(.x, "!")}
+\item A list of functions or lambdas, e.g. \code{list(~ cli::col_red, toupper)}
+}
 
-A formatter may also return an ANSI colored string (class cli_ansi_string),
-used for printing colored, highlighted, and emphasized text to the terminal.
-See \link[=ansi-styles]{cli} for details.}
+When called, a function in \code{formatters} will receive a single character vector
+(of variable length) as it's only argument. A formatter must return a character
+vector the same length as it's input. ANSI string vectors (class
+\code{cli_ansi_string}) are also supported (see \link[cli:ansi-styles]{cli::ansi-styles} for details).
 
-\item{description}{\verb{[character / NULL]}
+The same number of \code{formatters} and \code{conditions} must be supplied.}
 
-Hello.}
+\item{description, .description}{\verb{[character / NULL]}
 
-\item{precedence}{\verb{[numeric / NULL]}
+An optional description of the format applied by each function in
+\code{formatters}. This information is used by \code{\link[=describe_highlight]{describe_highlight()}}.
 
-Hello.}
+If supplied, \code{description} must be the same length as \code{formatters} and
+\code{conditions}.}
 
-\item{format_once}{\verb{[logical(1)]}
+\item{precedence, .precedence}{\verb{[numeric / NULL]}
 
-Hello.}
+A numeric vector indicating the order in which to apply the \code{formatters}.
+By default \code{formatters} are applied in the order in which they were supplied.
 
-\item{init_formatter}{\verb{[function]}
+If supplied, \code{precedence} must be the same length as \code{formatters} and
+\code{conditions}.}
 
-Hello.}
+\item{format_once, .format_once}{\verb{[logical(1)]}
 
-\item{last_formatter}{\verb{[function]}
+A \code{TRUE} or \code{FALSE} value. Indicates whether an element of \code{x} which meets
+multiple \code{conditions} should be formatted only once (using the formatter
+corresponding to the first condition met) or formatted multiple times (using
+all of the corresponding \code{formatters}).
 
-Hello.}
+\code{format_once} is \code{FALSE} by default in \code{highlight()} and \code{TRUE} by default in
+\code{highlight_case()} (to mimic the behavior of conditions in \code{\link[dplyr:case_when]{dplyr::case_when()}}).}
+
+\item{init_formatter, .init_formatter}{\verb{[function / NULL]}
+
+The first function used to format \code{x}. \code{init_formatter(x)} is called prior
+to conditionally formatting \code{x} using the \code{formatters} functions. If \code{NULL},
+then \code{format(x)} is called instead.}
+
+\item{last_formatter, .last_formatter}{\verb{[function / NULL]}
+
+The last function called to format \code{x}. The \code{last_formatter} is applied
+after \code{x} has been conditionally formatted (i.e. after the \code{init_formatter}
+and \code{formatters} functions have been applied).
+
+\code{last_formatter} will receive a character vector the same length as
+\code{x} as it's only argument. If \code{NULL}, the conditionally formatted \code{x}
+is returned as is by \code{format()}.}
+
+\item{...}{\verb{[formula]}
+
+For \code{highlighter_case()}, a two sided formula with a condition on the
+left-hand-side and a formatter function on the right-hand-side.
+
+This argument replaces the \code{formatters} and \code{conditions} arguments of
+\code{highlight()}. The i-th dot supplied is roughly equivalent to
+\code{conditions[[i]] ~ formatters[[i]]}.
+
+Examples of arguments to \code{...} include:
+\itemize{
+\item Colour \code{NA} values red: \code{is.na(.x) ~ cli::col_red}
+\item Replace 1's with 2's: \verb{.x == 1 ~ \\(x) "2"}
+\item Add an exclamation mark: \verb{toupper(.x) == .x ~ \\(x) paste0(x, "!")}
+}
+
+The left-hand-side must be the body of a purrr-style lambda (i.e. a lambda
+without the prefix \code{~}) and the right-hand-side must be a function.}
 }
 \value{
-A highlighted vector containing the same data as \code{x}.
+A highlighted vector (class \code{vlightr_highlight}) containing the same data as
+\code{x}.
 }
 \description{
-\code{highlight()} creates a \code{vlighter_highlight} vector with a
-conditional \code{format()} method.
-}
-\examples{
+\code{highlight()}, \code{hl()}, and \code{highlight_case()} create a
+\code{vlighter_highlight} vector with a conditional \code{\link[=format]{format()}} method.
 
+\code{vlighter_highlight} is a generic vector superclass which maintains
+the underlying data of it's subclass while changing how the subclass is
+formatted and printed. In other words, the vector \code{highlight(1:5)} can (with
+limited legwork) be treated exactly the same as the integer vector \code{1:5},
+but has a different \code{format()} and \code{print()} method.
+
+\code{highlight_case()} provides an alternative \code{\link[dplyr:case_when]{dplyr::case_when()}} style syntax
+to \code{highlight()} and defaults to \code{format_once = TRUE}, but is otherwise
+equivalent to \code{highlight()}. Arguments (other than \code{x}) to \code{highlight_case()}
+are prefixed with a \code{.}.
+
+\code{hl()} and \code{highlight()} are synonyms.
+}
+\section{Under the Hood}{
+
+}
+
+\examples{
 # Color NA values red
 x <- c(1, 0, NA, 1, 0)
 x_hl <- highlight(x, is.na, color("red"))
 print(x)
 print(x_hl)
+describe_highlight(x_hl)
 
-# Re-label indicators 1 and 0, by adding additional highlights to `x_hl`
+# Label indicators 1 and 0 by adding highlights to `x_hl`
 x_hl <- highlight(
   x_hl,
-  list(~ .x == 1, ~ .x == 0),
-  list(~paste(.x, "[Yes]"), ~paste(.x, "[No]")
+  conditions = list(~ .x == 1, ~ .x == 0),
+  formatters = list(~ paste(.x, "[Yes]"), ~ paste(.x, "[No]"))
 )
 print(x_hl)
+describe_highlight(x_hl)
 
-# Create an equivalent vector using `dplyr::case_when` style syntax. The right
-# hand side `formatters` must be explicit functions.
+# Using `dplyr::case_when` style syntax.
+# The right hand side `formatters` must be explicit functions.
 x_hl_case <- highlight_case(
   x,
   is.na(.x) ~ colour("red"),
   .x == 1 ~ \(x) paste(x, "[Yes]"),
-  .x == 0 ~ \(x) paste(x, "[No]")
+  .x == 0 ~ \(x) paste(x, "[No]"),
+  .description = c(
+    "Coloured Red if NA",
+    "Labelled Yes if 1",
+    "Labelled No if 0"
+  )
 )
 print(x_hl_case)
+describe_highlight(x_hl_case)
 
+# Make a `highlighter` to apply the format of `x_hl_case`
+indicator_highlighter <- as_highlighter(x_hl_case)
+indicator_highlighter(c(1, 0, 1, NA, 0, 0))
+
+# Apply multiple formats to the same element
+x_multi <- highlight(
+  x = 1:6,
+  conditions = list(~ .x \%\% 2 == 0, ~ .x > 3),
+  formatters = list(wrap("<", ">"), wrap("[", "]"))
+)
+print(x_multi)
+
+# Apply only a single format with `format_once`
+x_multi <- set_format_once(x_multi, TRUE)
+print(x_multi)
 }
+\seealso{
+\code{\link[=un_highlight]{un_highlight()}} for converting a vector \code{highlight(x)} back to \code{x}.
+
+\code{\link[=as_highlighter]{as_highlighter()}} to generate a \code{\link[=highlighter]{highlighter()}} function using a highlighted
+vector (e.g. \code{x_hl <- highlight(x, ...)}) which can highlight other vectors
+using the arguments used to create \code{x_hl} as defaults.
+}
+\concept{attribute setters}
