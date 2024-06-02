@@ -123,6 +123,7 @@ evalidate_highlight_fn <- function(
   )
 }
 
+#' @export
 describe_highlight <- function(x) {
 
   conditions <- get_conditions(x)
@@ -196,7 +197,7 @@ describe_highlight <- function(x) {
 #   - from here: https://github.com/DavisVaughan/ivs/blob/main/R/format.R
 
 #' @export
-highlight_format <- function(x, ...) {
+highlight_format <- function(x) {
   UseMethod("highlight_format")
 }
 
