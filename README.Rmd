@@ -19,9 +19,7 @@ asciicast::init_knitr_engine(
   startup = quote({
     library(cli)
     library(vlightr)
-    options(
-      cli.num_colors = cli::truecolor
-    )
+    options(cli.num_colors = cli::truecolor)
     set.seed(1)
   }),
   echo = TRUE,
@@ -48,7 +46,7 @@ devtools::install_github("EthanSansom/vlightr")
 
 ## Features
 
-```{r load}
+```{r}
 library(vlightr)
 ```
 
@@ -59,4 +57,4 @@ print(x)
 print(x_hl)
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. Hey!
