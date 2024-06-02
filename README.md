@@ -73,19 +73,19 @@ c(x_hl, vlightr::hl(c(-1.5, NA)))
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/coerce-dark.svg">
 <img src="man/figures/README-/coerce.svg" width="100%" /> </picture>
 
-## Highlight, Unhighlight, Rehighlight
+## Highlight, Un-Highlight, Re-Highlight
 
-Highlighted vectors can’t be implicitly coerced or converted to other
-vector types. To use a function which expects the highlight’s underlying
-vector type, first `un_highlight()` (AKA `ul()`) to expose the
+Highlighted vectors can’t be implicitly coerced or converted to another
+vector type. To use a function which expects the highlight’s underlying
+type (ex. an integer) first `un_highlight()` (AKA `ul()`) to expose the
 highlighted data and then `re_highlight()` (AKA `rl()`) to re-apply the
 conditional formatting.
 
 ``` r
 x_hl |>
-  ul() |>
+  vlightr::ul() |>
   as.logical() |>
-  rl(x_hl)
+  vlightr::rl(x_hl)
 ```
 
 <picture>
@@ -105,8 +105,8 @@ x_hl %hl>% as.logical()
 <img src="man/figures/README-/rehighlight2.svg" width="100%" />
 </picture>
 
-An error like the below will is raised when attempting to convert a
-`vlighter_highlight` vector to another class.
+Attempting to convert a `vlighter_highlight` vector to another class
+will raise an error.
 
 ``` r
 try(as.logical(x_hl))
@@ -195,3 +195,41 @@ vlightr::highlight(meeting_times, is_during_lunch, cli::col_magenta)
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/generic-dark.svg">
 <img src="man/figures/README-/generic.svg" width="100%" /> </picture>
+
+# Inspiration
+
+This package is heavily inspired by the `ivs` package, which implements
+generic interval vectors defined by two parallel start (inclusive) and
+end (exclusive) vectors.
+
+As a testament to the genericity of the `ivs::iv` class, here is an
+ill-advised but perfectly legal interval vector.
+
+``` r
+library(ivs)
+
+starts <- highlight(-3:2, ~ .x %% 2 == 0, ~ paste(.x, "[Even]"))
+ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
+
+# A totally legit `iv`
+ivs::iv(starts, ends)
+#> <iv<highlight<dbl>>[6]>
+#> [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       
+#> [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])
+
+# We can even manipulate it
+ivs::iv_groups(ivs::iv(starts, ends))
+#> <iv<highlight<dbl>>[1]>
+#> [1] [-3, +8 [Even])
+
+# Or highlight it...
+highlight(
+  ivs::iv(starts, ends), 
+  ~ (ivs::iv_end(.x) - ivs::iv_start(.x)) > hl(1),
+  ~ paste("{", .x, "}")
+)
+#> <highlight<iv<hlght<dbl>>>[6]>
+#> [1] [-3, -2 [Even])            [-2 [Even], -1)           
+#> [3] { [-1, +2 [Even]) }        { [0 [Even], +5) }        
+#> [5] { [+1, +7) }               { [+2 [Even], +8 [Even]) }
+```
