@@ -2,6 +2,10 @@
 format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
 
   x_data <- get_data(x)
+  if (rlang::is_empty(x_data)) {
+    return(character())
+  }
+
   init_formatter <- get_init_formatter(x)
   last_formatter <- get_last_formatter(x)
 
@@ -35,13 +39,15 @@ format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
       format_at <- is_unformatted & format_at
       is_unformatted <- is_unformatted & !format_at
     }
-    formatted[format_at] <- evalidate_highlight_fn(
-      x = formatted[format_at],
-      fn = formatters[[i]],
-      x_name = .x_name,
-      fn_name = glue::glue('attr(,"formatters")[[{i}]]'),
-      fn_is = "formatter"
-    )
+    if (any(format_at)) {
+      formatted[format_at] <- evalidate_highlight_fn(
+        x = formatted[format_at],
+        fn = formatters[[i]],
+        x_name = .x_name,
+        fn_name = glue::glue('attr(,"formatters")[[{i}]]'),
+        fn_is = "formatter"
+      )
+    }
   }
   if (is.null(last_formatter)) {
     return(formatted)

@@ -311,6 +311,9 @@ highlight_case <- function(
     stop_must_not(invalid_dot, must = "be a two-sided formula", not = not)
   }
 
+  # TODO: Once this is fixed, update any documentation which uses `highlight_case`
+  #       to use whatever function/lambda format is cleanest.
+  #
   # TODO: I actually don't see any reason why the lhs couldn't be a function.
   # - if it's a name, evaluate and see if it's a function
   # - if it's a call to function, evaluate and use that function (ex. \(x) x + 1 or function(x) x + 1)
@@ -462,8 +465,22 @@ vec_ptype_full.vlightr_highlight <- function(x) {
 
 #' @export
 vec_ptype2.vlightr_highlight.vlightr_highlight <- function(x, y, ...) {
+  # We want to create a highlight of a size-0 slice of `x`/`y` but:
+  # 1. Some (valid) formatters and conditions will error on a zero-length vector
+  #   - Ex. the condition `~.x == min(.x)` will warn if `.x` is an empty numeric
+  #   - Don't want to prevent the user from combining (via `c()`) two non-empty
+  #     vectors `x` and `y` just because the highlight will fail in the empty case
+  # 2. formatters and conditions aren't applied to size-0 vectors by `format()`,
+  #    meaning that `validate_highlight()` doesn't even check these vectors.
+  #
+  # To resolve this, we first combine the underlying data via `vctrs::vec_c`.
+  # If they're incompatible, an error will still be thrown like in `vec_ptype2`.
+  #
+  # Then, we validate the resulting highlight using the combined `x` and `y` data.
+  # Only after validation is the resulting highlight sliced to size-0 for the
+  # prototype.
   .data <- rlang::try_fetch(
-    vctrs::vec_ptype2(get_data(x), get_data(y)),
+    vctrs::vec_c(get_data(x), get_data(y)),
     vctrs_error_ptype2 = function(cnd) {
       vctrs::stop_incompatible_type(
         x, y,
@@ -474,7 +491,7 @@ vec_ptype2.vlightr_highlight.vlightr_highlight <- function(x, y, ...) {
       )
     }
   )
-  restore_highlight(
+  out <- restore_highlight(
     .data, x, y,
     .error_message = c(
       "Combination produced a malformed {.cls vlightr_highlight} vector.",
@@ -482,6 +499,7 @@ vec_ptype2.vlightr_highlight.vlightr_highlight <- function(x, y, ...) {
     ),
     .error_class = c("vlightr_ptype2_error", "vlightr_error")
   )
+  vctrs::vec_slice(out, 0L)
 }
 
 #' @export
@@ -729,7 +747,8 @@ rl <- re_highlight
 
   envir <- rlang::caller_env()
   if (is_highlight(lhs)) {
-    out <- eval(rlang::expr(un_hightlight(!!lhs_expr) %>% !!rhs_expr), envir)
+    out <- eval(rlang::expr(un_highlight(!!lhs_expr) %>% !!rhs_expr), envir)
+    # TODO: Look into using `restore_highlight` here
     re_highlight(out, lhs)
   } else {
     eval(rlang::expr(!!lhs_expr %>% !!rhs_expr), envir = envir)
