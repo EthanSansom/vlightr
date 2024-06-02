@@ -33,10 +33,10 @@ A highlighted vector to set an attribute of.}
 \item{value}{In \verb{set_*}, the attribute \code{*} that you wish to set.
 
 For example, in \code{set_conditions()}, the \code{value} must be a function,
-purrr-style lambda, or list of functions or lambda to be used as the
+purrr-style lambda, or list of functions or lambdas to be used as the
 \code{conditions} of \code{x}.
 
-See \code{\link[=highlight]{highlight()}} for details on each attribute.}
+See \code{\link[=highlight]{highlight()}} for the specifics of each attribute.}
 
 \item{at}{\verb{[logical / numeric]}
 
@@ -48,7 +48,9 @@ be a logical or numeric vector.}
 The vector \code{x} with one of it's attributes updated.
 }
 \description{
-Set an attribute of a highlighted vector
+Overwrites the \code{conditions}, \code{formatters}, \code{description}, \code{precedence},
+\code{format_once}, \code{init_formatter}, or \code{last_formatter} attribute of an
+existing \code{vlighter_highlight} vector and validates the result.
 }
 \examples{
 # Let's make these affirmations into exclamations
@@ -82,7 +84,8 @@ x_multi <- highlight(
     ~ paste(.x, "is even"),
     ~ paste(.x, "is odd"),
     ~ paste(.x, "is big and")
- )
+ ),
+ last_formatter = wrap("[", "]")
 )
 print(x_multi)
 
@@ -93,8 +96,5 @@ print(x_multi)
 \seealso{
 \code{\link[=update_highlight]{update_highlight()}} to reset multiple attributes of a highlighted vector at
 once.
-
-Other Attribute setters: 
-\code{\link{highlight}()}
 }
-\concept{Attribute setters}
+\concept{attribute setters}

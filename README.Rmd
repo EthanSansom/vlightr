@@ -14,15 +14,24 @@ knitr::opts_chunk$set(
   asciicast_at = "end",
   asciicast_theme = if (Sys.getenv("IN_PKGDOWN") == "true") "pkgdown" else "readme"
 )
-asciicast::init_knitr_engine()
+asciicast::init_knitr_engine(
+  startup = quote({
+    library(cli)
+    library(vlightr)
+    set.seed(1)
+  }),
+  echo = TRUE,
+  echo_input = FALSE
+)
 ```
 
 # vlightr
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
-vlightr is a package for 
+vlightr is a package for
 
 ## Installation
 
@@ -38,7 +47,6 @@ devtools::install_github("EthanSansom/vlightr")
 ```{r load}
 library(vlightr)
 ```
-
 
 ```{asciicast red-nas}
 x <- c(1L, 0L, NA, 1L)

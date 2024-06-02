@@ -24,6 +24,13 @@ devtools::install_github("EthanSansom/vlightr")
 library(vlightr)
 ```
 
+``` r
+x <- c(1L, 0L, NA, 1L)
+x_hl <- highlight(x, is.na, color("red"))
+print(x)
+print(x_hl)
+```
+
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas-dark.svg">
 <img src="man/figures/README-/red-nas.svg" width="100%" /> </picture>
