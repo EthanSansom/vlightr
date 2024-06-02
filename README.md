@@ -141,6 +141,16 @@ dummies
 <img src="man/figures/README-/multiple-formats.svg" width="100%" />
 </picture>
 
+## Use in `tibble::tibble()`
+
+``` r
+tibble::tibble(dummy = dummies)
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/tibble-dark.svg">
+<img src="man/figures/README-/tibble.svg" width="100%" /> </picture>
+
 ## Re-Use Highlights
 
 ``` r
@@ -153,7 +163,7 @@ dummy_highlighter(c(0, 1, NA))
 <img src="man/figures/README-/highlighter.svg" width="100%" />
 </picture>
 
-## Use `dplyr::case_when()` Style Syntax
+## Alternate `dplyr::case_when()` Style Syntax
 
 ``` r
 bad_words <- c("darn", "gosh")
@@ -202,7 +212,7 @@ This package is heavily inspired by the `ivs` package, which implements
 generic interval vectors defined by two parallel start (inclusive) and
 end (exclusive) vectors.
 
-As a testament to the genericity of the `ivs::iv` class, here is an
+As a testament to the genericity of the `ivs::iv`, here is an
 ill-advised but perfectly legal interval vector.
 
 ``` r

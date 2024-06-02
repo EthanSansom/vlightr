@@ -131,6 +131,12 @@ dummies <- vlightr::highlight(
 dummies
 ```
 
+## Use in `tibble::tibble()`
+
+```{asciicast tibble}
+tibble::tibble(dummy = dummies)
+```
+
 ## Re-Use Highlights
 
 ```{asciicast highlighter}
@@ -138,7 +144,7 @@ dummy_highlighter <- vlightr::as_highlighter(dummies)
 dummy_highlighter(c(0, 1, NA))
 ```
 
-## Use `dplyr::case_when()` Style Syntax 
+## Alternate `dplyr::case_when()` Style Syntax 
 
 ```{asciicast case-syntax}
 bad_words <- c("darn", "gosh")
@@ -178,7 +184,7 @@ This package is heavily inspired by the `ivs` package, which implements generic
 interval vectors defined by two parallel start (inclusive) and end (exclusive) 
 vectors.
 
-As a testament to the genericity of the `ivs::iv` class, here is an ill-advised 
+As a testament to the genericity of the `ivs::iv`, here is an ill-advised 
 but perfectly legal interval vector.
 
 ```{r}
