@@ -8,12 +8,11 @@
 
 vlightr is a package for conditionally formatting vectors. You can
 `highlight()` a vector to style, colour, or otherwise re-format it’s
-elements (if they meet some predicate) when the vector is printed or
-formatted. Highlights are persistent, meaning highlighted vectors can be
-manipulated (with minimal legwork) while maintaining their custom
-formatting.
+elements when the vector is printed or formatted. Highlights are
+persistent, meaning highlighted vectors can be manipulated (with minimal
+legwork) while maintaining their custom formatting.
 
-## Installation
+# Installation
 
 You can install the development version of vlightr from
 [GitHub](https://github.com/) with:
@@ -24,10 +23,6 @@ devtools::install_github("EthanSansom/vlightr")
 ```
 
 # Features
-
-``` r
-library(vlightr)
-```
 
 ## Conditional Formatting
 
@@ -80,10 +75,11 @@ c(x_hl, vlightr::hl(c(-1.5, NA)))
 
 ## Highlight, Unhighlight, Rehighlight
 
-Highlighted vectors can’t be coerced or cast to other vector types. To
-use a function which expect the highlight’s underlying vector type,
-first `un_highlight()/ul()` to expose the highlighted data and then
-`re_highlight()/rl()` to re-apply the conditional formatting.
+Highlighted vectors can’t be implicitly coerced or converted to other
+vector types. To use a function which expects the highlight’s underlying
+vector type, first `un_highlight()` (AKA `ul()`) to expose the
+highlighted data and then `re_highlight()` (AKA `rl()`) to re-apply the
+conditional formatting.
 
 ``` r
 x_hl |>
@@ -107,6 +103,18 @@ x_hl %hl>% as.logical()
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight2-dark.svg">
 <img src="man/figures/README-/rehighlight2.svg" width="100%" />
+</picture>
+
+An error like the below will is raised when attempting to convert a
+`vlighter_highlight` vector to another class.
+
+``` r
+try(as.logical(x_hl))
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight3-dark.svg">
+<img src="man/figures/README-/rehighlight3.svg" width="100%" />
 </picture>
 
 ## Multiple Conditional Formats

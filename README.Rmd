@@ -34,12 +34,11 @@ asciicast::init_knitr_engine(
 <!-- badges: end -->
 
 vlightr is a package for conditionally formatting vectors. You can `highlight()`
-a vector to style, colour, or otherwise re-format it's elements (if they meet
-some predicate) when the vector is printed or formatted. Highlights are persistent, 
-meaning highlighted vectors can be manipulated (with minimal legwork) while 
-maintaining their custom formatting.
+a vector to style, colour, or otherwise re-format it's elements when the vector 
+is printed or formatted. Highlights are persistent, meaning highlighted vectors 
+can be manipulated (with minimal legwork) while maintaining their custom formatting.
 
-## Installation
+# Installation
 
 You can install the development version of vlightr from [GitHub](https://github.com/) with:
 
@@ -50,7 +49,7 @@ devtools::install_github("EthanSansom/vlightr")
 
 # Features
 
-```{r load-pkg}
+```{r load-pkg, include = FALSE}
 library(vlightr)
 ```
 
@@ -88,10 +87,10 @@ c(x_hl, vlightr::hl(c(-1.5, NA)))
 
 ## Highlight, Unhighlight, Rehighlight
 
-Highlighted vectors can't be coerced or cast to other vector types. To use a
-function which expect the highlight's underlying vector type, first 
-`un_highlight()/ul()` to expose the highlighted data and then `re_highlight()/rl()` 
-to re-apply the conditional formatting.
+Highlighted vectors can't be implicitly coerced or converted to other vector 
+types. To use a function which expects the highlight's underlying vector type, 
+first  `un_highlight()` (AKA `ul()`) to expose the highlighted data and then 
+`re_highlight()` (AKA `rl()`) to re-apply the conditional formatting.
 
 ```{asciicast rehighlight1}
 x_hl |>
@@ -104,6 +103,13 @@ The "highlight-pipe" `%hl>%` wraps the `magrittr::%>%` to do this automatically.
 
 ```{asciicast rehighlight2}
 x_hl %hl>% as.logical()
+```
+
+An error like the below will is raised when attempting to convert a
+`vlighter_highlight` vector to another class.
+
+```{asciicast rehighlight3}
+try(as.logical(x_hl))
 ```
 
 ## Multiple Conditional Formats
