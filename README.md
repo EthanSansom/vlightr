@@ -24,7 +24,7 @@ devtools::install_github("EthanSansom/vlightr")
 library(vlightr)
 ```
 
-Conditionally format vector elements.
+#### Conditionally format vector elements
 
 ``` r
 x <- c(1L, 0L, NA, 1L, 0L)
@@ -36,10 +36,13 @@ x_hl
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas-dark.svg">
 <img src="man/figures/README-/red-nas.svg" width="100%" /> </picture>
 
+#### Manipulate the highlighted data
+
 Highlighted vectors play well with other highlighted vectors of the same
 type. The shorthand `hl()` is useful for quick highlighting.
 
 ``` r
+# Arithmetic
 x_hl + vlightr::hl(10L)
 ```
 
@@ -47,9 +50,8 @@ x_hl + vlightr::hl(10L)
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/operation-dark.svg">
 <img src="man/figures/README-/operation.svg" width="100%" /> </picture>
 
-Coercion works as well.
-
 ``` r
+# Coercion
 c(x_hl, vlightr::hl(c(-1.5, NA)))
 ```
 
@@ -57,7 +59,7 @@ c(x_hl, vlightr::hl(c(-1.5, NA)))
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/coerce-dark.svg">
 <img src="man/figures/README-/coerce.svg" width="100%" /> </picture>
 
-Apply multiple conditional formats.
+#### Apply multiple conditional formats
 
 ``` r
 dummies <- vlightr::highlight(
@@ -81,9 +83,8 @@ dummies
 <img src="man/figures/README-/multiple-formats.svg" width="100%" />
 </picture>
 
-The underlying data is unchanged.
-
 ``` r
+# The underlying data is unchanged
 vlightr::un_highlight(dummies)
 ```
 
@@ -92,14 +93,15 @@ vlightr::un_highlight(dummies)
 <img src="man/figures/README-/unhighlight.svg" width="100%" />
 </picture>
 
-Use `dplyr::case_when()` style syntax.
+#### `dplyr::case_when()` style syntax
 
 ``` r
 bad_words <- c("darn", "gosh")
 affirmations <- c("good job", "way-to-go")
+message <- c("hey", "good job", "but", "darn", "please", "don't", "say", "gosh")
 
 vlightr::highlight_case(
-  x = c("hey", "good job", "but", "darn", "please", "don't", "say", "gosh"),
+  message,
   .x %in% bad_words ~ \(x) strrep("X", nchar(x)),
   .x %in% affirmations ~ \(x) toupper(x),
   TRUE ~ cli::style_italic
@@ -111,8 +113,7 @@ vlightr::highlight_case(
 <img src="man/figures/README-/case-syntax.svg" width="100%" />
 </picture>
 
-Highlight’s are generic, meaning many S3 and S4 vector classes are
-supported.
+#### Highlight vectors from other packages
 
 ``` r
 library(lubridate, warn.conflicts = FALSE)
