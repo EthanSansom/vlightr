@@ -50,11 +50,53 @@ devtools::install_github("EthanSansom/vlightr")
 library(vlightr)
 ```
 
+Conditionally format vector elements.
+
 ```{asciicast red-nas}
-x <- c(1L, 0L, NA, 1L, 1L, 0L, 1L)
-x_hl <- vlightr::highlight(x, is.na, color("red"))
-print(x)
-print(x_hl)
+x <- c(1L, 0L, NA, 1L, 0L)
+x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
+x_hl
+```
+
+Highlighted vectors play well with other highlighted vectors of the same type.
+The shorthand `hl()` is useful for quick highlighting.
+
+```{asciicast operation}
+x_hl + vlightr::hl(10L)
+```
+
+Coercion works as well.
+
+```{asciicast coerce}
+c(x_hl, vlightr::hl(c(-1.5, NA)))
+```
+
+Apply multiple conditional formats.
+
+```{asciicast multiple-formats}
+vlightr::highlight(
+  x = x,
+  conditions = list(
+    is.na, 
+    ~ .x == 1, 
+    ~ .x == 0
+  ),
+  formatters = list(
+    vlightr::colour("red"), 
+    ~ paste(.x, "[Yes]"),
+    ~ paste(.x, "[No]")
+  )
+)
+```
+
+Use `dplyr::case_when()` style syntax for multiple conditional formats.
+
+```{asciicast case-syntax}
+vlightr::highlight_case(
+  x = c(10, NA, -11, , 2, -1, 8),
+  is.na(.x) ~ \(x) cli::col_green("Don't Worry"),
+  .x < 0 ~ vlightr::bg("bright_blue")
+)
 ```
 
 You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. Hey!
