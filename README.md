@@ -8,8 +8,9 @@
 
 vlightr is a package for conditionally formatting vectors. You can
 `highlight()` a vector to style, colour, or otherwise re-format it’s
-elements when it is printed (via `print()`) or formatted (via
-`format()`).
+elements when the vector is printed or formatted. Highlights are
+persistent, meaning highlighted vectors can be manipulated (with minimal
+legwork) while maintaining their custom formatting.
 
 ## Installation
 
