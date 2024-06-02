@@ -34,14 +34,22 @@ x_hl
 
 ``` r
 x <- c(1L, 0L, NA, 1L)
+x
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/try-dark.svg">
+<img src="man/figures/README-/try.svg" width="100%" /> </picture>
+
+``` r
 x_hl <- highlight(x, is.na, color("red"))
-print(x)
 print(x_hl)
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas-dark.svg">
-<img src="man/figures/README-/red-nas.svg" width="100%" /> </picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/again-dark.svg">
+<img src="man/figures/README-/again.svg" width="100%" /> </picture>
 
 You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. New text.
+up-to-date. `devtools::build_readme()` is handy for this. New text. More
+new text.
