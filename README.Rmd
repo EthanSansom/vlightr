@@ -35,7 +35,7 @@ asciicast::init_knitr_engine(
 
 vlightr is a package for conditionally formatting vectors. You can `highlight()`
 a vector to style, colour, or otherwise re-format it's elements when it is 
-printed (via `print()`) or formatted (via `format()`).
+printed (via `print()`) or formatted (via `format()`). 
 
 ## Installation
 
@@ -103,7 +103,14 @@ dummies
 vlightr::un_highlight(dummies)
 ```
 
-#### `dplyr::case_when()` style syntax 
+#### Generate highlighters
+
+```{asciicast highlighter}
+dummy_highlighter <- vlightr::as_highlighter(dummies)
+dummy_highlighter(c(0, 1, NA))
+```
+
+#### Use `dplyr::case_when()` style syntax 
 
 ```{asciicast case-syntax}
 bad_words <- c("darn", "gosh")

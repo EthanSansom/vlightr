@@ -104,7 +104,19 @@ vlightr::un_highlight(dummies)
 <img src="man/figures/README-/unhighlight.svg" width="100%" />
 </picture>
 
-#### `dplyr::case_when()` style syntax
+#### Generate highlighters
+
+``` r
+dummy_highlighter <- vlightr::as_highlighter(dummies)
+dummy_highlighter(c(0, 1, NA))
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlighter-dark.svg">
+<img src="man/figures/README-/highlighter.svg" width="100%" />
+</picture>
+
+#### Use `dplyr::case_when()` style syntax
 
 ``` r
 bad_words <- c("darn", "gosh")
