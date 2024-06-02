@@ -84,7 +84,7 @@ dummies
 The underlying data is unchanged.
 
 ``` r
-vlightr::un_highlight(dummies)
+vlightr::un_hightlight(dummies)
 ```
 
 <picture>

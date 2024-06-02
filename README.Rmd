@@ -92,7 +92,7 @@ dummies
 The underlying data is unchanged.
 
 ```{asciicast unhighlight}
-vlightr::un_highlight(dummies)
+vlightr::un_hightlight(dummies)
 ```
 
 Use `dplyr::case_when()` style syntax.
