@@ -97,7 +97,7 @@ vlightr::highlight_case(
   x = c("hey", "good job", "but", "darn", "please", "don't", "say", "gosh"),
   .x %in% bad_words ~ \(x) strrep("X", nchar(x)),
   .x %in% affirmations ~ \(x) toupper(x),
-  TRUE ~ cli::style_bold
+  TRUE ~ cli::style_italic
 )
 ```
 
@@ -111,11 +111,8 @@ meeting_times <- interval(
   today + hours(c(9, 11, 16)), 
   today + hours(c(10, 13, 17))
 )
-lunch_break <- interval(today + hours(12), today + hours(12.5))
+lunch_break <- interval(today + hours(12), today + hours(13))
+is_during_lunch <- function(x) int_overlaps(x, lunch_break)
 
-vlightr::highlight(
-  meeting_times,
-  int_overlaps(meeting_times, lunch_break),
-  cli::bg_br_yellow
-)
+vlightr::highlight(meeting_times, is_during_lunch, cli::bg_br_yellow)
 ```
