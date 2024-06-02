@@ -33,7 +33,9 @@ asciicast::init_knitr_engine(
 
 <!-- badges: end -->
 
-vlightr is a package for
+vlightr is a package for conditionally formatting vectors. You can `highlight()`
+a vector to style, colour, or otherwise re-format it's elements when it is 
+printed (via `print()`) or formatted (via `format()`).
 
 ## Installation
 
@@ -46,7 +48,7 @@ devtools::install_github("EthanSansom/vlightr")
 
 ## Features
 
-```{r}
+```{r load-pkg}
 library(vlightr)
 ```
 
@@ -54,14 +56,11 @@ library(vlightr)
 
 ```{asciicast red-nas1}
 x <- c(1L, 0L, NA, 1L, 0L)
-x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
-```
-
-```{asciicast red-nas2}
 print(x)
 ```
 
-```{asciicast red-nas3}
+```{asciicast red-nas2}
+x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
 print(x_hl)
 ```
 
@@ -132,5 +131,5 @@ meeting_times <- interval(
 lunch_break <- interval(today + hours(12), today + hours(13))
 is_during_lunch <- function(x) int_overlaps(x, lunch_break)
 
-vlightr::highlight(meeting_times, is_during_lunch, cli::bg_red)
+vlightr::highlight(meeting_times, is_during_lunch, cli::col_magenta)
 ```

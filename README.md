@@ -6,7 +6,10 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-vlightr is a package for
+vlightr is a package for conditionally formatting vectors. You can
+`highlight()` a vector to style, colour, or otherwise re-format it’s
+elements when it is printed (via `print()`) or formatted (via
+`format()`).
 
 ## Installation
 
@@ -28,7 +31,7 @@ library(vlightr)
 
 ``` r
 x <- c(1L, 0L, NA, 1L, 0L)
-x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
+print(x)
 ```
 
 <picture>
@@ -36,20 +39,13 @@ x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
 <img src="man/figures/README-/red-nas1.svg" width="100%" /> </picture>
 
 ``` r
-print(x)
+x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
+print(x_hl)
 ```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas2-dark.svg">
 <img src="man/figures/README-/red-nas2.svg" width="100%" /> </picture>
-
-``` r
-print(x_hl)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas3-dark.svg">
-<img src="man/figures/README-/red-nas3.svg" width="100%" /> </picture>
 
 #### Manipulate highlighted data
 
@@ -141,7 +137,7 @@ meeting_times <- interval(
 lunch_break <- interval(today + hours(12), today + hours(13))
 is_during_lunch <- function(x) int_overlaps(x, lunch_break)
 
-vlightr::highlight(meeting_times, is_during_lunch, cli::bg_red)
+vlightr::highlight(meeting_times, is_during_lunch, cli::col_magenta)
 ```
 
 <picture>
