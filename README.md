@@ -24,14 +24,6 @@ devtools::install_github("EthanSansom/vlightr")
 library(vlightr)
 ```
 
-``` r
-library(vlightr)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/setup-dark.svg">
-<img src="man/figures/README-/setup.svg" width="100%" /> </picture>
-
 Conditionally format vector elements.
 
 ``` r
