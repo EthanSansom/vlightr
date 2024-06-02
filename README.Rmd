@@ -97,19 +97,19 @@ vlightr::highlight_case(
   x = c("hey", "good job", "but", "darn", "please", "don't", "say", "gosh"),
   .x %in% bad_words ~ \(x) strrep("X", nchar(x)),
   .x %in% affirmations ~ \(x) toupper(x),
-  TRUE ~ cli::style_italic
+  TRUE ~ cli::style_bold
 )
 ```
 
 Highlight's are generic, meaning many S3 and S4 vector classes are supported.
 
 ```{asciicast generic}
-library(lubridate)
+library(lubridate, warn.conflicts = FALSE)
 
 today <- ymd("2020-01-01")
 meeting_times <- interval(
-  today + hours(9, 11, 16), 
-  today + hours(10, 13, 17)
+  today + hours(c(9, 11, 16)), 
+  today + hours(c(10, 13, 17))
 )
 lunch_break <- interval(today + hours(12), today + hours(12.5))
 
