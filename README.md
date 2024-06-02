@@ -60,7 +60,7 @@ c(x_hl, vlightr::hl(c(-1.5, NA)))
 Apply multiple conditional formats.
 
 ``` r
-vlightr::highlight(
+dummies <- vlightr::highlight(
   x = x,
   conditions = list(
     is.na, 
@@ -73,6 +73,7 @@ vlightr::highlight(
     ~ paste(.x, "[No]")
   )
 )
+dummies
 ```
 
 <picture>
@@ -80,11 +81,23 @@ vlightr::highlight(
 <img src="man/figures/README-/multiple-formats.svg" width="100%" />
 </picture>
 
-Use `dplyr::case_when()` style syntax for multiple conditional formats.
+The underlying data is unchanged.
+
+``` r
+vlightr::un_highlight(dummies)
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/unhighlight-dark.svg">
+<img src="man/figures/README-/unhighlight.svg" width="100%" />
+</picture>
+
+Use `dplyr::case_when()` style syntax.
 
 ``` r
 bad_words <- c("darn", "gosh")
 affirmations <- c("good job", "way-to-go")
+
 vlightr::highlight_case(
   x = c("hey", "good job", "but", "darn", "please", "don't", "say", "gosh"),
   .x %in% bad_words ~ \(x) strrep("X", nchar(x)),
@@ -112,7 +125,7 @@ meeting_times <- interval(
 lunch_break <- interval(today + hours(12), today + hours(13))
 is_during_lunch <- function(x) int_overlaps(x, lunch_break)
 
-vlightr::highlight(meeting_times, is_during_lunch, cli::bg_br_yellow)
+vlightr::highlight(meeting_times, is_during_lunch, cli::bg_red)
 ```
 
 <picture>
