@@ -25,7 +25,7 @@ library(vlightr)
 ```
 
 ``` r
-x <- c(1L, 0L, NA, 1L)
+x <- c(1L, 0L, NA, 1L, 1L, 0L, 10L)
 x_hl <- vlightr::highlight(x, is.na, color("red"))
 print(x)
 print(x_hl)
