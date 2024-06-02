@@ -36,5 +36,4 @@ print(x_hl)
 <img src="man/figures/README-/red-nas.svg" width="100%" /> </picture>
 
 You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. New text. More
-new text. More.
+up-to-date. `devtools::build_readme()` is handy for this.
