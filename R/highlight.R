@@ -1,4 +1,4 @@
-# constructor ------------------------------------------------------------------
+# TODO -------------------------------------------------------------------------
 
 # TODO: Add details on the order of operations in the highlight format function.
 #       Make the below into a markdown, which can be used in the `@section Under the Hood:`
@@ -46,6 +46,8 @@
 #       and character would be good to have. See haven::labelled implementation
 #       for numeric vectors. Potentially factors. Also, you could make a `labelled`
 #       subclass, which is a shorthand for highlight_case(.x == value ~ \(x) "Value Label").
+
+# constructor ------------------------------------------------------------------
 
 #' Conditionally format a vector
 #'
@@ -135,8 +137,10 @@
 #'
 #' @param precedence,.precedence `[numeric / NULL]`
 #'
-#'  A numeric vector indicating the order in which to apply the `formatters`.
-#'  By default `formatters` are applied in the order in which they were supplied.
+#'  A numeric vector indicating the order in which to apply the `formatters`. The
+#'  formatter with the lowest corresponding `precedence` value is evaluatted first
+#'  during formatting. By default `formatters` are applied in the order in which
+#'  they were supplied.
 #'
 #'  If supplied, `precedence` must be the same length as `formatters` and
 #'  `conditions`.
@@ -172,8 +176,6 @@
 #' A highlighted vector (class `vlightr_highlight`) containing the same data as
 #' `x`.
 #'
-#' @section Under the Hood:
-#'
 #' @seealso
 #'
 #' [un_highlight()] for converting a vector `highlight(x)` back to `x`.
@@ -181,8 +183,6 @@
 #' [as_highlighter()] to generate a [highlighter()] function using a highlighted
 #' vector (e.g. `x_hl <- highlight(x, ...)`) which can highlight other vectors
 #' using the arguments used to create `x_hl` as defaults.
-#'
-#' @family attribute setters
 #'
 #' @examples
 #' # Color NA values red
@@ -614,7 +614,6 @@ restore_highlight <- function(
     .error_message = NULL
   ) {
 
-  rlang::check_required(x)
   x <- check_is_highlightable(
     arg = x,
     arg_name = .x_name,
@@ -649,6 +648,7 @@ restore_highlight <- function(
 
 # helpers ----------------------------------------------------------------------
 
+#' @export
 update_highlight <- function(
     x,
     conditions = NULL,
@@ -674,14 +674,16 @@ update_highlight <- function(
   )
 }
 
-un_hightlight <- function(x) {
+#' @export
+un_highlight <- function(x) {
   if (!is_highlight(x)) {
     return(x)
   }
   get_data(x)
 }
 
-ul <- un_hightlight
+#' @export
+ul <- un_highlight
 
 #' @export
 re_highlight <- function(x, ...) {
@@ -690,7 +692,7 @@ re_highlight <- function(x, ...) {
     check_is_highlight(dots[[i]], arg_name = paste0("..", i))
   }
   if (is_highlight(x)) {
-    if (!.ul_x) dots <- append(dots, x)
+    dots <- append(dots, x)
     x <- get_data(x)
   } else {
     x <- check_is_highlightable(x)
@@ -736,6 +738,7 @@ rl <- re_highlight
 
 # highlighter ------------------------------------------------------------------
 
+#' @export
 highlighter <- function(
     conditions = list(),
     formatters = list(),
@@ -813,6 +816,7 @@ highlighter <- function(
   out
 }
 
+#' @export
 highlighter_case <- function(
     ...,
     .description = NULL,
@@ -835,6 +839,7 @@ highlighter_case <- function(
     stop_must_not(invalid_dot, must = "be a two-sided formula", not = not)
   }
 
+  # TODO: Update to follow how `highlight_case` does this.
   conditions <- lapply(
     dots,
     \(x) {
@@ -861,11 +866,14 @@ highlighter_case <- function(
   )
 }
 
+#' @export
 is_highlighter <- function(x) {
   inherits(x, "vlightr_highlighter")
 }
 
+#' @export
 as_highlighter <- function(x) {
+  rlang::check_required(x)
   x <- check_is_highlight(x)
   highlighter(
     conditions = get_conditions(x),
