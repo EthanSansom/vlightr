@@ -50,6 +50,10 @@ devtools::install_github("EthanSansom/vlightr")
 library(vlightr)
 ```
 
+```{asciicast setup, show = FALSE}
+library(vlightr)
+```
+
 Conditionally format vector elements.
 
 ```{asciicast red-nas}
