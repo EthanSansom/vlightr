@@ -34,9 +34,10 @@ asciicast::init_knitr_engine(
 <!-- badges: end -->
 
 vlightr is a package for conditionally formatting vectors. You can `highlight()`
-a vector to style, colour, or otherwise re-format it's elements when the vector
-is printed or formatted. Highlights are persistent, meaning highlighted vectors
-can be manipulated (with minimal legwork) while maintaining their custom formatting.
+a vector to style, colour, or otherwise re-format it's elements (if they meet
+some predicate) when the vector is printed or formatted. Highlights are persistent, 
+meaning highlighted vectors can be manipulated (with minimal legwork) while 
+maintaining their custom formatting.
 
 ## Installation
 
@@ -47,25 +48,24 @@ You can install the development version of vlightr from [GitHub](https://github.
 devtools::install_github("EthanSansom/vlightr")
 ```
 
-## Features
+# Features
 
 ```{r load-pkg}
 library(vlightr)
 ```
 
-#### Conditionally format vector elements
+## Conditional Formatting
+
+Apply a custom format to elements of `x` for which a condition returns `TRUE`.
+For example, color `NA` values red (as they would appear in a `tibble::tibble()`).
 
 ```{asciicast red-nas1}
 x <- c(1L, 0L, NA, 1L, 0L)
-print(x)
-```
-
-```{asciicast red-nas2}
 x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
 print(x_hl)
 ```
 
-#### Manipulate highlighted data
+## Manipulate Highlighted Data
 
 Highlighted vectors play well with other highlighted vectors. The shorthand 
 `hl()` is useful for quick highlighting.
@@ -75,12 +75,38 @@ Highlighted vectors play well with other highlighted vectors. The shorthand
 x_hl + vlightr::hl(10L)
 ```
 
+```{asciicast assign}
+# Assignment
+x_hl[[1]] <- vlightr::hl(NA)
+x_hl
+```
+
 ```{asciicast coerce}
 # Coercion
 c(x_hl, vlightr::hl(c(-1.5, NA)))
 ```
 
-#### Apply multiple conditional formats
+## Highlight, Unhighlight, Rehighlight
+
+Highlighted vectors can't be coerced or cast to other vector types. To use a
+function which expect the highlight's underlying vector type, first 
+`un_highlight()/ul()` to expose the highlighted data and then `re_highlight()/rl()` 
+to re-apply the conditional formatting.
+
+```{asciicast rehighlight1}
+x_hl |>
+  ul() |>
+  as.logical() |>
+  rl(x_hl)
+```
+
+The "highlight-pipe" `%hl>%` wraps the `magrittr::%>%` to do this automatically.
+
+```{asciicast rehighlight2}
+x_hl %hl>% as.logical()
+```
+
+## Multiple Conditional Formats
 
 ```{asciicast multiple-formats}
 dummies <- vlightr::highlight(
@@ -99,19 +125,14 @@ dummies <- vlightr::highlight(
 dummies
 ```
 
-```{asciicast unhighlight}
-# The underlying data is unchanged
-vlightr::un_highlight(dummies)
-```
-
-#### Generate highlighters
+## Re-Use Highlights
 
 ```{asciicast highlighter}
 dummy_highlighter <- vlightr::as_highlighter(dummies)
 dummy_highlighter(c(0, 1, NA))
 ```
 
-#### Use `dplyr::case_when()` style syntax 
+## Use `dplyr::case_when()` Style Syntax 
 
 ```{asciicast case-syntax}
 bad_words <- c("darn", "gosh")
@@ -126,7 +147,10 @@ vlightr::highlight_case(
 )
 ```
 
-#### Highlight vectors from other packages
+## Highlight Arbitrary Vectors
+
+Highlighted vectors are generic, meaning that S3 and S4 vector classes from 
+other packages are highlight-able.
 
 ```{asciicast generic}
 library(lubridate, warn.conflicts = FALSE)

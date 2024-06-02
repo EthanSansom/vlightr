@@ -8,9 +8,10 @@
 
 vlightr is a package for conditionally formatting vectors. You can
 `highlight()` a vector to style, colour, or otherwise re-format it’s
-elements when the vector is printed or formatted. Highlights are
-persistent, meaning highlighted vectors can be manipulated (with minimal
-legwork) while maintaining their custom formatting.
+elements (if they meet some predicate) when the vector is printed or
+formatted. Highlights are persistent, meaning highlighted vectors can be
+manipulated (with minimal legwork) while maintaining their custom
+formatting.
 
 ## Installation
 
@@ -22,33 +23,29 @@ You can install the development version of vlightr from
 devtools::install_github("EthanSansom/vlightr")
 ```
 
-## Features
+# Features
 
 ``` r
 library(vlightr)
 ```
 
-#### Conditionally format vector elements
+## Conditional Formatting
+
+Apply a custom format to elements of `x` for which a condition returns
+`TRUE`. For example, color `NA` values red (as they would appear in a
+`tibble::tibble()`).
 
 ``` r
 x <- c(1L, 0L, NA, 1L, 0L)
-print(x)
+x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
+print(x_hl)
 ```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas1-dark.svg">
 <img src="man/figures/README-/red-nas1.svg" width="100%" /> </picture>
 
-``` r
-x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
-print(x_hl)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas2-dark.svg">
-<img src="man/figures/README-/red-nas2.svg" width="100%" /> </picture>
-
-#### Manipulate highlighted data
+## Manipulate Highlighted Data
 
 Highlighted vectors play well with other highlighted vectors. The
 shorthand `hl()` is useful for quick highlighting.
@@ -63,6 +60,16 @@ x_hl + vlightr::hl(10L)
 <img src="man/figures/README-/operation.svg" width="100%" /> </picture>
 
 ``` r
+# Assignment
+x_hl[[1]] <- vlightr::hl(NA)
+x_hl
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/assign-dark.svg">
+<img src="man/figures/README-/assign.svg" width="100%" /> </picture>
+
+``` r
 # Coercion
 c(x_hl, vlightr::hl(c(-1.5, NA)))
 ```
@@ -71,7 +78,38 @@ c(x_hl, vlightr::hl(c(-1.5, NA)))
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/coerce-dark.svg">
 <img src="man/figures/README-/coerce.svg" width="100%" /> </picture>
 
-#### Apply multiple conditional formats
+## Highlight, Unhighlight, Rehighlight
+
+Highlighted vectors can’t be coerced or cast to other vector types. To
+use a function which expect the highlight’s underlying vector type,
+first `un_highlight()/ul()` to expose the highlighted data and then
+`re_highlight()/rl()` to re-apply the conditional formatting.
+
+``` r
+x_hl |>
+  ul() |>
+  as.logical() |>
+  rl(x_hl)
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight1-dark.svg">
+<img src="man/figures/README-/rehighlight1.svg" width="100%" />
+</picture>
+
+The “highlight-pipe” `%hl>%` wraps the `magrittr::%>%` to do this
+automatically.
+
+``` r
+x_hl %hl>% as.logical()
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight2-dark.svg">
+<img src="man/figures/README-/rehighlight2.svg" width="100%" />
+</picture>
+
+## Multiple Conditional Formats
 
 ``` r
 dummies <- vlightr::highlight(
@@ -95,17 +133,7 @@ dummies
 <img src="man/figures/README-/multiple-formats.svg" width="100%" />
 </picture>
 
-``` r
-# The underlying data is unchanged
-vlightr::un_highlight(dummies)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/unhighlight-dark.svg">
-<img src="man/figures/README-/unhighlight.svg" width="100%" />
-</picture>
-
-#### Generate highlighters
+## Re-Use Highlights
 
 ``` r
 dummy_highlighter <- vlightr::as_highlighter(dummies)
@@ -117,7 +145,7 @@ dummy_highlighter(c(0, 1, NA))
 <img src="man/figures/README-/highlighter.svg" width="100%" />
 </picture>
 
-#### Use `dplyr::case_when()` style syntax
+## Use `dplyr::case_when()` Style Syntax
 
 ``` r
 bad_words <- c("darn", "gosh")
@@ -137,7 +165,10 @@ vlightr::highlight_case(
 <img src="man/figures/README-/case-syntax.svg" width="100%" />
 </picture>
 
-#### Highlight vectors from other packages
+## Highlight Arbitrary Vectors
+
+Highlighted vectors are generic, meaning that S3 and S4 vector classes
+from other packages are highlight-able.
 
 ``` r
 library(lubridate, warn.conflicts = FALSE)

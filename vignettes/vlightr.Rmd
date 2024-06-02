@@ -17,3 +17,104 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(vlightr)
 ```
+
+Let's wrap observations greater than the mean in `[]` to make them stand out.
+
+```{r}
+x <- c(5L, -10L, 1L, 12L, 7L)
+x_hl <- highlight(x, ~ .x > mean(.x), ~ paste0("[", .x, "]"))
+x_hl
+```
+
+Highlighted vectors don't play well with non-highlighted vectors.
+
+```{r}
+try(x_hl[[5]] <- 100L)
+```
+
+We can fix this by using a compatible highlighted vector instead. The `highlight()`
+synonym `hl()` is useful for when you need to highlight a vector temporarily.
+
+```{r}
+x_hl[[5]] <- hl(100L)
+```
+
+The condition (`.x > mean(.x)`) that we applied earlier is evaluated every time
+that we `format()` the highlighted vector (e.g. when it's printed).
+
+```{r}
+print(x_hl)
+```
+
+Highlighted vectors have the same casting and coercion rules as their underlying
+data.
+
+```{r}
+# Coerce to a highlighted double via `c()`
+c(x_hl, hl(-75.5))
+
+# Coerce to a highlighted double via `+`
+x_hl + hl(22.2)
+```
+
+We can specify multiple conditions and formatters by supplying lists of condition
+functions and corresponding formatting functions.
+
+```{r}
+x_min_max <- highlight(
+  x = x,
+  conditions = list(~ .x == min(.x), ~ .x == max(.x)),
+  formatters = list(~ paste0("(Min = ", .x, ")"), ~ paste0("(Max = ", .x, ")"))
+)
+x_min_max
+```
+
+When two compatible highlights are combined, so are their `conditions` and
+`formatters`.
+
+```{r}
+c(x_min_max, x_hl)
+```
+
+This will cause an error if the combination of multiple highlights causes a 
+condition or formatter function to fail.
+
+```{r}
+# A highlighted vector with a "hidden" error
+int_hl <- highlight(
+  c(1L, 2L, 3L), 
+  conditions = ~ !is.integer(.x),
+  formatters = \(x) stop("Integers only!")
+)
+
+# This runs fine
+int_hl
+
+# This does not
+try(c(int_hl, hl(0.5)))
+```
+
+### Styling
+
+ANSI escape sequences, such as those used to color text in the `cli` package, are
+also supported. The code below colors the formatted `NA` values red. Unfortunately,
+markdown does not support this, so you'll have to take my word for it or see the
+README (TODO ADD LINK) page.
+
+```{r}
+highlight(c(1, 0, NA), is.na, cli::col_red)
+```
+
+`vlightr` provides some convenience functions for selecting `cli` functions to
+use as formatters.
+
+* `color()` and `colour()` return a `cli::col_*` function which colors text
+* `bg()` and `background()` return a `cli::bg_*` function which colors the background
+* `style()` returns a `cli::style_*` function which bolds, underlines, or italicizes text among other things 
+
+For example, the same NA highlight as above can be achieved like so:
+
+```{r}
+highlight(c(1, 0, NA), is.na, colour("red"))
+```
+
