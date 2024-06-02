@@ -48,6 +48,12 @@ devtools::install_github("EthanSansom/vlightr")
 library(vlightr)
 ```
 
+```{r test}
+x <- c(1L, 0L, NA, 1L)
+x_hl <- highlight(x, is.na, color("red"))
+x_hl
+```
+
 ```{asciicast red-nas}
 x <- c(1L, 0L, NA, 1L)
 x_hl <- highlight(x, is.na, color("red"))
@@ -55,4 +61,4 @@ print(x)
 print(x_hl)
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. New text.

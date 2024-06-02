@@ -27,6 +27,14 @@ library(vlightr)
 ``` r
 x <- c(1L, 0L, NA, 1L)
 x_hl <- highlight(x, is.na, color("red"))
+x_hl
+#> <highlight<int>[4]>
+#> [1] 1  0  NA 1
+```
+
+``` r
+x <- c(1L, 0L, NA, 1L)
+x_hl <- highlight(x, is.na, color("red"))
 print(x)
 print(x_hl)
 ```
@@ -36,4 +44,4 @@ print(x_hl)
 <img src="man/figures/README-/red-nas.svg" width="100%" /> </picture>
 
 You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
+up-to-date. `devtools::build_readme()` is handy for this. New text.
