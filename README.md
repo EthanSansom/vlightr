@@ -83,10 +83,13 @@ vlightr::highlight(
 Use `dplyr::case_when()` style syntax for multiple conditional formats.
 
 ``` r
+bad_words <- c("darn", "gosh")
+affirmations <- c("good job", "way-to-go")
 vlightr::highlight_case(
-  x = c(10, NA, -11, 2, -1, 8),
-  is.na(.x) ~ \(x) cli::col_green("Don't Worry"),
-  .x < 0 ~ vlightr::bg("bright_blue")
+  x = c("hey", "good job", "but", "darn", "please", "don't", "say", "gosh"),
+  .x %in% bad_words ~ \(x) strrep("X", nchar(x)),
+  .x %in% affirmations ~ \(x) toupper(x),
+  TRUE ~ cli::style_italic
 )
 ```
 
@@ -95,5 +98,26 @@ vlightr::highlight_case(
 <img src="man/figures/README-/case-syntax.svg" width="100%" />
 </picture>
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. Hey!
+Highlight’s are generic, meaning many S3 and S4 vector classes are
+supported.
+
+``` r
+library(lubridate)
+
+today <- ymd("2020-01-01")
+meeting_times <- interval(
+  today + hours(9, 11, 16), 
+  today + hours(10, 13, 17)
+)
+lunch_break <- interval(today + hours(12), today + hours(12.5))
+
+vlightr::highlight(
+  meeting_times,
+  int_overlaps(meeting_times, lunch_break),
+  cli::bg_br_yellow
+)
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/generic-dark.svg">
+<img src="man/figures/README-/generic.svg" width="100%" /> </picture>
