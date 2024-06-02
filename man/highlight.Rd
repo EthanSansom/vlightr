@@ -229,5 +229,8 @@ print(x_multi)
 \code{\link[=as_highlighter]{as_highlighter()}} to generate a \code{\link[=highlighter]{highlighter()}} function using a highlighted
 vector (e.g. \code{x_hl <- highlight(x, ...)}) which can highlight other vectors
 using the arguments used to create \code{x_hl} as defaults.
+
+Other Attribute setters: 
+\code{\link{attr-setters}}
 }
-\concept{attribute setters}
+\concept{Attribute setters}

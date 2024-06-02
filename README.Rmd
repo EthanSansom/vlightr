@@ -1,0 +1,50 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%",
+  cache = TRUE,
+  asciicast_at = "end",
+  asciicast_theme = if (Sys.getenv("IN_PKGDOWN") == "true") "pkgdown" else "readme"
+)
+asciicast::init_knitr_engine()
+```
+
+# vlightr
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+vlightr is a package for 
+
+## Installation
+
+You can install the development version of vlightr from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("EthanSansom/vlightr")
+```
+
+## Features
+
+```{r load}
+library(vlightr)
+```
+
+
+```{asciicast red-nas}
+x <- c(1L, 0L, NA, 1L)
+x_hl <- highlight(x, is.na, color("red"))
+print(x)
+print(x_hl)
+```
+
+You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
