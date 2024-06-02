@@ -52,16 +52,23 @@ library(vlightr)
 
 #### Conditionally format vector elements
 
-```{asciicast red-nas}
+```{asciicast red-nas1}
 x <- c(1L, 0L, NA, 1L, 0L)
 x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
-x_hl
 ```
 
-#### Manipulate the highlighted data
+```{asciicast red-nas2}
+print(x)
+```
 
-Highlighted vectors play well with other highlighted vectors of the same type. 
-The shorthand `hl()` is useful for quick highlighting.
+```{asciicast red-nas3}
+print(x_hl)
+```
+
+#### Manipulate highlighted data
+
+Highlighted vectors play well with other highlighted vectors. The shorthand 
+`hl()` is useful for quick highlighting.
 
 ```{asciicast operation}
 # Arithmetic

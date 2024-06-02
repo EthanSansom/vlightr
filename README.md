@@ -29,17 +29,32 @@ library(vlightr)
 ``` r
 x <- c(1L, 0L, NA, 1L, 0L)
 x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
-x_hl
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas-dark.svg">
-<img src="man/figures/README-/red-nas.svg" width="100%" /> </picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas1-dark.svg">
+<img src="man/figures/README-/red-nas1.svg" width="100%" /> </picture>
 
-#### Manipulate the highlighted data
+``` r
+print(x)
+```
 
-Highlighted vectors play well with other highlighted vectors of the same
-type. The shorthand `hl()` is useful for quick highlighting.
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas2-dark.svg">
+<img src="man/figures/README-/red-nas2.svg" width="100%" /> </picture>
+
+``` r
+print(x_hl)
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas3-dark.svg">
+<img src="man/figures/README-/red-nas3.svg" width="100%" /> </picture>
+
+#### Manipulate highlighted data
+
+Highlighted vectors play well with other highlighted vectors. The
+shorthand `hl()` is useful for quick highlighting.
 
 ``` r
 # Arithmetic
