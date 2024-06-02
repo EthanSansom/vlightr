@@ -84,7 +84,7 @@ Use `dplyr::case_when()` style syntax for multiple conditional formats.
 
 ``` r
 vlightr::highlight_case(
-  x = c(10, NA, -11, , 2, -1, 8),
+  x = c(10, NA, -11, 2, -1, 8),
   is.na(.x) ~ \(x) cli::col_green("Don't Worry"),
   .x < 0 ~ vlightr::bg("bright_blue")
 )

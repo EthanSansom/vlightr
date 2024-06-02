@@ -58,8 +58,7 @@ x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
 x_hl
 ```
 
-Highlighted vectors play well with other highlighted vectors of the same type.
-The shorthand `hl()` is useful for quick highlighting.
+Highlighted vectors play well with other highlighted vectors of the same type. The shorthand `hl()` is useful for quick highlighting.
 
 ```{asciicast operation}
 x_hl + vlightr::hl(10L)
@@ -93,7 +92,7 @@ Use `dplyr::case_when()` style syntax for multiple conditional formats.
 
 ```{asciicast case-syntax}
 vlightr::highlight_case(
-  x = c(10, NA, -11, , 2, -1, 8),
+  x = c(10, NA, -11, 2, -1, 8),
   is.na(.x) ~ \(x) cli::col_green("Don't Worry"),
   .x < 0 ~ vlightr::bg("bright_blue")
 )
