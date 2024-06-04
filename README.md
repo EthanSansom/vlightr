@@ -8,9 +8,14 @@
 
 vlightr is a package for conditionally formatting vectors. You can
 `highlight()` a vector to style, colour, or otherwise re-format it’s
-elements when the vector is printed or formatted. Highlights are
-persistent, meaning highlighted vectors can be manipulated (with minimal
-legwork) while maintaining their custom formatting.
+elements when the vector is printed or formatted. Highlights are:
+
+- **Persistent**, meaning highlighted vectors can be manipulated (with
+  minimal legwork) while maintaining their custom formatting.
+- **Generic**, meaning that many vectors you’ll encounter in the wild
+  (ex. `ivs::iv`, `lubridate::interval`, `base::POSIXct`) and all base
+  atomic vectors (`"logical"`, `"integer"`, `"numeric"`, `"complex"`,
+  `"character"` and `"raw"`) can be highlighted.
 
 # Installation
 
@@ -39,39 +44,6 @@ print(x_hl)
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas1-dark.svg">
 <img src="man/figures/README-/red-nas1.svg" width="100%" /> </picture>
-
-## Manipulate Highlighted Data
-
-Highlighted vectors play well with other highlighted vectors. The
-shorthand `hl()` is useful for quick highlighting.
-
-``` r
-# Arithmetic
-x_hl + vlightr::hl(10L)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/operation-dark.svg">
-<img src="man/figures/README-/operation.svg" width="100%" /> </picture>
-
-``` r
-# Assignment
-x_hl[[1]] <- vlightr::hl(NA)
-x_hl
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/assign-dark.svg">
-<img src="man/figures/README-/assign.svg" width="100%" /> </picture>
-
-``` r
-# Coercion
-c(x_hl, vlightr::hl(c(-1.5, NA)))
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/coerce-dark.svg">
-<img src="man/figures/README-/coerce.svg" width="100%" /> </picture>
 
 ## Highlight, Un-Highlight, Re-Highlight
 
@@ -117,6 +89,40 @@ try(as.logical(x_hl))
 <img src="man/figures/README-/rehighlight3.svg" width="100%" />
 </picture>
 
+## Manipulate Highlighted Data
+
+Highlighted vectors are happy to be cast or coerced to other compatible
+highlights. The shorthand `hl()` is useful for quickly highlighting a
+vector for this purpose.
+
+``` r
+# Arithmetic
+x_hl + vlightr::hl(10L)
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/operation-dark.svg">
+<img src="man/figures/README-/operation.svg" width="100%" /> </picture>
+
+``` r
+# Assignment
+x_hl[[1]] <- vlightr::hl(NA)
+x_hl
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/assign-dark.svg">
+<img src="man/figures/README-/assign.svg" width="100%" /> </picture>
+
+``` r
+# Coercion
+c(x_hl, vlightr::hl(c(-1.5, NA)))
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/coerce-dark.svg">
+<img src="man/figures/README-/coerce.svg" width="100%" /> </picture>
+
 ## Multiple Conditional Formats
 
 ``` r
@@ -141,7 +147,7 @@ dummies
 <img src="man/figures/README-/multiple-formats.svg" width="100%" />
 </picture>
 
-## Use in `tibble::tibble()`
+## Column Rendering in `tibble::tibble()`
 
 ``` r
 tibble::tibble(dummy = dummies)
@@ -208,9 +214,10 @@ vlightr::highlight(meeting_times, is_during_lunch, cli::col_magenta)
 
 # Inspiration
 
-This package is heavily inspired by the `ivs` package, which implements
-generic interval vectors defined by two parallel start (inclusive) and
-end (exclusive) vectors.
+This package is heavily inspired by the
+[ivs](https://github.com/DavisVaughan/ivs) package, which implements
+generic right-open intervals defined by a pair of parallel start and end
+vectors.
 
 As a testament to the genericity of the `ivs::iv`, here is an
 ill-advised but perfectly legal interval vector.
