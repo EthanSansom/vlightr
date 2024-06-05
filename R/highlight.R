@@ -1,51 +1,15 @@
 # TODO -------------------------------------------------------------------------
 
-# TODO: Add details on the order of operations in the highlight format function.
-#       Make the below into a markdown, which can be used in the `@section Under the Hood:`
-#       section of the `highlighter()` documentation. Actually, this would be good
-#       to put in the vignette!
-#
-# Consider the vector `x_hl` defined below. We'll assume that `x` is some vector
-# and `conditions`, `formatters`, `precedence`, `init_formatter`, `last_formatter`
-# are all valid arguments.
-# `
-# x_hl <- highlight(
-#  x = x,
-#  conditions = conditions,
-#  formatters = formatters,
-#  precedence = precedence,
-#  init_formatter = init_formatter,
-#  last_formatter = last_formatter
-# )
-# `
-# When `format(x_hl)` is called (e.g. within `print()`) the following
-# psuedo-code is executed.
-#
-# Apply an initial format to `x`, converting `x` into a character vector.
-#
-# `formatted <- init_formatter(x)`
-#
-# Apply each format in `formatters` to elements of `x` meet a condition. Do
-# so in the order specified by `precedence`.
-#
-# `
-# format_order <- order(precedence)
-# for (i in format_order) {
-#   condition <- conditions[[i]]
-#   formatter <- formatters[[i]]
-#   condition_is_met <- condition(x)
-#   formatted[condition_is_met] <- formatter(formatted[condition_is_met])
-# }
-# `
-# Apply the last format before returning.
-#
-# `last_formatter(formatted)`
-
-# TODO: Side-quest, make sub-classes for the base atomic types (or some of them)
-#       with the normal coercion and casting rules. I.e. integer, numeric, logical,
-#       and character would be good to have. See haven::labelled implementation
-#       for numeric vectors. Potentially factors. Also, you could make a `labelled`
-#       subclass, which is a shorthand for highlight_case(.x == value ~ \(x) "Value Label").
+# TODO: Long Term:
+# - allow the `init_formatter` and `last_formatter` to take a second argument `width`
+# - during `format.vlightr_highlight()`, the `console_width` is supplied
+# - during `pillar.vlightr_highlight()`, the column width is supplied
+#   - implement some custom pillar methods for the base atomic vectors, namely numbers
+#   - don't highlight NA's red (too conditional), but use `pillar's` pretty number formatting
+#     and truncation of other classes (if it exists)
+#   - the custom methods are only used when no `init_formatter` / `last_formatter` is supplied
+#   - do some interactive pillar testing
+# - make the `highlight_format` a generic, so users can define it for other classes (like `ivs_format`)
 
 # constructor ------------------------------------------------------------------
 
@@ -180,9 +144,12 @@
 #'
 #' [un_highlight()] for converting a vector `highlight(x)` back to `x`.
 #'
-#' [as_highlighter()] to generate a [highlighter()] function using a highlighted
-#' vector (e.g. `x_hl <- highlight(x, ...)`) which can highlight other vectors
-#' using the arguments used to create `x_hl` as defaults.
+#' [update_highlight()] for changing any of `conditions`, `formatters`,
+#' `descripton`, `precedence`, `format_once`, `init_formatter`, or
+#' `last_formater` in an already highlighted vector.
+#'
+#' [as_highlighter()] to generate a [highlighter()] function which applies the
+#' same conditional formatting as the input highlighted vector.
 #'
 #' @examples
 #' # Color NA values red
@@ -209,7 +176,7 @@
 #'   .x == 1 ~ \(x) paste(x, "[Yes]"),
 #'   .x == 0 ~ \(x) paste(x, "[No]"),
 #'   .description = c(
-#'     "Coloured Red if NA",
+#'     "Colored Red if NA",
 #'     "Labelled Yes if 1",
 #'     "Labelled No if 0"
 #'   )
@@ -229,9 +196,18 @@
 #' )
 #' print(x_multi)
 #'
-#' # Apply only a single format with `format_once`
-#' x_multi <- set_format_once(x_multi, TRUE)
-#' print(x_multi)
+#' # Apply a single format to each element with `format_once`
+#' update_highlight(x_multi, format_once = TRUE)
+#'
+#' # Use an `init_formatter` to pre-format a highlight
+#' dollar <- highlight_case(
+#'   x = c(10, -1.45, 1.046, -8, NA),
+#'   is.na(.x) ~ \(x) "NA",
+#'   .x > 0 ~ \(x) paste0("-$", x),
+#'   TRUE ~ \(x) paste0("$", x),
+#'   .init_formatter = \(x) sprintf("%.2f", abs(x))
+#' )
+#' dollar
 #' @export
 highlight <- function(
     x = logical(),
@@ -459,7 +435,7 @@ vec_ptype_abbr.vlightr_highlight <- function(x) {
 
 #' @export
 vec_ptype_full.vlightr_highlight <- function(x) {
-  inner <- vctrs::vec_ptype_abbr(get_data(x))
+  inner <- vctrs::vec_ptype_full(get_data(x))
   paste0("highlight<", inner, ">")
 }
 
@@ -666,7 +642,32 @@ restore_highlight <- function(
 
 # helpers ----------------------------------------------------------------------
 
+# TODO: Add examples documentation.
+
+#' Update a highlighted vector's format method
+#'
+#' @description `update_highlight()` sets any of the `conditions`,
+#' `formatters`, `description`, `precedence`, `format_once`, `init_formatter`,
+#' or `last_formatter` attributes in an already highlighted vector and validates
+#' the result.
+#'
+#' Updated attributes must conform to the existing attributes. For example, a
+#' supplied list of `conditions` functions must be the same length as the
+#' existing `formatters` attribute of `x`.
+#'
+#' @param x `[vlightr_highlight]`
+#'
+#' A highlighted vector to update.
+#'
+#' @inheritParams highlight
+#'
+#' @family attribute setters
+#'
 #' @export
+#'
+#' @examples
+#' salary <- 1000 * c(10, 87, 13, 56, 92, 105, NA)
+#' salary <- highlight_case(salary)
 update_highlight <- function(
     x,
     conditions = NULL,
@@ -687,8 +688,8 @@ update_highlight <- function(
     description = description %||% get_description(x),
     precedence = precedence %||% get_precedence(x),
     format_once = format_once %||% get_format_once(x),
-    init_formatter = init_formatter %||% init_formatter(x),
-    last_formatter = last_formatter %||% last_formatter(x)
+    init_formatter = init_formatter %||% get_init_formatter(x),
+    last_formatter = last_formatter %||% get_last_formatter(x)
   )
 }
 
@@ -703,14 +704,60 @@ un_highlight <- function(x) {
 #' @export
 ul <- un_highlight
 
+# TODO: Examples
+
+#' Restore a highlighted vector's formatting
+#'
+#' @description
+#'
+#' `re_highlight()` adds the conditional formatting of highlighted vectors in
+#' `...` to a highlighted or un-highlighted vector `x`.
+#'
+#' The primary function of `re_highlight()` is to restore the format method of a
+#' highlighted vector after un-highlighting it during an intermediate operation.
+#' See the **Highlight, Un-Highlight, Re-Highlight** section of
+#' `vignette("vlightr")` for more details.
+#'
+#' `re_highlight(un_highlight(x_hl), x_hl)` and `x_hl` are equivalent for a
+#' highlighted vector `x_hl`.
+#'
+#' `re_highlight()` and `rl()` are synonyms.
+#'
+#' @param x `[vector]`
+#'
+#' A vector to highlight with the condition formatting of highlights supplied to
+#' `...`. If `x` is already a highlighted vector, then it's conditional
+#' formatting is combined with that of the highlights supplied to `...`.
+#'
+#' @param ... `[vlighter_highlight]`
+#'
+#' A highlighted vector used to highlight `x`. The `conditions`, `formatters`,
+#' `description`, `precedence`, `format_once`, `init_formatter`, and
+#' `last_formatter` of each `...` argument are appended to that of `x`, if `x`
+#' is a highlighted vector, and are supplied to `highlight(x, ...)` otherwise.
+#'
+#' The `format_once`, `init_formatter`, and `last_formatter` attributes are
+#' scalar, meaning they cannot be appended to.
+#'
+#' The `format_once` attribute of the output vector is set to `TRUE` if any of
+#' `x` or `...` have `format_once` is `TRUE`. Otherwise, `format_once` is set to
+#' `FALSE`.
+#'
+#' `init_formatter` and `last_formatter` are taken from `x`, if they are defined
+#' (i.e. not `NULL`) for `x`, and are otherwise taken from the first argument in `...`
+#' with a defined `init_formatter` and `last_formatter` respectively.
+#'
 #' @export
 re_highlight <- function(x, ...) {
   dots <- rlang::list2(...)
+  if (rlang::is_empty(dots)) {
+    return(check_is_highlightable(x))
+  }
   for (i in seq_along(dots)) {
     check_is_highlight(dots[[i]], arg_name = paste0("..", i))
   }
   if (is_highlight(x)) {
-    dots <- append(dots, x)
+    dots <- append(list(x), dots)
     x <- get_data(x)
   } else {
     x <- check_is_highlightable(x)
@@ -737,6 +784,7 @@ re_highlight <- function(x, ...) {
   )
 }
 
+#' @rdname re_highlight
 #' @export
 rl <- re_highlight
 

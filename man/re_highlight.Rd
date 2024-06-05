@@ -2,9 +2,12 @@
 % Please edit documentation in R/highlight.R
 \name{re_highlight}
 \alias{re_highlight}
+\alias{rl}
 \title{Restore a highlighted vector's formatting}
 \usage{
 re_highlight(x, ...)
+
+rl(x, ...)
 }
 \arguments{
 \item{x}{\verb{[vector]}
@@ -18,7 +21,7 @@ formatting is combined with that of the highlights supplied to \code{...}.}
 A highlighted vector used to highlight \code{x}. The \code{conditions}, \code{formatters},
 \code{description}, \code{precedence}, \code{format_once}, \code{init_formatter}, and
 \code{last_formatter} of each \code{...} argument are appended to that of \code{x}, if \code{x}
-is a highlighted vector, and supplied to \code{highlight(x, ...)} otherwise.
+is a highlighted vector, and are supplied to \code{highlight(x, ...)} otherwise.
 
 The \code{format_once}, \code{init_formatter}, and \code{last_formatter} attributes are
 scalar, meaning they cannot be appended to.

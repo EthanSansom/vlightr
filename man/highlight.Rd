@@ -197,7 +197,7 @@ x_hl_case <- highlight_case(
   .x == 1 ~ \(x) paste(x, "[Yes]"),
   .x == 0 ~ \(x) paste(x, "[No]"),
   .description = c(
-    "Coloured Red if NA",
+    "Colored Red if NA",
     "Labelled Yes if 1",
     "Labelled No if 0"
   )
@@ -217,14 +217,26 @@ x_multi <- highlight(
 )
 print(x_multi)
 
-# Apply only a single format with `format_once`
-x_multi <- set_format_once(x_multi, TRUE)
-print(x_multi)
+# Apply a single format to each element with `format_once`
+update_highlight(x_multi, format_once = TRUE)
+
+# Use an `init_formatter` to pre-format a highlight
+dollar <- highlight_case(
+  x = c(10, -1.45, 1.046, -8, NA),
+  is.na(.x) ~ \(x) "NA",
+  .x > 0 ~ \(x) paste0("-$", x),
+  TRUE ~ \(x) paste0("$", x),
+  .init_formatter = \(x) sprintf("\%.2f", abs(x))
+)
+dollar
 }
 \seealso{
 \code{\link[=un_highlight]{un_highlight()}} for converting a vector \code{highlight(x)} back to \code{x}.
 
-\code{\link[=as_highlighter]{as_highlighter()}} to generate a \code{\link[=highlighter]{highlighter()}} function using a highlighted
-vector (e.g. \code{x_hl <- highlight(x, ...)}) which can highlight other vectors
-using the arguments used to create \code{x_hl} as defaults.
+\code{\link[=update_highlight]{update_highlight()}} for changing any of \code{conditions}, \code{formatters},
+\code{descripton}, \code{precedence}, \code{format_once}, \code{init_formatter}, or
+\code{last_formater} in an already highlighted vector.
+
+\code{\link[=as_highlighter]{as_highlighter()}} to generate a \code{\link[=highlighter]{highlighter()}} function which applies the
+same conditional formatting as the input highlighted vector.
 }

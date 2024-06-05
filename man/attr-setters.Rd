@@ -96,5 +96,8 @@ print(x_multi)
 \seealso{
 \code{\link[=update_highlight]{update_highlight()}} to reset multiple attributes of a highlighted vector at
 once.
+
+Other attribute setters: 
+\code{\link{update_highlight}()}
 }
 \concept{attribute setters}
