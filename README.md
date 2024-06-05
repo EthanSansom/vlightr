@@ -19,6 +19,8 @@ elements when the vector is printed or formatted. Highlights are:
 
 # Installation
 
+⚠️ This package is still **under construction**. ⚠️
+
 You can install the development version of vlightr from
 [GitHub](https://github.com/) with:
 
@@ -32,8 +34,8 @@ devtools::install_github("EthanSansom/vlightr")
 ## Conditional Formatting
 
 Apply a custom format to elements of `x` for which a condition returns
-`TRUE`. For example, color `NA` values red (as they would appear in a
-`tibble::tibble()`).
+`TRUE`. For example, color only `NA` values red as they would appear in
+a `tibble::tibble()`.
 
 ``` r
 x <- c(1L, 0L, NA, 1L, 0L)
@@ -157,7 +159,7 @@ tibble::tibble(dummy = dummies)
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/tibble-dark.svg">
 <img src="man/figures/README-/tibble.svg" width="100%" /> </picture>
 
-## Re-Use Highlights
+## Define Highlighter Functions
 
 ``` r
 dummy_highlighter <- vlightr::as_highlighter(dummies)
@@ -230,13 +232,13 @@ ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
 # A totally legit `iv`
 ivs::iv(starts, ends)
-#> <iv<highlight<dbl>>[6]>
+#> <iv<highlight<double>>[6]>
 #> [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       
 #> [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])
 
 # We can even manipulate it
 ivs::iv_groups(ivs::iv(starts, ends))
-#> <iv<highlight<dbl>>[1]>
+#> <iv<highlight<double>>[1]>
 #> [1] [-3, +8 [Even])
 
 # Or highlight it...
@@ -245,7 +247,7 @@ highlight(
   ~ (ivs::iv_end(.x) - ivs::iv_start(.x)) > hl(1),
   ~ paste("{", .x, "}")
 )
-#> <highlight<iv<hlght<dbl>>>[6]>
+#> <highlight<iv<highlight<double>>>[6]>
 #> [1] [-3, -2 [Even])            [-2 [Even], -1)           
 #> [3] { [-1, +2 [Even]) }        { [0 [Even], +5) }        
 #> [5] { [+1, +7) }               { [+2 [Even], +8 [Even]) }

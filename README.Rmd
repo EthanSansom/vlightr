@@ -40,6 +40,8 @@ vlightr is a package for conditionally formatting vectors. You can `highlight()`
 
 # Installation
 
+⚠️ This package is still **under construction**. ⚠️
+
 You can install the development version of vlightr from [GitHub](https://github.com/) with:
 
 ``` r
@@ -55,7 +57,7 @@ library(vlightr)
 
 ## Conditional Formatting
 
-Apply a custom format to elements of `x` for which a condition returns `TRUE`. For example, color `NA` values red (as they would appear in a `tibble::tibble()`).
+Apply a custom format to elements of `x` for which a condition returns `TRUE`. For example, color only `NA` values red as they would appear in a `tibble::tibble()`.
 
 ```{asciicast red-nas1}
 x <- c(1L, 0L, NA, 1L, 0L)
@@ -88,7 +90,8 @@ try(as.logical(x_hl))
 
 ## Manipulate Highlighted Data
 
-Highlighted vectors are happy to be cast or coerced to other compatible highlights. The shorthand `hl()` is useful for quickly highlighting a vector for this purpose.
+Highlighted vectors are happy to be cast or coerced to other compatible highlights. 
+The shorthand `hl()` is useful for quickly highlighting a vector for this purpose.
 
 ```{asciicast operation}
 # Arithmetic
@@ -131,7 +134,7 @@ dummies
 tibble::tibble(dummy = dummies)
 ```
 
-## Re-Use Highlights
+## Define Highlighter Functions
 
 ```{asciicast highlighter}
 dummy_highlighter <- vlightr::as_highlighter(dummies)

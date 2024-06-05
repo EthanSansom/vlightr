@@ -4,3 +4,5 @@
 ^README\.Rmd$
 ^cache$
 ^README_cache$
+^doc$
+^Meta$
