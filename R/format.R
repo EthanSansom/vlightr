@@ -1,6 +1,9 @@
 #' @export
 format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
 
+  # Returning early on empty inputs has the added benefit of `validate_highlight`
+  # not checking `formatters` or `conditions` when the vector is empty (such as
+  # when `vctrs::vec_ptype()` is used).
   x_data <- get_data(x)
   if (rlang::is_empty(x_data)) {
     return(character())
@@ -166,21 +169,19 @@ describe_highlight <- function(x) {
   any_formatted <- !all(is_unformatted)
   if (any_formatted) {
     unique_formats_at <- !duplicated(formatted_using) & !is_unformatted
-    examples <- mapply(
-      formatted_element = formatted[unique_formats_at],
-      formats_used = formatted_using[unique_formats_at],
-      \(formatted_element, formats_used) {
-        glue::glue(
-          "Element formatted using {oxford(formats_used, last = 'and')}: ",
-          "{formatted_element}"
-        )
-      }
-    )
 
-    # Re-order according to the earliest formatters used for each example. A
-    # `sort_ragged <- \(x) x[order_ragged(x)]` would do the following:
-    #> formatted_using <- list(c(1, 2), 1, c(2, 4), c(2, 1))
-    #> sort_ragged(formatted_using) -> list(1, c(1, 2) c(2, 3), c(2, 4))
+    fmts <- vapply(
+      formatted_using[unique_formats_at],
+      oxford,
+      character(1L),
+      last = "and"
+    )
+    fmts <- format(paste0(fmts, ":"), width = max(nchar(fmts)) + 1)
+    print(fmts)
+    elms <- x_data[unique_formats_at]
+    elms_fmt <- formatted[unique_formats_at]
+
+    examples <- paste(fmts, elms, "->", elms_fmt)
     examples <- examples[order_ragged(formatted_using[unique_formats_at])]
   }
 
@@ -191,8 +192,10 @@ describe_highlight <- function(x) {
   cli::cli_ol(description)
   if (any_formatted) {
     cli::cat_line()
-    cli::cli_text("Examples:")
-    cli::cli_ul(examples)
+    cli::cli_text("Element formatted using:")
+    # Not using `cli::cli_ul` here for bulleted list, since it removes whitespace
+    # which I don't want here.
+    cli::cat_line(paste(cli::symbol$bullet, examples))
   }
   return(invisible(x))
 }
@@ -202,52 +205,42 @@ describe_highlight <- function(x) {
 # - make sure to credit `ivs` for these
 #   - from here: https://github.com/DavisVaughan/ivs/blob/main/R/format.R
 
-#' @export
 highlight_format <- function(x) {
   UseMethod("highlight_format")
 }
 
-#' @export
 highlight_format.default <- function(x) {
   format(x)
 }
 
-#' @export
 highlight_format.logical <- function(x) {
   format(x, trim = TRUE)
 }
 
-#' @export
 highlight_format.integer <- function(x) {
   format(x, trim = TRUE, scientific = FALSE)
 }
 
-#' @export
 highlight_format.double <- function(x) {
   format(x, trim = TRUE, scientific = FALSE)
 }
 
-#' @export
 highlight_format.character <- function(x) {
   format(x, justify = "none", na.encode = TRUE)
 }
 
-#' @export
 highlight_format.factor <- function(x) {
   format(x, justify = "none", na.encode = TRUE)
 }
 
-#' @export
 highlight_format.Date <- function(x) {
   format(x, format = "%Y-%m-%d")
 }
 
-#' @export
 highlight_format.POSIXt <- function(x) {
   format(x, format = "%Y-%m-%d %H:%M:%S")
 }
 
-#' @export
 highlight_format.difftime <- function(x) {
   format(x, trim = TRUE, scientific = FALSE)
 }
