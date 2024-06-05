@@ -378,7 +378,7 @@ length_n_friendly <- function(len) {
 }
 
 a_vector_friendly <- function(cls, len = NULL, nas = FALSE) {
-  len_n <- if (is.null(len)) "a" else a_length_n_friendly(len, prefix = TRUE)
+  len_n <- if (is.null(len)) "a" else a_length_n_friendly(len)
   non_na <- if (!nas) "non-NA/NaN" else ""
   paste(len_n, non_na, "{.cls {cls}} vector")
 }
