@@ -52,11 +52,8 @@ bg <- function(x) {
     bright_yellow = ,
     yellow_br = ,
     br_yellow = cli::bg_br_yellow,
-    # TODO: Use `cli::make_ansi_color` here!!!
-    cli::cli_abort(
-      "`x = {.val {x}}` is not a supported background colour.",
-      class = "vlightr_error"
-    )
+    # Default
+    cli::make_ansi_style(col, bg = TRUE)
   )
 }
 
@@ -65,8 +62,9 @@ background <- bg
 
 #' @export
 color <- function(x) {
+  col <- tolower(check_is_string(x))
   switch(
-    tolower(check_is_string(x)),
+    col,
     black0 = ,
     black = cli::col_black,
     blue0 = ,
@@ -115,11 +113,8 @@ color <- function(x) {
     bright_yellow = ,
     yellow_br = ,
     br_yellow = cli::col_br_yellow,
-    # TODO: Use `cli::make_ansi_color` here!!!
-    cli::cli_abort(
-      "`x = {.val {x}}` is not a supported background colour.",
-      class = "vlightr_error"
-    )
+    # Default
+    cli::make_ansi_style(col)
   )
 }
 
@@ -130,7 +125,7 @@ colour <- color
 
 # TODO Implement:
 # `x` is a string with instructions on how to make a styled vector.
-# `style` is a highlighter generator like checkmate `qassert`.
+# `make_formatter` is a highlighter generator like checkmate `qassert`.
 # "{_/*[col][bg_col]}"
 # - initial symbols are emphasis `_` -> underling, `/` -> italics, `*` -> bold, `-` -> strike-through
 # - first [] is color (leave blank for no color) and second [] is background
@@ -139,6 +134,15 @@ colour <- color
 # - test outside of the opening bracket is pasted around the text
 # - "<{}>" -> paste0("<", x, ">"), "<{[blue]}> -> cli::cli_col_blue(paste0("<", x, ">"))
 
+#' @export
+make_formatter <- function(x) {
+
+}
+
+# TODO Implement:
+# - specify "bold",
+
+#' @export
 style <- function(x) {
 
 }
