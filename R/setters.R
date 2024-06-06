@@ -1,5 +1,11 @@
 #' Set an attribute of a highlighted vector
 #'
+#' @description
+#'
+#' Overwrites the `conditions`, `formatters`, `description`, `precedence`,
+#' `format_once`, `init_formatter`, or `last_formatter` attribute of an
+#' existing `vlighter_highlight` vector and validates the result.
+#'
 #' @param x `[vlightr_highlight]`
 #'
 #' A highlighted vector to set an attribute of.
@@ -9,10 +15,10 @@
 #' In `set_*`, the attribute `*` that you wish to set.
 #'
 #' For example, in `set_conditions()`, the `value` must be a function,
-#' purrr-style lambda, or list of functions or lambda to be used as the
+#' purrr-style lambda, or list of functions or lambdas to be used as the
 #' `conditions` of `x`.
 #'
-#' See [highlight()] for details on each attribute.
+#' See [highlight()] for the specifics of each attribute.
 #'
 #' @param at `[logical / numeric]`
 #'
@@ -29,7 +35,7 @@
 #'
 #' The vector `x` with one of it's attributes updated.
 #'
-#' @family Attribute setters
+#' @family attribute setters
 #' @name attr-setters
 #' @examples
 #' # Let's make these affirmations into exclamations
@@ -63,7 +69,8 @@
 #'     ~ paste(.x, "is even"),
 #'     ~ paste(.x, "is odd"),
 #'     ~ paste(.x, "is big and")
-#'  )
+#'  ),
+#'  last_formatter = wrap("[", "]")
 #' )
 #' print(x_multi)
 #'
@@ -71,9 +78,6 @@
 #' x_multi <- set_precedence(x_multi, value = -1, at = 3)
 #' print(x_multi)
 NULL
-
-# TODO: Add an example using `at` to the above. Maybe change the precedence of
-# one of the options.
 
 #' @name attr-setters
 #' @export
@@ -190,7 +194,7 @@ assign_at <- function(
   if (is.character(at) && !rlang::is_named(x)) {
     cli::cli_abort(
       c(
-        # Thanks `rlang` for the message
+        # Credit to `rlang` for the message
         "Can't use character names to index an unnamed vector.",
         i = "{.arg {at_arg}} is a {.cls character} vector.",
         i = "{.arg {x}} is unnamed."

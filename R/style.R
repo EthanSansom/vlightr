@@ -1,9 +1,48 @@
+#' Generate a formatter function to style text
+#'
+#' @description
+#'
+#' vlightr provides some helpers to quickly generate new formatting functions
+#' for use in the `formatters`, `init_formatter`, and `last_formatter` arguments
+#' of [highlight()], [highlighter()], and friends.
+#'
+#' @param x `[character(1)]`
+#'
+#' For `bg()` and `color()`.
+#'
+#' @param left,right `[character(1)]`
+#'
+#' For `wrap()`.
+#'
+#' @return
+#'
+#' A function which returns a styled character or ANSI string vector.
+#'
+#' @family styles
+#' @name stylers
+#' @examples
+#' color_red <- color("red")
+#' color_red(1:3)
+NULL
+
+# TODO: Grouping these for now (with incomplete documentation), but they should
+# be documented seperately. Maybe included in the same family however.
+#
+# - bg, background, colour, color can be documented together
+# By themselves:
+# - style
+# - wrap
+# - emph
+# - make_formatter
+
 # cli --------------------------------------------------------------------------
 
+#' @name stylers
 #' @export
 bg <- function(x) {
+  x <- tolower(check_is_string(x))
   switch(
-    tolower(check_is_string(x)),
+    x,
     black0 = ,
     black = cli::bg_black,
     blue0 = ,
@@ -52,19 +91,20 @@ bg <- function(x) {
     bright_yellow = ,
     yellow_br = ,
     br_yellow = cli::bg_br_yellow,
-    # Default
-    cli::make_ansi_style(col, bg = TRUE)
+    make_fallback_color(x, bg = TRUE)
   )
 }
 
+#' @name stylers
 #' @export
 background <- bg
 
+#' @name stylers
 #' @export
 color <- function(x) {
-  col <- tolower(check_is_string(x))
+  x <- tolower(check_is_string(x))
   switch(
-    col,
+    x,
     black0 = ,
     black = cli::col_black,
     blue0 = ,
@@ -113,11 +153,11 @@ color <- function(x) {
     bright_yellow = ,
     yellow_br = ,
     br_yellow = cli::col_br_yellow,
-    # Default
-    cli::make_ansi_style(col)
+    make_fallback_color(x)
   )
 }
 
+#' @name stylers
 #' @export
 colour <- color
 
@@ -134,19 +174,43 @@ colour <- color
 # - test outside of the opening bracket is pasted around the text
 # - "<{}>" -> paste0("<", x, ">"), "<{[blue]}> -> cli::cli_col_blue(paste0("<", x, ">"))
 
+#' @name stylers
 #' @export
 make_formatter <- function(x) {
 
 }
 
-# TODO Implement:
-# - specify "bold",
-
+#' @name stylers
 #' @export
 style <- function(x) {
-
+  x <- tolower(check_is_string(x))
+  switch(
+    bold = cli::style_bold,
+    dimmed = ,
+    dim = cli::style_dim,
+    blur = ,
+    blurred = cli::style_blurred,
+    italicized = ,
+    italicize = ,
+    italics ,
+    italic = cli::style_italic,
+    hide = ,
+    hidden = cli::style_hidden,
+    underline = cli::style_underline,
+    strike = ,
+    strikethrough = cli::style_strikethrough,
+    inverted = ,
+    inverse = cli::style_inverse,
+    # TODO: Make a function which shows supported styles somewhere. Reference it
+    #       in this error.
+    cli::cli_abort(
+      "Can't create style {.val {x}}.",
+      class = "vlighter_error"
+    )
+  )
 }
 
+#' @name stylers
 #' @export
 wrap <- function(left = "[", right = "]") {
   left <- check_is_string(left)
@@ -155,6 +219,7 @@ wrap <- function(left = "[", right = "]") {
 }
 
 # Wrap in "[]", bold, and highlight (provide emphasis even if no color is available)
+#' @name stylers
 #' @export
 emph <- function(wrap = TRUE, bg = TRUE, bold = TRUE) {
   call <- rlang::sym("x")
@@ -165,5 +230,37 @@ emph <- function(wrap = TRUE, bg = TRUE, bold = TRUE) {
     args = rlang::pairlist2(x = ),
     body = call,
     env = rlang::caller_env()
+  )
+}
+
+# helpers ----------------------------------------------------------------------
+
+make_fallback_color <- function(
+    x,
+    bg = FALSE,
+    x_name = rlang::caller_arg(x),
+    error_call = rlang::caller_env(),
+    error_class = "vlightr_error"
+  ) {
+  # Taking ownership of the the `cli` error, since the message says a matrix can
+  # be used, which is not true for these style functions. This is a little
+  # dangerous, because there's no "cli_error_bad_color" class.
+  rlang::try_fetch(
+    cli::make_ansi_style(x, bg = bg),
+    rlib_error_3_0 = function(cnd) {
+      with_color <- if (bg) "with background color" else "with color"
+      cli::cli_abort(
+        # Thanks `cli::make_ansi_style` documentation for this message. The reference
+        # to matrices is all that was removed, otherwise this is mostly the same.
+        c(
+          "Can't create a style {with_color} {.val {x}}. {.arg x} must be one of:",
+          `*` = "a builtin {.pkg cli} style, e.g. {.val red} or {.val br_blue}",
+          `*` = "an R colour name, see {.run grDevices::colors}",
+          `*` = "a 6- or 8-digit hexadecimal color string, e.g. ⁠#ff0000"
+        ),
+        call = error_call,
+        class = error_class
+      )
+    }
   )
 }

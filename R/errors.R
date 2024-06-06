@@ -76,13 +76,14 @@ check_is_functionish <- function(
     arg,
     arg_name = rlang::caller_arg(arg),
     error_call = rlang::caller_env(),
-    error_class = "vlightr_error"
+    error_class = "vlightr_error",
+    error_msg = NULL
   ) {
   rlang::try_fetch(
     rlang::as_function(x = arg, arg = arg_name, call = error_call),
     error = function(cnd) {
       cli::cli_abort(
-        "{.arg {arg_name}} must be a function or one-sided formula.",
+        error_msg %||% "{.arg {arg_name}} must be a function or one-sided formula.",
         parent = cnd,
         call = error_call,
         class = error_class
@@ -224,28 +225,6 @@ check_is_bool <- function(
     error_call = error_call,
     error_class = error_class
   )
-}
-
-check_can_slice <- function(
-    arg,
-    len_to_slice,
-    arg_name = rlang::caller_arg(arg),
-    error_call = rlang::caller_env(),
-    error_class = "vlightr_error"
-  ) {
-
-  arg <- as.integer(check_is_vector(
-    arg,
-    cls = "numeric",
-    nas = FALSE,
-    arg_name = arg_name,
-    error_call = error_call,
-    error_class = error_class
-  ))
-  if (all(0 < arg & arg < len_to_slice)) {
-
-  }
-
 }
 
 # stop -------------------------------------------------------------------------

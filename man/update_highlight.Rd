@@ -25,7 +25,7 @@ A highlighted vector to update.}
 Functions that indicate which elements of \code{x} to format. Can be a:
 \itemize{
 \item Function, e.g. \code{is.na}
-\item A purrr-style lambda, e.g. \code{~ nchar(.x) > 0}
+\item A purrr-style lambda, e.g. \code{~ nchar(.x) > 0}, \code{~ TRUE}
 \item A list of functions or lambdas, e.g. \code{list(~ .x < mean(.x), is.infinite)}
 }
 
@@ -42,14 +42,17 @@ the formatter function \code{formatters[[i]]}. Consequently, an equal number of
 Character manipulation functions used to format \code{x}. Can be a:
 \itemize{
 \item Function, e.g. \link[cli:ansi-styles]{cli::style_bold}
-\item A purrr-style lambda, e.g. \code{~ paste0(.x, "!")}
+\item A purrr-style lambda, e.g. \code{~ paste0(.x, "!")}, \code{~ "Hi"}
 \item A list of functions or lambdas, e.g. \code{list(~ cli::col_red, toupper)}
 }
 
 When called, a function in \code{formatters} will receive a single character vector
 (of variable length) as it's only argument. A formatter must return a character
-vector the same length as it's input. ANSI string vectors (class
-\code{cli_ansi_string}) are also supported (see \link[cli:ansi-styles]{cli::ansi-styles} for details).
+vector the same length as it's input or of length 1 (in which case the result
+is recycled to the length of the input character).
+
+ANSI string vectors (class \code{cli_ansi_string}) are also supported (see
+\link[cli:ansi-styles]{cli::ansi-styles} for details).
 
 The same number of \code{formatters} and \code{conditions} must be supplied.}
 
@@ -79,23 +82,25 @@ corresponding to the first condition met) or formatted multiple times (using
 all of the corresponding \code{formatters}).
 
 \code{format_once} is \code{FALSE} by default in \code{highlight()} and \code{TRUE} by default in
-\code{highlight_case()} (to mimic the behavior of conditions in \code{\link[dplyr:case_when]{dplyr::case_when()}}).}
+\code{highlight_case()}.}
 
 \item{init_formatter}{\verb{[function / NULL]}
 
-The first function used to format \code{x}. \code{init_formatter(x)} is called prior
-to conditionally formatting \code{x} using the \code{formatters} functions. If \code{NULL},
-then \code{format(x)} is called instead.}
+The first function used to format \code{x}. When the highlighted vector is formatted,
+\code{init_formatter(x)} is called prior to conditionally formatting \code{x} (i.e. before
+any of the \code{formatters} are called.
+
+If \code{NULL}, then \code{format(x)} is called instead.}
 
 \item{last_formatter}{\verb{[function / NULL]}
 
 The last function called to format \code{x}. The \code{last_formatter} is applied
 after \code{x} has been conditionally formatted (i.e. after the \code{init_formatter}
-and \code{formatters} functions have been applied).
+and \code{formatters} functions have been called).
 
 \code{last_formatter} will receive a character vector the same length as
 \code{x} as it's only argument. If \code{NULL}, the conditionally formatted \code{x}
-is returned as is by \code{format()}.}
+is returned as is after formatting.}
 }
 \description{
 \code{update_highlight()} sets any of the \code{conditions},
@@ -108,8 +113,30 @@ supplied list of \code{conditions} functions must be the same length as the
 existing \code{formatters} attribute of \code{x}.
 }
 \examples{
-salary <- 1000 * c(10, 87, 13, 56, 92, 105, NA)
-salary <- highlight_case(salary)
+dummies <- c(1L, 0L, NA, 0L, 1L)
+dummies_hl <- highlight_case(
+  x = dummies,
+  .x == 0 ~ paste0(.x, "[No]"),
+  .x == 1 ~ paste0(.x, "[Yes]"),
+  TRUE ~ "Don't Know"
+)
+print(dummies_hl)
+describe_highlight(dummies_hl)
+
+# Add a `description` and `last_formatter`
+dummies_hl <- update_highlight(
+  x = dummies_hl,
+  description = c("Set 0 to No", "Set 1 to Yes", " Otherwise, Don't Know"),
+  last_formatter = background("yellow")
+)
+print(dummies_hl)
+describe_highlight(dummies_hl)
+
+# Change the `formatters`
+update_highlight(
+  x = dummies_hl,
+  formatters = list(~ "No", ~ "Yes", ~ color("red"))
+)
 }
 \seealso{
 Other attribute setters: 

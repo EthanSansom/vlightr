@@ -9,7 +9,18 @@
 #     and truncation of other classes (if it exists)
 #   - the custom methods are only used when no `init_formatter` / `last_formatter` is supplied
 #   - do some interactive pillar testing
+# - NOTE ^: I think the best thing to do for the `pillar` issue is to provide a
+#   `highlight_pillar` method, like `highlight_format`, which receives the highlighted
+#   vector `x` as input. That way, you can call `format(x)` as normal to conditionally
+#   format, or alter the formatting as you see fit.
+#
 # - make the `highlight_format` a generic, so users can define it for other classes (like `ivs_format`)
+
+# TODO: Short Term:
+# - go through all the error functions and pick how you want to describe things
+#   - is the argument `x` and name `x_name`, `arg`, `arg_name`?
+#   - start putting together some naming/style conventions (element -> elt, index -> i, etc.)
+# - make sure that you run every example, to confirm there are no hidden errors
 
 # constructor ------------------------------------------------------------------
 
@@ -25,9 +36,8 @@
 #' but has a different `format()` and `print()` method.
 #'
 #' `highlight_case()` provides an alternative [dplyr::case_when()] style syntax
-#' to `highlight()` and defaults to `format_once = TRUE`, but is otherwise
-#' equivalent to `highlight()`. Arguments (other than `x`) to `highlight_case()`
-#' are prefixed with a `.`.
+#' to `highlight()`, but is otherwise similar. Arguments (other than `x`) to
+#' `highlight_case()` are prefixed with a dot (`.`).
 #'
 #' `hl()` and `highlight()` are synonyms.
 #'
@@ -37,19 +47,19 @@
 #'  size 1.
 #'
 #'  `x` is considered a vector if:
-#'  * `x` is not a [data.frame].
-#'  * `x` is not a bare [list].
-#'  * `x` is otherwise a vector, as defined by [vctrs::obj_is_vector()].
+#'  * `x` is not a [data.frame]
+#'  * `x` is not a bare [list]
+#'  * `x` is otherwise a vector, as defined by [vctrs::obj_is_vector()]
 #'
 #'  Atomic vector types `"logical"`, `"integer"`, `"double"`, `"complex"`,
-#'  `"character"`, and `"raw"` meet these criteria. As do vectors defined
-#'  via the vctrs package and many others.
+#'  `"character"`, and `"raw"` meet these criteria. As do many common vector
+#'  classes such as `POSIXct`, `lubridate::interval`, or `ivs::iv`.
 #'
 #' @param conditions `[function / list]`
 #'
 #'  Functions that indicate which elements of `x` to format. Can be a:
 #'  * Function, e.g. `is.na`
-#'  * A purrr-style lambda, e.g. `~ nchar(.x) > 0`
+#'  * A purrr-style lambda, e.g. `~ nchar(.x) > 0`, `~ TRUE`
 #'  * A list of functions or lambdas, e.g. `list(~ .x < mean(.x), is.infinite)`
 #'
 #'  Each function in `conditions` will receive `x` as it's input and must return
@@ -64,32 +74,42 @@
 #'
 #'  Character manipulation functions used to format `x`. Can be a:
 #'  * Function, e.g. [cli::style_bold]
-#'  * A purrr-style lambda, e.g. `~ paste0(.x, "!")`
+#'  * A purrr-style lambda, e.g. `~ paste0(.x, "!")`, `~ "Hi"`
 #'  * A list of functions or lambdas, e.g. `list(~ cli::col_red, toupper)`
 #'
 #'  When called, a function in `formatters` will receive a single character vector
 #'  (of variable length) as it's only argument. A formatter must return a character
-#'  vector the same length as it's input. ANSI string vectors (class
-#'  `cli_ansi_string`) are also supported (see [cli::ansi-styles] for details).
+#'  vector the same length as it's input or of length 1 (in which case the result
+#'  is recycled to the length of the input character).
+#'
+#'  ANSI string vectors (class `cli_ansi_string`) are also supported (see
+#'  [cli::ansi-styles] for details).
 #'
 #'  The same number of `formatters` and `conditions` must be supplied.
 #'
 #' @param ... `[formula]`
 #'
 #'  For `highlighter_case()`, a two sided formula with a condition on the
-#'  left-hand-side and a formatter function on the right-hand-side.
+#'  left-hand-side and a formatter on the right-hand-side.
 #'
 #'  This argument replaces the `formatters` and `conditions` arguments of
 #'  `highlight()`. The i-th dot supplied is roughly equivalent to
 #'  `conditions[[i]] ~ formatters[[i]]`.
 #'
-#'  Examples of arguments to `...` include:
-#'  * Colour `NA` values red: `is.na(.x) ~ cli::col_red`
-#'  * Replace 1's with 2's: `.x == 1 ~ \(x) "2"`
-#'  * Add an exclamation mark: `toupper(.x) == .x ~ \(x) paste0(x, "!")`
+#'  The left-hand-side and right-hand-side of the formula may be a:
+#'  * Function, e.g. `rlang::is_string`, `toupper`
+#'  * A purrr-style lambda expression, e.g. `TRUE`, `paste(.x, "?")`
 #'
-#'  The left-hand-side must be the body of a purrr-style lambda (i.e. a lambda
-#'  without the prefix `~`) and the right-hand-side must be a function.
+#'  The left-hand-side and righ-hand-side of the formula may not be a call to a
+#'  generator function (i.e. a function which returns another function). Examples
+#'  include [wrap()], [color()], and [bg()]. To use such a function, call it
+#'  within a lambda expression instead, e.g. `color("blue")(.x)`.
+#'
+#'  Examples of arguments to `...` include:
+#'  * Colour `NA` values red: `is.na ~ cli::col_red`
+#'  * Add an exclamation mark: `toupper(.x) == .x ~ paste0(.x, "!")`
+#'  * Replace 1's with 2's: `.x == 1 ~ "2"`
+#'  * Colour the background yellow by default: `TRUE ~ bg("yellow")(.x)`
 #'
 #' @param description,.description `[character / NULL]`
 #'
@@ -117,23 +137,25 @@
 #'  all of the corresponding `formatters`).
 #'
 #'  `format_once` is `FALSE` by default in `highlight()` and `TRUE` by default in
-#'  `highlight_case()` (to mimic the behavior of conditions in [dplyr::case_when()]).
+#'  `highlight_case()`.
 #'
 #' @param init_formatter,.init_formatter `[function / NULL]`
 #'
-#'  The first function used to format `x`. `init_formatter(x)` is called prior
-#'  to conditionally formatting `x` using the `formatters` functions. If `NULL`,
-#'  then `format(x)` is called instead.
+#'  The first function used to format `x`. When the highlighted vector is formatted,
+#'  `init_formatter(x)` is called prior to conditionally formatting `x` (i.e. before
+#'  any of the `formatters` are called.
+#'
+#'  If `NULL`, then `format(x)` is called instead.
 #'
 #' @param last_formatter,.last_formatter `[function / NULL]`
 #'
 #'  The last function called to format `x`. The `last_formatter` is applied
 #'  after `x` has been conditionally formatted (i.e. after the `init_formatter`
-#'  and `formatters` functions have been applied).
+#'  and `formatters` functions have been called).
 #'
 #'  `last_formatter` will receive a character vector the same length as
 #'  `x` as it's only argument. If `NULL`, the conditionally formatted `x`
-#'  is returned as is by `format()`.
+#'  is returned as is after formatting.
 #'
 #' @return
 #'
@@ -207,7 +229,7 @@
 #'   TRUE ~ \(x) paste0("$", x),
 #'   .init_formatter = \(x) sprintf("%.2f", abs(x))
 #' )
-#' dollar
+#' print(dollar)
 #' @export
 highlight <- function(
     x = logical(),
@@ -227,7 +249,7 @@ highlight <- function(
   stop_different_length(conditions, formatters)
 
   if (is.null(description)) {
-    description <- sprintf("Format %i", seq_along(conditions))
+    description <- sprintf("Condition %i", seq_along(conditions))
   } else {
     description <- check_is_vector(description, "character", nas = FALSE)
     stop_different_length(conditions, description)
@@ -238,9 +260,6 @@ highlight <- function(
     precedence <- check_is_vector(precedence, "numeric", nas = FALSE)
     stop_different_length(conditions, precedence)
   }
-  format_once <- check_is_bool(format_once)
-  init_formatter <- init_formatter %!|% check_is_functionish(init_formatter)
-  last_formatter <- last_formatter %!|% check_is_functionish(last_formatter)
 
   validate_highlight(
     new_highlight(
@@ -249,9 +268,9 @@ highlight <- function(
       formatters = formatters,
       description = description,
       precedence = precedence,
-      format_once = format_once,
-      init_formatter = init_formatter,
-      last_formatter = last_formatter
+      format_once = check_is_bool(format_once),
+      init_formatter = init_formatter %!|% check_is_functionish(init_formatter),
+      last_formatter = last_formatter %!|% check_is_functionish(last_formatter)
     ),
     arg_name = x_name
   )
@@ -275,6 +294,7 @@ highlight_case <- function(
 
   rlang::check_required(x)
   dots <- rlang::list2(...)
+
   are_formulas <- vapply(dots, rlang::is_formula, logical(1L), lhs = TRUE)
   if (!all(are_formulas)) {
     invalid_at <- which.min(are_formulas)
@@ -284,35 +304,30 @@ highlight_case <- function(
     } else {
       "{.obj_type_friendly {arg}}"
     }
-    stop_must_not(invalid_dot, must = "be a two-sided formula", not = not)
+    stop_must_not(
+      arg = invalid_dot,
+      arg_name = paste0("..", invalid_at),
+      must = "be a two-sided formula",
+      not = not
+    )
   }
 
-  # TODO: Once this is fixed, update any documentation which uses `highlight_case`
-  #       to use whatever function/lambda format is cleanest.
-  #
-  # TODO: I actually don't see any reason why the lhs couldn't be a function.
-  # - if it's a name, evaluate and see if it's a function
-  # - if it's a call to function, evaluate and use that function (ex. \(x) x + 1 or function(x) x + 1)
-  # - if it's any other expression, assume it's a lamdba turn to a formula
-  #
-  # You can make something like `evalidate_case_function()` and use that for both
-  # the `conditions` (lhs) and `formatters` (rhs) supplied to `highlight_case`
-  conditions <- lapply(
-    dots,
-    \(x) {
-      rlang::new_formula(
-        lhs = NULL,
-        rhs = rlang::f_lhs(x),
-        env = rlang::f_env(x)
-      )
-    }
+  dot_names <- paste0("..", seq_along(dots))
+  conditions <- .mapply(
+    FUN = evalidate_case_fn,
+    dots = list(
+      case = dots,
+      case_name = dot_names
+    ),
+    MoreArgs = list(is_lhs = TRUE)
   )
-  # TODO: These too could be lambdas, named functions, or inline functions
-  # (e.g. cli::col_red, \(x) paste(x, 10), paste(.x, "!)). Remember, lambdas
-  # won't have the first `~`.
-  formatters <- lapply(
-    dots,
-    \(x) eval(rlang::f_rhs(x), envir = rlang::f_env(x))
+  formatters <- .mapply(
+    FUN = evalidate_case_fn,
+    dots = list(
+      case = dots,
+      case_name = dot_names
+    ),
+    MoreArgs = list(is_lhs = FALSE)
   )
 
   highlight(
@@ -324,6 +339,72 @@ highlight_case <- function(
     format_once = .format_once,
     init_formatter = .init_formatter,
     last_formatter = .last_formatter
+  )
+}
+
+evalidate_case_fn <- function(
+    case,
+    is_lhs,
+    case_name = rlang::caller_arg(fn),
+    error_call = rlang::caller_env(),
+    error_class = "vlightr_error"
+  ) {
+
+  case_env <- rlang::f_env(case)
+  case <- if (is_lhs) rlang::f_lhs(case) else rlang::f_rhs(case)
+
+  # The case could be a namespaced function name (e.g. `rlang::is_bool`) or a
+  # namespaced function call (e.g. `rlang::is_string(paste(.x))`).
+  # - if name, then evalidated at the next `if ()` block
+  # - if call, then converted to a lambda at end (e.g. `~ rlang::is_string(paste(.x))`)
+  is_namespaced_fn <- rlang::is_call(case, "::")
+  if (is_namespaced_fn) {
+    # `::` right-hand-side can be either a string or a symbol. If it's anything
+    # else, assume it's a namespaced call instead of a namespaced function.
+    fn_arg <- case[[3]]
+    is_namespaced_fn <- rlang::is_symbol(fn_arg) || rlang::is_string(fn_arg)
+  }
+
+  # Could be a:
+  # - a function name (e.g. `is.numeric`)
+  # - an in-line function (e.g. `\(x) ...` or `function(x) ...`)
+  # - a namespaced function name (e.g. `rlang::is_string`)
+  # In any case we can evaluate it and check whether the result is a function.
+  if (rlang::is_symbol(case) || rlang::is_call(case, "function") || is_namespaced_fn) {
+    fn <- rlang::try_fetch(
+      eval(case, case_env),
+      error = function(cnd) {
+        side <- if (is_lhs) "left-hand-side" else "right-hand-side"
+        cli::cli_abort(
+          c(
+            "Can't evaluate {side} of formula {.arg {case_name}}.",
+            i = "The {side} of {.arg {case_name}} must be a function or purrr-style lambda expression."
+          ),
+          parent = cnd,
+          call = error_call,
+          class = error_class
+        )
+      }
+    )
+    return(
+      check_is_functionish(
+        arg = fn,
+        error_call = error_call,
+        error_class = error_class,
+        error_msg = glue::glue(
+          "The {side} of `{case_name}` must be a function ",
+          "or purrr-style lambda expression."
+        )
+      )
+    )
+  }
+
+  # Otherwise, put anything in a formula. This allows the last LHS case to be
+  # `TRUE ~ ...`, as in `dplyr::case_when()`, or a lambda body (ex. `.x > 0`).
+  rlang::new_formula(
+    lhs = NULL,
+    rhs = case,
+    env = case_env
   )
 }
 
@@ -383,11 +464,45 @@ validate_highlight <- function(
   arg
 }
 
+#' Test if the object is a highlight
+#'
+#' @description
+#'
+#' This function returns `TRUE` for highlighted vectors (class `vlightr_highlight`)
+#' or subclasses thereof, and returns returns `FALSE` otherwise.
+#'
+#' @param x
+#'
+#' An object to test.
+#'
+#' @return
+#'
+#' `TRUE` if `x` is a `vlightr_highlight`, `FALSE` otherwise.
+#'
 #' @export
 is_highlight <- function(x) {
   inherits(x, "vlightr_highlight")
 }
 
+
+#' Test if the object can be highlighted
+#'
+#' @description
+#'
+#' This function returns `TRUE` for objects which can be highlighted (e.g. via
+#' [highlight()]) and `FALSE` otherwise. An object `x` can be highlighted if:
+#'  * `x` is not a [data.frame] or subclass thereof
+#'  * `x` is not a bare [list]
+#'  * `x` is otherwise a vector, as defined by [vctrs::obj_is_vector()]
+#'
+#' @param x
+#'
+#' An object to test.
+#'
+#' @return
+#'
+#' `TRUE` if `x` is can be highlighted, `FALSE` otherwise.
+#'
 #' @export
 is_highlightable <- function(x) {
   vctrs::obj_is_vector(x) && !is.data.frame(x) && !rlang::is_bare_list(x)
@@ -663,11 +778,32 @@ restore_highlight <- function(
 #'
 #' @family attribute setters
 #'
-#' @export
-#'
 #' @examples
-#' salary <- 1000 * c(10, 87, 13, 56, 92, 105, NA)
-#' salary <- highlight_case(salary)
+#' dummies <- c(1L, 0L, NA, 0L, 1L)
+#' dummies_hl <- highlight_case(
+#'   x = dummies,
+#'   .x == 0 ~ paste0(.x, "[No]"),
+#'   .x == 1 ~ paste0(.x, "[Yes]"),
+#'   TRUE ~ "Don't Know"
+#')
+#' print(dummies_hl)
+#' describe_highlight(dummies_hl)
+#'
+#' # Add a `description` and `last_formatter`
+#' dummies_hl <- update_highlight(
+#'   x = dummies_hl,
+#'   description = c("Set 0 to No", "Set 1 to Yes", " Otherwise, Don't Know"),
+#'   last_formatter = background("yellow")
+#' )
+#' print(dummies_hl)
+#' describe_highlight(dummies_hl)
+#'
+#' # Change the `formatters`
+#' update_highlight(
+#'   x = dummies_hl,
+#'   formatters = list(~ "No", ~ "Yes", ~ color("red"))
+#' )
+#' @export
 update_highlight <- function(
     x,
     conditions = NULL,
@@ -693,6 +829,31 @@ update_highlight <- function(
   )
 }
 
+#' Unclass a highlighted vector
+#'
+#' @description Remove the conditional formatting from a highlighted vector,
+#' returning the highlight to it's underlying class. If `x` is a highlightable
+#' vector, then `x` and `un_highlight(highlight(x))` are equivalent.
+#'
+#' This is useful to expose a highlighted vector's data to function which do not
+#' accept a `vlightr_highlight` class object.
+#'
+#' `ul()` and `un_highlight()` are synonyms.
+#'
+#' @param x
+#'
+#' A highlighted vector to unclass. If `x` is not a `vlightr_highlight` vector,
+#' then `x` is returned as is.
+#'
+#' @examples
+#' # Remove the conditional formatting of a highlighted vector
+#' x <- highlight(1:5, ~ .x > 3, wrap())
+#' print(x)
+#' print(un_highlight(x))
+#'
+#' # Allow a highlighted vector to be used in functions
+#' try(paste(x))
+#' paste(un_highlight(x))
 #' @export
 un_highlight <- function(x) {
   if (!is_highlight(x)) {
@@ -701,10 +862,9 @@ un_highlight <- function(x) {
   get_data(x)
 }
 
+#' @rdname un_highlight
 #' @export
 ul <- un_highlight
-
-# TODO: Examples
 
 #' Restore a highlighted vector's formatting
 #'
@@ -715,7 +875,7 @@ ul <- un_highlight
 #'
 #' The primary function of `re_highlight()` is to restore the format method of a
 #' highlighted vector after un-highlighting it during an intermediate operation.
-#' See the **Highlight, Un-Highlight, Re-Highlight** section of
+#' See the *Highlight, Un-Highlight, Re-Highlight* section of
 #' `vignette("vlightr")` for more details.
 #'
 #' `re_highlight(un_highlight(x_hl), x_hl)` and `x_hl` are equivalent for a
@@ -744,9 +904,58 @@ ul <- un_highlight
 #' `FALSE`.
 #'
 #' `init_formatter` and `last_formatter` are taken from `x`, if they are defined
-#' (i.e. not `NULL`) for `x`, and are otherwise taken from the first argument in `...`
-#' with a defined `init_formatter` and `last_formatter` respectively.
+#' (i.e. not `NULL`) for `x`, and are otherwise taken from the first argument in
+#' `...` with a defined `init_formatter` (`last_formatter`) respectively.
 #'
+#' @examples
+#' # Restore a vector's conditional formatting after manipulating it
+#' praise <- c("is cool", "has great vibes", "can do anything")
+#' names <- "David|Aretha|Fats|Marvin|Lauryn"
+#' praise_names <- highlight(
+#'   c("Marvin", "House", "Fats", "Soup"),
+#'   ~ grepl(names, .x),
+#'   ~ paste(.x, rep_len(praise, length(.x)))
+#' )
+#' print(praise_names)
+#'
+#' new_names <- paste(
+#'   un_highlight(praise_names),
+#'   c("Gaye", "MD", "Domino", "Salad")
+#' )
+#' print(new_names)
+#' print(re_highlight(new_names, praise_names))
+#'
+#' # Add several conditional formats to an unhighlighted vector
+#' x <- highlight(1:5, ~ .x > 3, wrap("[", "]"))
+#' y <- highlight(1:5, ~ .x < 2, wrap("<", ">"))
+#' print(x)
+#' print(y)
+#' print(re_highlight(1:5, x, y))
+#'
+#' # Or add conditional formats to an already highlighted vector
+#' z <- highlight(1:5, ~ .x %% 2 == 0, wrap("(", ")"))
+#' print(z)
+#' print(re_highlight(z, x, y))
+#'
+#' # Restore the conditional formatting of multiple highlights
+#' positive_adjectives <- "(amazing|great|fantastic)"
+#' positive_phrases <- highlight(
+#'   c("that's amazing", "alright", "you're fantastic"),
+#'   ~ grepl(positive_adjectives, .x),
+#'   toupper
+#' )
+#'
+#' doubts <- "(but|maybe)"
+#' doubtful_phrases <- highlight(
+#'   c("but I can't go", "I'll be there", "maybe too fantastic"),
+#'   ~ grepl(doubts, .x),
+#'   ~ paste0(.x, "...")
+#' )
+#'
+#' print(positive_phrases)
+#' print(doubtful_phrases)
+#' paste0(ul(positive_phrases), ", ", ul(doubtful_phrases)) |>
+#'   re_highlight(positive_phrases, doubtful_phrases)
 #' @export
 re_highlight <- function(x, ...) {
   dots <- rlang::list2(...)
@@ -788,6 +997,36 @@ re_highlight <- function(x, ...) {
 #' @export
 rl <- re_highlight
 
+#' Highlight pipe
+#'
+#' @description
+#'
+#' A wrapper around the [magrittr::%>%] pipe which un-highlights the input value
+#' using `un_highlight(lhs)` and re-highlights the output value using
+#' `re_highlight(..., lhs)`.
+#'
+#' @param lhs
+#'
+#' A value, usually a highlighted (class `vlightr_highlight`) vector.
+#'
+#' @param rhs
+#'
+#' A function call, using [magrittr::%>%] semantics.
+#'
+#' @details
+#'
+#' `lhs %hl>% rhs` is equivalent to `re_highlight(un_highlight(lhs) %>% rhs, lhs)`.
+#'
+#' See the [magrittr::%>%] for details on how the pipe is used.
+#'
+#' @examples
+#' x <- highlight(c(1L, 0L, NA, 0L), is.na, color("red"))
+#' print(x)
+#'
+#' # The following are equivalent
+#' re_highlight(as.logical(un_highlight(x)), x)
+#' x |> un_highlight() |> as.logical() |> re_highlight(x)
+#' x %hl>% as.logical()
 #' @export
 `%hl>%` <- function(lhs, rhs) {
   lhs_expr <- substitute(lhs)
@@ -805,6 +1044,89 @@ rl <- re_highlight
 
 # highlighter ------------------------------------------------------------------
 
+# TODO: Finish documentation. A lot of the parameters in `highlight()` mention
+# the vector `x`, i.e. the input vector.
+
+#' Generate a highlight function with custom default arguments
+#'
+#' @description
+#'
+#' Produces a partially applied version of the [highlight()] function, with
+#' specified pre-filled arguments. The resulting function can be used to highlight
+#' a vector `x` with a default conditional format.
+#'
+#' Assuming that arguments `x`, `conditions`, and `formatters` are valid, the
+#' following are equivalent:
+#'  * `highlight(x = x, conditions = conditions, formatters = formatters)`
+#'  * `highlighter(conditions = conditions, formatters = formatters)(x)`
+#'
+#' The output function has the same arguments as `highlight()`. If arguments
+#' `conditions`, `formatters`, `description`, or `precedence` are supplied to
+#' a highlighter function, then the user arguments are appended to the pre-filled
+#' arguments prior to highlighting.
+#'
+#' If arguments `format_once`, `init_formatter`, or `last_formatter` are supplied
+#' to a highlighter, then the supplied arguments override the pre-filled defaults.
+#'
+#' @inheritParams highlight
+#'
+#' @param ... `[formula]`
+#'
+#'  This argument replaces the `formatters` and `conditions` arguments of
+#'  `highlighter()`. The i-th dot supplied is roughly equivalent to
+#'  `conditions[[i]] ~ formatters[[i]]`.
+#'
+#'  The left-hand-side and right-hand-side of the formula may be a:
+#'  * Function, e.g. `rlang::is_string`, `toupper`
+#'  * A purrr-style lambda expression, e.g. `TRUE`, `paste(.x, "?")`
+#'
+#'  The left-hand-side and righ-hand-side of the formula may not be a call to a
+#'  generator function (i.e. a function which returns another function). Examples
+#'  include [wrap()], [color()], and [bg()]. To use such a function, call it
+#'  within a lambda expression instead, e.g. `color("blue")(.x)`.
+#'
+#'  Examples of arguments to `...` include:
+#'  * Colour `NA` values red: `is.na ~ cli::col_red`
+#'  * Add an exclamation mark: `toupper(.x) == .x ~ paste0(.x, "!")`
+#'  * Replace 1's with 2's: `.x == 1 ~ "2"`
+#'  * Colour the background yellow by default: `TRUE ~ bg("yellow")(.x)`
+#'
+#' @examples
+#' # Mimic an existing highlighted vector
+#' dummy <- c(1L, NA, 0L, 1L, NA)
+#' dummy_hl <- highlight_case(
+#'  x = dummy,
+#'  .x == 0 ~ paste0(.x, "[No]"),
+#'  .x == 1 ~ paste0(.x, "[Yes]"),
+#'  is.na ~ color("red")
+#' )
+#' dummy_hlghtr <- highlighter_case(
+#'  .x == 0 ~ paste0(.x, "[No]"),
+#'  .x == 1 ~ paste0(.x, "[Yes]"),
+#'  is.na ~ color("red")
+#' )
+#' print(dummy_hl)
+#' print(dummy_hlghtr(x = x))
+#'
+#' # Apply a higlighter to a new vector
+#' dummy_hlghtr(c(-2L, -1L, 0L, 1L, 2L, NA))
+#'
+#' # Provide additional arguments to a highlighter
+#' dummy_hlghtr(
+#'   x = c(1L, NA, 2L, 0L, 1L, NA, 2L),
+#'   conditions = ~ .x == 2,
+#'   formatters = ~ paste(.x, "[Double Yes]")
+#' )
+#'
+#' # Override default highlighter arguments
+#' secret <- highlighter(
+#'   ~ grepl("^<.*>$", .x),
+#'   ~ strrep("x", nchar(.x) - 2L),
+#'   last_formatter = toupper
+#' )
+#' message <- c("<A>", "Super", "<Secret>", "Message")
+#' secret(message)
+#' secret(message, last_formatter = tolower)
 #' @export
 highlighter <- function(
     conditions = list(),
@@ -883,6 +1205,7 @@ highlighter <- function(
   out
 }
 
+#' @rdname highlighter
 #' @export
 highlighter_case <- function(
     ...,
@@ -933,11 +1256,64 @@ highlighter_case <- function(
   )
 }
 
+#' Test if the object is a highlighter
+#'
+#' @description
+#'
+#' This function returns `TRUE` for highlighter functions (class `vlightr_highlighter`)
+#' or subclasses thereof, and returns returns `FALSE` otherwise.
+#'
+#' @param x
+#'
+#' An object to test.
+#'
+#' @return
+#'
+#' `TRUE` if `x` is a `vlightr_highlighter`, `FALSE` otherwise.
+#'
 #' @export
 is_highlighter <- function(x) {
   inherits(x, "vlightr_highlighter")
 }
 
+#' Convert a highlighted vector into a highlighter
+#'
+#' @description
+#'
+#' Convert a highlighted vector `x` (class `vlightr_highlight`) into a highlighter
+#' function (class `vlightr_highligher`) which applies the same conditional
+#' formatting as that of `x`.
+#'
+#' @param x [vlightr_highlight]
+#'
+#' A highlighted vector to convert to a highlighter (class `vlightr_highlighter`)
+#' function. See [highlighter()] for details.
+#'
+#' @return
+#'
+#' A highlighter function with the same `conditions`, `formatters`, `description`,
+#' `precedence`, `format_once`, `init_formatter`, and `last_formatter` as `x`.
+#'
+#' @examples
+#' # Highlight a vector
+#' dummy <- highlight_case(
+#'  x = c(1L, NA, 0L, 1L, NA),
+#'  .x == 0 ~ paste0(.x, "[No]"),
+#'  .x == 1 ~ paste0(.x, "[Yes]"),
+#'  is.na ~ color("red"),
+#'  .description = c(
+#'     "Responded No",
+#'     "Responded Yes",
+#'     "No Response"
+#'   )
+#' )
+#' print(dummy)
+#' describe_highlight(dummy)
+#'
+#' # Convert the highlighted vector into a highlighter function
+#' dummy_hlghtr <- as_highlighter(dummy)
+#' print(dummy_hlghtr(c(0L, 1L, NA, 2L)))
+#' describe_highlight(dummy_hlghtr(c(0L, 1L, NA, 2L)))
 #' @export
 as_highlighter <- function(x) {
   rlang::check_required(x)

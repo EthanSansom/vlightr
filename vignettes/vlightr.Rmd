@@ -159,10 +159,10 @@ indicators %hl>% as.logical()
 
 ```{r}
 # Highlight phrases containing an exclamation
-exclimations <- "(wow|neat|cool)"
+exclamations <- "(wow|neat|cool)"
 exclaim <- highlight(
   c("wow that's great", "okay", "what a cool dude", "no"),
-  ~ grepl(exclimations, .x),
+  ~ grepl(exclamations, .x),
   ~ paste0(.x, "!")
 )
 exclaim
