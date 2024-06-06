@@ -232,7 +232,7 @@ library(ivs)
 starts <- highlight(-3:2, ~ .x %% 2 == 0, ~ paste(.x, "[Even]"))
 ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
-# A totally legit `iv`
+# A totally legitimate `iv`
 ivs::iv(starts, ends)
 #> <iv<highlight<double>>[6]>
 #> [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       

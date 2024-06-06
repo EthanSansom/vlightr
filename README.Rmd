@@ -189,13 +189,13 @@ parallel start and end vectors.
 As a testament to the genericity of the `ivs::iv`, here is an ill-advised but 
 perfectly legal interval vector.
 
-```{r}
+```{r collapse=TRUE}
 library(ivs)
 
 starts <- highlight(-3:2, ~ .x %% 2 == 0, ~ paste(.x, "[Even]"))
 ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
-# A totally legit `iv`
+# A totally legitimate `iv`
 ivs::iv(starts, ends)
 
 # We can even manipulate it
