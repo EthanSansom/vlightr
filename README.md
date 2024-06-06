@@ -180,8 +180,8 @@ message <- c("hey", "good job", "but", "darn", "please", "don't", "say", "gosh")
 
 vlightr::highlight_case(
   message,
-  .x %in% bad_words ~ \(x) strrep("X", nchar(x)),
-  .x %in% affirmations ~ \(x) toupper(x),
+  .x %in% bad_words ~ strrep("X", nchar(.x)),
+  .x %in% affirmations ~ toupper(.x),
   TRUE ~ cli::style_italic
 )
 ```
