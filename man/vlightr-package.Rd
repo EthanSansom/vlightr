@@ -12,6 +12,7 @@ Provides a vector superclass with persistant conditional formatting. `highlight`
 Useful links:
 \itemize{
   \item \url{https://github.com/EthanSansom/vlightr}
+  \item \url{https://ethansansom.github.io/vlightr/}
   \item Report bugs at \url{https://github.com/EthanSansom/vlightr/issues}
 }
 

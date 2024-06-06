@@ -1,5 +1,7 @@
 ---
-output: github_document
+title: vlightr
+output:
+  github_document:
 always_allow_html: yes
 ---
 
@@ -9,10 +11,14 @@ always_allow_html: yes
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  # TODO: `pkgdown` get's confused about where the figures are stored. The README
+  # builds fine on github when this is `man/figures/README-`, but not the website.
   fig.path = "man/figures/README-",
   out.width = "100%",
   cache = FALSE,
   asciicast_at = "end",
+  # TODO: Just added this, not sure how to make `pkgdown` do what I want here
+  # asciicast_knitr_output = if (Sys.getenv("IN_PKGDOWN") == "true") "html" else "svg",
   asciicast_theme = if (Sys.getenv("IN_PKGDOWN") == "true") "pkgdown" else "readme"
 )
 asciicast::init_knitr_engine(
