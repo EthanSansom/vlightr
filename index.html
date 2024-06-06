@@ -63,6 +63,11 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="vlightr">vlightr<a class="anchor" aria-label="anchor" href="#vlightr"></a>
 </h1></div>
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+</div>
+<div class="section level1">
+<h1 id="vlightr-1">vlightr<a class="anchor" aria-label="anchor" href="#vlightr-1"></a>
+</h1>
 <!-- badges: start -->
 <!-- badges: end -->
 <p>vlightr is a package for conditionally formatting vectors. You can <code><a href="reference/highlight.html">highlight()</a></code> a vector to style, colour, or otherwise re-format it’s elements when the vector is printed or formatted. Highlights are:</p>
@@ -93,7 +98,12 @@
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">0L</span>, <span class="cn">NA</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span></span>
 <span><span class="va">x_hl</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is.na</span>, <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/stylers.html">colour</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x_hl</span><span class="op">)</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas1-dark.svg"><img src="reference/figures/README-/red-nas1.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;integer&gt;[5]&gt;                                                         
+#&gt; [1] 1  0  <span style="color: #DC322F;">NA</span> 1  0                                                               
+</pre>
+</div>
 </div>
 <div class="section level2">
 <h2 id="highlight-un-highlight-re-highlight">Highlight, Un-Highlight, Re-Highlight<a class="anchor" aria-label="anchor" href="#highlight-un-highlight-re-highlight"></a>
@@ -104,15 +114,30 @@
 <span>  <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/un_highlight.html">ul</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/re_highlight.html">rl</a></span><span class="op">(</span><span class="va">x_hl</span><span class="op">)</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight1-dark.svg"><img src="reference/figures/README-/rehighlight1.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;logical&gt;[5]&gt;                                                         
+#&gt; [1] TRUE  FALSE <span style="color: #DC322F;">NA</span>    TRUE  FALSE                                               
+</pre>
+</div>
 <p>The “highlight-pipe” <code>%hl&gt;%</code> wraps the <code>magrittr::%&gt;%</code> to do this automatically.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_hl</span> <span class="op"><a href="reference/grapes-hl-greater-than-grapes.html">%hl&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight2-dark.svg"><img src="reference/figures/README-/rehighlight2.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;logical&gt;[5]&gt;                                                         
+#&gt; [1] TRUE  FALSE <span style="color: #DC322F;">NA</span>    TRUE  FALSE                                               
+</pre>
+</div>
 <p>Attempting to convert a <code>vlighter_highlight</code> vector to another class will raise an error.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="va">x_hl</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight3-dark.svg"><img src="reference/figures/README-/rehighlight3.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; Error in as.logical(x_hl) :                                                     
+#&gt;   Can't convert `x` &lt;highlight&lt;integer&gt;&gt; to &lt;logical&gt;.                          
+</pre>
+</div>
 </div>
 <div class="section level2">
 <h2 id="manipulate-highlighted-data">Manipulate Highlighted Data<a class="anchor" aria-label="anchor" href="#manipulate-highlighted-data"></a>
@@ -121,16 +146,31 @@
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Arithmetic</span></span>
 <span><span class="va">x_hl</span> <span class="op">+</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">10L</span><span class="op">)</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/operation-dark.svg"><img src="reference/figures/README-/operation.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;integer&gt;[5]&gt;                                                         
+#&gt; [1] 11 10 <span style="color: #DC322F;">NA</span> 11 10                                                              
+</pre>
+</div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Assignment</span></span>
 <span><span class="va">x_hl</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span></span>
 <span><span class="va">x_hl</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/assign-dark.svg"><img src="reference/figures/README-/assign.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;integer&gt;[5]&gt;                                                         
+#&gt; [1] <span style="color: #DC322F;">NA</span> 0  <span style="color: #DC322F;">NA</span> 1  0                                                               
+</pre>
+</div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Coercion</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">x_hl</span>, <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/coerce-dark.svg"><img src="reference/figures/README-/coerce.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;double&gt;[7]&gt;                                                          
+#&gt; [1] <span style="color: #DC322F;">NA</span>   0.0  <span style="color: #DC322F;">NA</span>   1.0  0.0  -1.5 <span style="color: #DC322F;">NA</span>                                            
+</pre>
+</div>
 </div>
 <div class="section level2">
 <h2 id="multiple-conditional-formats">Multiple Conditional Formats<a class="anchor" aria-label="anchor" href="#multiple-conditional-formats"></a>
@@ -150,7 +190,12 @@
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">dummies</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/multiple-formats-dark.svg"><img src="reference/figures/README-/multiple-formats.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;integer&gt;[5]&gt;                                                         
+#&gt; [1] 1 [Yes] 0 [No]  <span style="color: #DC322F;">NA</span>      1 [Yes] 0 [No]                                      
+</pre>
+</div>
 </div>
 <div class="section level2">
 <h2 id="column-rendering-in-tibbletibble">Column Rendering in <code>tibble::tibble()</code>
@@ -158,7 +203,18 @@
 </h2>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>dummy <span class="op">=</span> <span class="va">dummies</span><span class="op">)</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/tibble-dark.svg"><img src="reference/figures/README-/tibble.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; <span style="color: #999999;"># A tibble: 5 × 1</span>                                                               
+#&gt;          dummy                                                                  
+#&gt;   <span style="font-style: italic;color: #999999;">&lt;hlght&lt;int&gt;&gt;</span>                                                                  
+#&gt; <span style="color: #c2c2c2;">1</span>      1 [Yes]                                                                  
+#&gt; <span style="color: #c2c2c2;">2</span>       0 [No]                                                                  
+#&gt; <span style="color: #c2c2c2;">3</span>           <span style="color: #DC322F;">NA</span>                                                                  
+#&gt; <span style="color: #c2c2c2;">4</span>      1 [Yes]                                                                  
+#&gt; <span style="color: #c2c2c2;">5</span>       0 [No]                                                                  
+</pre>
+</div>
 </div>
 <div class="section level2">
 <h2 id="define-highlighter-functions">Define Highlighter Functions<a class="anchor" aria-label="anchor" href="#define-highlighter-functions"></a>
@@ -166,7 +222,12 @@
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dummy_highlighter</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/as_highlighter.html">as_highlighter</a></span><span class="op">(</span><span class="va">dummies</span><span class="op">)</span></span>
 <span><span class="fu">dummy_highlighter</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlighter-dark.svg"><img src="reference/figures/README-/highlighter.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;double&gt;[3]&gt;                                                          
+#&gt; [1] 0 [No]  1 [Yes] <span style="color: #DC322F;">NA</span>                                                          
+</pre>
+</div>
 </div>
 <div class="section level2">
 <h2 id="alternate-dplyrcase_when-style-syntax">Alternate <code>dplyr::case_when()</code> Style Syntax<a class="anchor" aria-label="anchor" href="#alternate-dplyrcase_when-style-syntax"></a>
@@ -182,7 +243,13 @@
 <span>  <span class="va">.x</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">affirmations</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">toupper</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span>,</span>
 <span>  <span class="cn">TRUE</span> <span class="op">~</span> <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">style_italic</a></span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/case-syntax-dark.svg"><img src="reference/figures/README-/case-syntax.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;character&gt;[8]&gt;                                                       
+#&gt; [1] "<span style="font-style: italic;">hey</span>"      "GOOD JOB" "<span style="font-style: italic;">but</span>"      "XXXX"     "<span style="font-style: italic;">please</span>"   "<span style="font-style: italic;">don't</span>"    "<span style="font-style: italic;">say</span>"     
+#&gt; [8] "XXXX"                                                                      
+</pre>
+</div>
 </div>
 <div class="section level2">
 <h2 id="highlight-arbitrary-vectors">Highlight Arbitrary Vectors<a class="anchor" aria-label="anchor" href="#highlight-arbitrary-vectors"></a>
@@ -200,7 +267,14 @@
 <span><span class="va">is_during_lunch</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/interval.html" class="external-link">int_overlaps</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">lunch_break</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span><span class="va">meeting_times</span>, <span class="va">is_during_lunch</span>, <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_magenta</a></span><span class="op">)</span></span></code></pre></div>
-<p><picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/generic-dark.svg"><img src="reference/figures/README-/generic.svg" width="100%"></source></picture></p>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;Interval&gt;[3]&gt;                                                        
+#&gt; [1] 2020-01-01 09:00:00 UTC--2020-01-01 10:00:00 UTC                            
+#&gt; [2] <span style="color: #D33682;">2020-01-01 11:00:00 UTC--2020-01-01 13:00:00 UTC</span>                            
+#&gt; [3] 2020-01-01 16:00:00 UTC--2020-01-01 17:00:00 UTC                            
+</pre>
+</div>
 </div>
 </div>
 <div class="section level1">
@@ -218,13 +292,15 @@
 <span><span class="fu">ivs</span><span class="fu">::</span><span class="fu"><a href="https://davisvaughan.github.io/ivs/reference/iv.html" class="external-link">iv</a></span><span class="op">(</span><span class="va">starts</span>, <span class="va">ends</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;iv&lt;highlight&lt;double&gt;&gt;[6]&gt;</span></span>
 <span><span class="co">#&gt; [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       </span></span>
-<span><span class="co">#&gt; [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])</span></span>
-<span></span>
+<span><span class="co">#&gt; [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># We can even manipulate it</span></span>
 <span><span class="fu">ivs</span><span class="fu">::</span><span class="fu"><a href="https://davisvaughan.github.io/ivs/reference/iv-groups.html" class="external-link">iv_groups</a></span><span class="op">(</span><span class="fu">ivs</span><span class="fu">::</span><span class="fu"><a href="https://davisvaughan.github.io/ivs/reference/iv.html" class="external-link">iv</a></span><span class="op">(</span><span class="va">starts</span>, <span class="va">ends</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;iv&lt;highlight&lt;double&gt;&gt;[1]&gt;</span></span>
-<span><span class="co">#&gt; [1] [-3, +8 [Even])</span></span>
-<span></span>
+<span><span class="co">#&gt; [1] [-3, +8 [Even])</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Or highlight it...</span></span>
 <span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span></span>
 <span>  <span class="fu">ivs</span><span class="fu">::</span><span class="fu"><a href="https://davisvaughan.github.io/ivs/reference/iv.html" class="external-link">iv</a></span><span class="op">(</span><span class="va">starts</span>, <span class="va">ends</span><span class="op">)</span>, </span>
