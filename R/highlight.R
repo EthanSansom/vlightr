@@ -22,6 +22,10 @@
 #   - start putting together some naming/style conventions (element -> elt, index -> i, etc.)
 # - make sure that you run every example, to confirm there are no hidden errors
 
+# TODO Urgent:
+# - make a reprex for the `knitr::chunk_opts` "collapse" option being ignored when
+#
+
 # constructor ------------------------------------------------------------------
 
 #' Conditionally format a vector

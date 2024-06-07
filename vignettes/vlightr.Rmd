@@ -1,6 +1,6 @@
 ---
 title: "vlightr"
-output: rmarkdown::html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{vlightr}
   %\VignetteEncoding{UTF-8}
