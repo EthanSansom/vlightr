@@ -237,12 +237,10 @@ ivs::iv(starts, ends)
 #> <iv<highlight<double>>[6]>
 #> [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       
 #> [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])
-
 # We can even manipulate it
 ivs::iv_groups(ivs::iv(starts, ends))
 #> <iv<highlight<double>>[1]>
 #> [1] [-3, +8 [Even])
-
 # Or highlight it...
 highlight(
   ivs::iv(starts, ends), 

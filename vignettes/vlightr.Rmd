@@ -26,10 +26,8 @@ set.seed(1)
 
 # Which numbers are at or above the mean?
 highlight(1:10, ~ .x >= mean(.x), ~ paste0("[", .x, "]"))
-
 # Where are the vowels?
 highlight(sample(letters, 6), ~ grepl("(a|e|i|o|u)", .x), toupper)
-
 # Which interval is longer than one month?
 highlight(
   interval(ymd("2021-01-01"), ymd("2021-01-01") + days(c(10, 33, 5))),
@@ -61,9 +59,6 @@ an error.
 x <- 1:6
 x_above_mean <- highlight(x, ~ .x >= mean(.x), ~ paste0("[", .x, "]"))
 
-x
-x_above_mean
-
 try(x_above_mean[[5]] <- 100L)
 ```
 
@@ -83,10 +78,11 @@ Arithmetic, comparison, and the math functions supported by
 `vctrs::vec_math()` work out of the box.
 
 ```{r, collapse=TRUE}
+# Arithmetic
 x_above_mean - hl(2.0)
-
+# Comparison
 pmin(x_above_mean, hl(4))
-
+# Math
 sum(x_above_mean)
 ```
 
@@ -114,7 +110,7 @@ which.min(un_highlight(x_above_mean))
 
 The `re_highlight()` function can be used to re-apply the conditional formatting removed by `un_highlight()`.
 
-```{r, collapse=TRUE}
+```{r}
 re_highlight(as.logical(un_highlight(x_above_mean)), x_above_mean)
 re_highlight(which.min(un_highlight(x_above_mean)), x_above_mean)
 ```
@@ -131,13 +127,10 @@ functionality of `vlightr`.
 These functions and their shorthand synonyms allow highlights to be used almost
 as if they were normal vectors.
 
-```{r, collapse=TRUE}
+```{r}
 # Emphasize `NA` values
 indicators <- highlight(c(1L, 0L, NA, 1L), is.na, ~ paste("[", .x, "]"))
-
 indicators
-un_highlight(indicators)
-
 # Convert to a logical vector
 indicators |>
   un_highlight() |>
@@ -163,7 +156,6 @@ exclaim <- highlight(
   ~ paste0(.x, "!")
 )
 exclaim
-
 # Highlight phrases containing a question
 questions <- "(what|where|when)"
 question <- highlight(
@@ -172,7 +164,6 @@ question <- highlight(
   ~ paste0(.x, "?")
 )
 question
-
 # Un-Highlight, Do Something, Re-Highlight
 paste(ul(exclaim), ul(question)) |> rl(exclaim, question)
 ```
@@ -224,7 +215,6 @@ int_hl <- highlight(
 
 # This runs fine
 int_hl
-
 # This does not
 try(c(int_hl, hl(0.5)))
 ```
@@ -385,7 +375,6 @@ highlight(
   conditions = list(~ .x %% 2 != 0, ~ .x > 0),
   formatters = list(~ paste(.x, "is odd"), ~ paste(.x, "and positive"))
 )
-
 # Reverse the `precedence`
 highlight(
   x = -2:1, 
@@ -400,20 +389,18 @@ A highlighter can be defined from scratch using `highlighter()` or
 `highlight()` and `highlight_case()` respectively, except for the first
 argument `x`.
 
-```{r, collapse=TRUE}
+```{r}
 secret <- highlighter(
   conditions = ~ grepl("^<.*>$", .x), 
   formatters = ~ strrep("x", nchar(.x) - 2L)
 )
 secret(c("This", "<is>", "a", "<secret>", "<.>"))
-
 dollars <- highlighter_case(
   is.na(.x) ~ \(x) "NA",
   .x < 0 ~ \(x) paste0("-$", round(abs(as.numeric(x)), digits = 2)),
   .x >= 0 ~ \(x) paste0("$", round(abs(as.numeric(x)), digits = 2))
 )
 dollars(c(-10, 0.12, 130.0234, NA))
-
 no_nas <- highlighter_case(is.na(.x) ~ \(x) "NO PROBLEM")
 no_nas(c(TRUE, FALSE, NA))
 ```
@@ -444,7 +431,7 @@ See `cli` ANSI colored text for more information. (TODO Add link).
 
 For example, the same NA highlight as above can be achieved like so:
 
-```{r, eval = FALSE}
+```{r}
 highlight(c(1, 0, NA), is.na, colour("red"))
 ```
 
@@ -457,7 +444,7 @@ highlight(c(1, 0, NA), is.na, colour("red"))
     formatting, with a lubridate ymd_hms interval (interval(now(),
     now()) is super long, truncate)
 
-```{r, collapse=TRUE}
+```{r}
 long_interval <- interval(now(), now(), tzone = "UTC")
 
 format_interval <- function(x) {
@@ -478,7 +465,7 @@ Similarly, the `last_formatter` is applied after all of the conditional
 formatting has been added. This is useful for limiting the text width of
 a formatted highlight.
 
-```{r, collapse=TRUE}
+```{r}
 truncate_formatter <- function(x, char_limit = 40) {
   # Check which strings in `x` exceed the `char_limit` 
   x_char <- nchar(x)

@@ -197,10 +197,8 @@ ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
 # A totally legitimate `iv`
 ivs::iv(starts, ends)
-
 # We can even manipulate it
 ivs::iv_groups(ivs::iv(starts, ends))
-
 # Or highlight it...
 highlight(
   ivs::iv(starts, ends), 
