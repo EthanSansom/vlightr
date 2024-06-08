@@ -93,8 +93,8 @@ The same number of \code{formatters} and \code{conditions} must be supplied.}
 
 \item{description, .description}{\verb{[character / NULL]}
 
-An optional description of the format applied by each function in
-\code{formatters}. This information is used by \code{\link[=describe_highlight]{describe_highlight()}}.
+An optional description of the conditional format applied by each function
+in \code{formatters}. This information is used by \code{\link[=describe_highlight]{describe_highlight()}}.
 
 If supplied, \code{description} must be the same length as \code{formatters} and
 \code{conditions}.}
@@ -102,7 +102,7 @@ If supplied, \code{description} must be the same length as \code{formatters} and
 \item{precedence, .precedence}{\verb{[numeric / NULL]}
 
 A numeric vector indicating the order in which to apply the \code{formatters}. The
-formatter with the lowest corresponding \code{precedence} value is evaluatted first
+formatter with the lowest corresponding \code{precedence} value is evaluated first
 during formatting. By default \code{formatters} are applied in the order in which
 they were supplied.
 
@@ -152,7 +152,7 @@ The left-hand-side and right-hand-side of the formula may be a:
 \item A purrr-style lambda expression, e.g. \code{TRUE}, \code{paste(.x, "?")}
 }
 
-The left-hand-side and righ-hand-side of the formula may not be a call to a
+The left-hand-side and right-hand-side of the formula may not be a call to a
 generator function (i.e. a function which returns another function). Examples
 include \code{\link[=wrap]{wrap()}}, \code{\link[=color]{color()}}, and \code{\link[=bg]{bg()}}. To use such a function, call it
 within a lambda expression instead, e.g. \code{color("blue")(.x)}.
@@ -196,19 +196,18 @@ describe_highlight(x_hl)
 # Label indicators 1 and 0 by adding highlights to `x_hl`
 x_hl <- highlight(
   x_hl,
-  conditions = list(~ .x == 1, ~ .x == 0),
-  formatters = list(~ paste(.x, "[Yes]"), ~ paste(.x, "[No]"))
+  conditions = list(is.na, ~ .x == 1, ~ .x == 0),
+  formatters = list(color("red"), ~ paste(.x, "[Yes]"), ~ paste(.x, "[No]"))
 )
 print(x_hl)
 describe_highlight(x_hl)
 
 # Using `dplyr::case_when` style syntax.
-# The right hand side `formatters` must be explicit functions.
 x_hl_case <- highlight_case(
   x,
-  is.na(.x) ~ colour("red"),
-  .x == 1 ~ \(x) paste(x, "[Yes]"),
-  .x == 0 ~ \(x) paste(x, "[No]"),
+  is.na(.x) ~ cli::col_red,
+  .x == 1 ~ paste(.x, "[Yes]"),
+  .x == 0 ~ paste(.x, "[No]"),
   .description = c(
     "Colored Red if NA",
     "Labelled Yes if 1",

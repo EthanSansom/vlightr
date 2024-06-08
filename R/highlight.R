@@ -138,7 +138,7 @@
 #'  * Function, e.g. `rlang::is_string`, `toupper`
 #'  * A purrr-style lambda expression, e.g. `TRUE`, `paste(.x, "?")`
 #'
-#'  The left-hand-side and righ-hand-side of the formula may not be a call to a
+#'  The left-hand-side and right-hand-side of the formula may not be a call to a
 #'  generator function (i.e. a function which returns another function). Examples
 #'  include [wrap()], [color()], and [bg()]. To use such a function, call it
 #'  within a lambda expression instead, e.g. `color("blue")(.x)`.
@@ -151,8 +151,8 @@
 #'
 #' @param description,.description `[character / NULL]`
 #'
-#'  An optional description of the format applied by each function in
-#'  `formatters`. This information is used by [describe_highlight()].
+#'  An optional description of the conditional format applied by each function
+#'  in `formatters`. This information is used by [describe_highlight()].
 #'
 #'  If supplied, `description` must be the same length as `formatters` and
 #'  `conditions`.
@@ -160,7 +160,7 @@
 #' @param precedence,.precedence `[numeric / NULL]`
 #'
 #'  A numeric vector indicating the order in which to apply the `formatters`. The
-#'  formatter with the lowest corresponding `precedence` value is evaluatted first
+#'  formatter with the lowest corresponding `precedence` value is evaluated first
 #'  during formatting. By default `formatters` are applied in the order in which
 #'  they were supplied.
 #'
@@ -222,19 +222,18 @@
 #' # Label indicators 1 and 0 by adding highlights to `x_hl`
 #' x_hl <- highlight(
 #'   x_hl,
-#'   conditions = list(~ .x == 1, ~ .x == 0),
-#'   formatters = list(~ paste(.x, "[Yes]"), ~ paste(.x, "[No]"))
+#'   conditions = list(is.na, ~ .x == 1, ~ .x == 0),
+#'   formatters = list(color("red"), ~ paste(.x, "[Yes]"), ~ paste(.x, "[No]"))
 #' )
 #' print(x_hl)
 #' describe_highlight(x_hl)
 #'
 #' # Using `dplyr::case_when` style syntax.
-#' # The right hand side `formatters` must be explicit functions.
 #' x_hl_case <- highlight_case(
 #'   x,
-#'   is.na(.x) ~ colour("red"),
-#'   .x == 1 ~ \(x) paste(x, "[Yes]"),
-#'   .x == 0 ~ \(x) paste(x, "[No]"),
+#'   is.na(.x) ~ cli::col_red,
+#'   .x == 1 ~ paste(.x, "[Yes]"),
+#'   .x == 0 ~ paste(.x, "[No]"),
 #'   .description = c(
 #'     "Colored Red if NA",
 #'     "Labelled Yes if 1",
@@ -795,8 +794,6 @@ restore_highlight <- function(
 
 # helpers ----------------------------------------------------------------------
 
-# TODO: Add examples documentation.
-
 #' Update a highlighted vector's format method
 #'
 #' @description `update_highlight()` sets any of the `conditions`,
@@ -1080,16 +1077,13 @@ rl <- re_highlight
 
 # highlighter ------------------------------------------------------------------
 
-# TODO: Finish documentation. A lot of the parameters in `highlight()` mention
-# the vector `x`, i.e. the input vector.
-
 #' Generate a highlight function with custom default arguments
 #'
 #' @description
 #'
 #' Produces a partially applied version of the [highlight()] function, with
-#' specified pre-filled arguments. The resulting function can be used to highlight
-#' a vector `x` with a default conditional format.
+#' specified arguments pre-filled. The resulting function can be used to highlight
+#' a vector `x` using a default conditional format.
 #'
 #' Assuming that arguments `x`, `conditions`, and `formatters` are valid, the
 #' following are equivalent:

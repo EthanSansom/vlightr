@@ -58,8 +58,8 @@ The same number of \code{formatters} and \code{conditions} must be supplied.}
 
 \item{description}{\verb{[character / NULL]}
 
-An optional description of the format applied by each function in
-\code{formatters}. This information is used by \code{\link[=describe_highlight]{describe_highlight()}}.
+An optional description of the conditional format applied by each function
+in \code{formatters}. This information is used by \code{\link[=describe_highlight]{describe_highlight()}}.
 
 If supplied, \code{description} must be the same length as \code{formatters} and
 \code{conditions}.}
@@ -67,7 +67,7 @@ If supplied, \code{description} must be the same length as \code{formatters} and
 \item{precedence}{\verb{[numeric / NULL]}
 
 A numeric vector indicating the order in which to apply the \code{formatters}. The
-formatter with the lowest corresponding \code{precedence} value is evaluatted first
+formatter with the lowest corresponding \code{precedence} value is evaluated first
 during formatting. By default \code{formatters} are applied in the order in which
 they were supplied.
 
