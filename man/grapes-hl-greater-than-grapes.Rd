@@ -9,17 +9,15 @@ lhs \%hl>\% rhs
 \arguments{
 \item{lhs}{A value, usually a highlighted (class \code{vlightr_highlight}) vector.}
 
-\item{rhs}{A function call, using \link[magrittr:pipe]{magrittr::\%>\%} semantics.}
+\item{rhs}{A function call, using \code{magrittr::\link[magrittr:pipe]{\%>\%}} semantics.}
 }
 \description{
-A wrapper around the \link[magrittr:pipe]{magrittr::\%>\%} pipe which un-highlights the input value
-using \code{un_highlight(lhs)} and re-highlights the output value using
-\code{re_highlight(..., lhs)}.
+A wrapper around the \code{magrittr::\link[magrittr:pipe]{\%>\%}} pipe which
+un-highlights the input value using \code{un_highlight(lhs)} and re-highlights
+the output value using \code{re_highlight(..., lhs)}.
 }
 \details{
 \code{lhs \%hl>\% rhs} is equivalent to \code{re_highlight(un_highlight(lhs) \%>\% rhs, lhs)}.
-
-See the \link[magrittr:pipe]{magrittr::\%>\%} for details on how the pipe is used.
 }
 \examples{
 x <- highlight(c(1L, 0L, NA, 0L), is.na, color("red"))

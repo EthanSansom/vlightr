@@ -2,9 +2,6 @@ vlightr
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-# vlightr
-
 <!-- badges: start -->
 <!-- badges: end -->
 
@@ -15,11 +12,10 @@ elements when the vector is printed or formatted. Highlights are:
 - **Persistent**, meaning highlighted vectors can be manipulated (with
   minimal legwork) while maintaining their custom formatting.
 - **Generic**, meaning that many vectors you’ll encounter in the wild
-  (ex. `ivs::iv`, `lubridate::interval`, `base::POSIXct`) and all base
-  atomic vectors (`"logical"`, `"integer"`, `"numeric"`, `"complex"`,
-  `"character"` and `"raw"`) can be highlighted.
+  and all base atomic vectors (`"logical"`, `"integer"`, `"numeric"`,
+  `"complex"`, `"character"` and `"raw"`) can be highlighted.
 
-# Installation
+## Installation
 
 ⚠️ This package is still **under construction**. ⚠️
 
@@ -31,12 +27,14 @@ You can install the development version of vlightr from
 devtools::install_github("EthanSansom/vlightr")
 ```
 
-# Features
+## Features
 
-## Conditional Formatting
+``` r
+library(vlightr)
+```
 
 Apply a custom format to elements of `x` for which a condition returns
-`TRUE`. For example, color only `NA` values red as they would appear in
+`TRUE`. For example, color only `NA` values red, as they would appear in
 a `tibble::tibble()`.
 
 ``` r
@@ -49,7 +47,7 @@ print(x_hl)
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas1-dark.svg">
 <img src="man/figures/README-/red-nas1.svg" width="100%" /> </picture>
 
-## Highlight, Un-Highlight, Re-Highlight
+### Highlight, Un-Highlight, Re-Highlight
 
 Highlighted vectors can’t be implicitly coerced or converted to another
 vector type. To use a function which expects the highlight’s underlying
@@ -69,7 +67,7 @@ x_hl |>
 <img src="man/figures/README-/rehighlight1.svg" width="100%" />
 </picture>
 
-The “highlight-pipe” `%hl>%` wraps the `magrittr::%>%` to do this
+The “highlight-pipe” `%hl>%` wraps the magrittr `%>%` to do this
 automatically.
 
 ``` r
@@ -93,7 +91,7 @@ try(as.logical(x_hl))
 <img src="man/figures/README-/rehighlight3.svg" width="100%" />
 </picture>
 
-## Manipulate Highlighted Data
+### Manipulate Highlighted Data
 
 Highlighted vectors are happy to be cast or coerced to other compatible
 highlights. The shorthand `hl()` is useful for quickly highlighting a
@@ -127,7 +125,7 @@ c(x_hl, vlightr::hl(c(-1.5, NA)))
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/coerce-dark.svg">
 <img src="man/figures/README-/coerce.svg" width="100%" /> </picture>
 
-## Multiple Conditional Formats
+### Multiple Conditional Formats
 
 ``` r
 dummies <- vlightr::highlight(
@@ -151,7 +149,7 @@ dummies
 <img src="man/figures/README-/multiple-formats.svg" width="100%" />
 </picture>
 
-## Column Rendering in `tibble::tibble()`
+### Column Rendering in `tibble::tibble()`
 
 ``` r
 tibble::tibble(dummy = dummies)
@@ -161,7 +159,7 @@ tibble::tibble(dummy = dummies)
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/tibble-dark.svg">
 <img src="man/figures/README-/tibble.svg" width="100%" /> </picture>
 
-## Define Highlighter Functions
+### Define Highlighter Functions
 
 ``` r
 dummy_highlighter <- vlightr::as_highlighter(dummies)
@@ -173,7 +171,7 @@ dummy_highlighter(c(0, 1, NA))
 <img src="man/figures/README-/highlighter.svg" width="100%" />
 </picture>
 
-## Alternate `dplyr::case_when()` Style Syntax
+### Alternate `dplyr::case_when()` Style Syntax
 
 ``` r
 bad_words <- c("darn", "gosh")
@@ -193,7 +191,7 @@ vlightr::highlight_case(
 <img src="man/figures/README-/case-syntax.svg" width="100%" />
 </picture>
 
-## Highlight Arbitrary Vectors
+### Highlight Arbitrary Vectors
 
 Highlighted vectors are generic, meaning that S3 and S4 vector classes
 from other packages are highlight-able.
@@ -216,7 +214,7 @@ vlightr::highlight(meeting_times, is_during_lunch, cli::col_magenta)
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/generic-dark.svg">
 <img src="man/figures/README-/generic.svg" width="100%" /> </picture>
 
-# Inspiration
+## Inspiration
 
 This package is heavily inspired by the
 [ivs](https://github.com/DavisVaughan/ivs) package, which implements
@@ -237,10 +235,16 @@ ivs::iv(starts, ends)
 #> <iv<highlight<double>>[6]>
 #> [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       
 #> [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])
+```
+
+``` r
 # We can even manipulate it
 ivs::iv_groups(ivs::iv(starts, ends))
 #> <iv<highlight<double>>[1]>
 #> [1] [-3, +8 [Even])
+```
+
+``` r
 # Or highlight it...
 highlight(
   ivs::iv(starts, ends), 

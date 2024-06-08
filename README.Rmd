@@ -33,8 +33,6 @@ asciicast::init_knitr_engine(
 )
 ```
 
-# vlightr
-
 <!-- badges: start -->
 
 <!-- badges: end -->
@@ -42,9 +40,10 @@ asciicast::init_knitr_engine(
 vlightr is a package for conditionally formatting vectors. You can `highlight()` a vector to style, colour, or otherwise re-format it's elements when the vector is printed or formatted. Highlights are:
 
 -   **Persistent**, meaning highlighted vectors can be manipulated (with minimal legwork) while maintaining their custom formatting.
--   **Generic**, meaning that many vectors you'll encounter in the wild (ex. `ivs::iv`, `lubridate::interval`, `base::POSIXct`) and all base atomic vectors (`"logical"`, `"integer"`, `"numeric"`, `"complex"`, `"character"` and `"raw"`) can be highlighted.
+-   **Generic**, meaning that many vectors you'll encounter in the wild and all 
+base atomic vectors (`"logical"`, `"integer"`, `"numeric"`, `"complex"`, `"character"` and `"raw"`) can be highlighted.
 
-# Installation
+## Installation
 
 ⚠️ This package is still **under construction**. ⚠️
 
@@ -55,15 +54,13 @@ You can install the development version of vlightr from [GitHub](https://github.
 devtools::install_github("EthanSansom/vlightr")
 ```
 
-# Features
+## Features
 
-```{r load-pkg, include = FALSE}
+```{r load-pkg}
 library(vlightr)
 ```
 
-## Conditional Formatting
-
-Apply a custom format to elements of `x` for which a condition returns `TRUE`. For example, color only `NA` values red as they would appear in a `tibble::tibble()`.
+Apply a custom format to elements of `x` for which a condition returns `TRUE`. For example, color only `NA` values red, as they would appear in a `tibble::tibble()`.
 
 ```{asciicast red-nas1}
 x <- c(1L, 0L, NA, 1L, 0L)
@@ -71,7 +68,7 @@ x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
 print(x_hl)
 ```
 
-## Highlight, Un-Highlight, Re-Highlight
+### Highlight, Un-Highlight, Re-Highlight
 
 Highlighted vectors can't be implicitly coerced or converted to another vector type. To use a function which expects the highlight's underlying type (ex. an integer) first `un_highlight()` (AKA `ul()`) to expose the highlighted data and then `re_highlight()` (AKA `rl()`) to re-apply the conditional formatting.
 
@@ -82,7 +79,7 @@ x_hl |>
   vlightr::rl(x_hl)
 ```
 
-The "highlight-pipe" `%hl>%` wraps the `magrittr::%>%` to do this automatically.
+The "highlight-pipe" `%hl>%` wraps the magrittr `%>%` to do this automatically.
 
 ```{asciicast rehighlight2}
 x_hl %hl>% as.logical()
@@ -94,10 +91,9 @@ Attempting to convert a `vlighter_highlight` vector to another class will raise 
 try(as.logical(x_hl))
 ```
 
-## Manipulate Highlighted Data
+### Manipulate Highlighted Data
 
-Highlighted vectors are happy to be cast or coerced to other compatible highlights. 
-The shorthand `hl()` is useful for quickly highlighting a vector for this purpose.
+Highlighted vectors are happy to be cast or coerced to other compatible highlights. The shorthand `hl()` is useful for quickly highlighting a vector for this purpose.
 
 ```{asciicast operation}
 # Arithmetic
@@ -115,7 +111,7 @@ x_hl
 c(x_hl, vlightr::hl(c(-1.5, NA)))
 ```
 
-## Multiple Conditional Formats
+### Multiple Conditional Formats
 
 ```{asciicast multiple-formats}
 dummies <- vlightr::highlight(
@@ -134,20 +130,20 @@ dummies <- vlightr::highlight(
 dummies
 ```
 
-## Column Rendering in `tibble::tibble()`
+### Column Rendering in `tibble::tibble()`
 
 ```{asciicast tibble}
 tibble::tibble(dummy = dummies)
 ```
 
-## Define Highlighter Functions
+### Define Highlighter Functions
 
 ```{asciicast highlighter}
 dummy_highlighter <- vlightr::as_highlighter(dummies)
 dummy_highlighter(c(0, 1, NA))
 ```
 
-## Alternate `dplyr::case_when()` Style Syntax
+### Alternate `dplyr::case_when()` Style Syntax
 
 ```{asciicast case-syntax}
 bad_words <- c("darn", "gosh")
@@ -162,7 +158,7 @@ vlightr::highlight_case(
 )
 ```
 
-## Highlight Arbitrary Vectors
+### Highlight Arbitrary Vectors
 
 Highlighted vectors are generic, meaning that S3 and S4 vector classes from other packages are highlight-able.
 
@@ -180,16 +176,13 @@ is_during_lunch <- function(x) int_overlaps(x, lunch_break)
 vlightr::highlight(meeting_times, is_during_lunch, cli::col_magenta)
 ```
 
-# Inspiration
+## Inspiration
 
-This package is heavily inspired by the [ivs](https://github.com/DavisVaughan/ivs)
-package, which implements generic right-open intervals defined by a pair of 
-parallel start and end vectors.
+This package is heavily inspired by the [ivs](https://github.com/DavisVaughan/ivs) package, which implements generic right-open intervals defined by a pair of parallel start and end vectors.
 
-As a testament to the genericity of the `ivs::iv`, here is an ill-advised but 
-perfectly legal interval vector.
+As a testament to the genericity of the `ivs::iv`, here is an ill-advised but perfectly legal interval vector.
 
-```{r collapse=TRUE}
+```{r}
 library(ivs)
 
 starts <- highlight(-3:2, ~ .x %% 2 == 0, ~ paste(.x, "[Even]"))
@@ -197,8 +190,14 @@ ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
 # A totally legitimate `iv`
 ivs::iv(starts, ends)
+```
+
+```{r}
 # We can even manipulate it
 ivs::iv_groups(ivs::iv(starts, ends))
+```
+
+```{r}
 # Or highlight it...
 highlight(
   ivs::iv(starts, ends), 
@@ -206,3 +205,4 @@ highlight(
   ~ paste("{", .x, "}")
 )
 ```
+

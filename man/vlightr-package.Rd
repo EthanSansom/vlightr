@@ -17,4 +17,8 @@ Useful links:
 }
 
 }
+\author{
+\strong{Maintainer}: Ethan Sansom \email{ethan.sansom29@gmail.com}
+
+}
 \keyword{internal}
