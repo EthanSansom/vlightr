@@ -6,7 +6,7 @@
 \alias{vlightr-package}
 \title{vlightr: Persistent Conditional Formatting for Vectors}
 \description{
-Provides a vector superclass with persistant conditional formatting. `highlight` an arbitrary vector to color, emphasize, or otherwise reformat elements of interest when printed for easier EDA and bug catching.
+Provides a generic vector class with persistant conditional formatting. `highlight` an arbitrary vector to color, emphasize, or otherwise reformat elements of interest when printed as a vector or tibble column. Make exploratory data analysis and interactive data validation easier on the eyes.
 }
 \seealso{
 Useful links:

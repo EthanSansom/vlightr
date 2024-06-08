@@ -1,5 +1,5 @@
 ---
-title: Conditionally format generic vectors
+title: Conditionally format arbitrary vectors
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{vlightr}
@@ -14,35 +14,55 @@ editor_options:
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-vlightr makes it easy to identify the observations in a vector that you care about.
-
 ```{r}
 library(vlightr)
-
-# Which numbers are above the mean?
-highlight(1:10, ~ .x > mean(.x), ~ paste0("[", .x, "]"))
+library(lubridate, warn.conflicts = FALSE)
+library(ivs)
 ```
 
-Including the observations in a `tibble::tibble()`.
+vlightr makes it easy to identify the elements of a vector that you care
+about.
+
+```{r}
+# Which numbers are above the mean?
+above_mean <- highlight(1:10, ~ .x > mean(.x), ~ paste0("[", .x, "]"))
+print(above_mean)
+```
+
+Including observations in a dataframe or tibble.
 
 ```{r, collapse=TRUE}
-work_from_home <- c(TRUE, FALSE, TRUE, FALSE, TRUE) 
-salary <- c(1.5, 5, 12, 8, 4) * 10000
+tibble::tibble(x = above_mean[1:5])
+```
 
-tibble::tibble(
-  work_from_home = work_from_home,
-  salary = highlight(salary, ~ .x == max(.x), ~ paste("[Max]", .x))
+Highlights are generic, meaning that many vector's you'll encounter in
+the wild can be highlighted. For example, here's a lubridate interval
+vector with a festive format method.
+
+```{r}
+ints <- lubridate::interval(
+  start = ymd("2023-12-01") + ddays(c(0, 6, 14)),
+  end = ymd("2023-12-01") + ddays(c(2, 8, 26))
 )
+
+format_festive <- function(x) {
+  out <- strsplit(x, "")[[1]]
+  evens <- seq_along(out) %% 2 == 0
+  out[evens] <- cli::col_red(out[evens])
+  paste(cli::col_green(out), collapse = "")
+}
+
+highlight(ints, ~ ymd("2023-12-25") %within% .x, ~ sapply(.x, format_festive))
 ```
 
 ### Conditional Formatting
 
-For it's basic functionality, the `highlight()` function requires 3 arguments: 
-`x`, `conditions`, and `formatters`.
+For it's basic functionality, the `highlight()` function requires 3
+arguments: `x`, `conditions`, and `formatters`.
 
 ```{r, eval = FALSE}
 above_mean <- highlight(
-  # A generic vector to conditionally format
+  # A vector to conditionally format
   x = 1:10,
   # Condition(s), determine which elements of `x` are formatted
   conditions = ~ .x > mean(.x),
@@ -59,48 +79,54 @@ lists of functions or purrr-style lambdas. Elements of `x` for which
 ```{r}
 even_or_negative <- highlight(
   x = -4:3,
-  conditions = list(~ .x %% 2 == 0, \(x) x < 0),
-  formatters = list(\(x) paste0("[", x, "]"), ~ paste0("(", .x, ")"))
+  conditions = list(\(x) x %% 2 == 0, \(x) x < 0),
+  formatters = list(~ paste0("[", .x, "]"), ~ paste0("(", .x, ")"))
 )
 print(even_or_negative)
 ```
 
-By default, `formatters` are applied in the order that they were supplied. You 
-can change the order of application by supplying a `precedence`.
+By default, `formatters` are applied in the order that they were
+supplied. You can change the order of application by supplying a
+`precedence`.
 
 ```{r}
+# Change even and negative format from "([])" to "[()]"
 highlight(
   x = even_or_negative,
-  conditions = list(~ .x %% 2 == 0, \(x) x < 0),
-  formatters = list(\(x) paste0("[", x, "]"), ~ paste0("(", .x, ")")),
+  conditions = list(\(x) x %% 2 == 0, \(x) x < 0),
+  formatters = list(~ paste0("[", .x, "]"), ~ paste0("(", .x, ")")),
   precedence = c(2, 1)
 )
 ```
 
-A highlighted vector's conditional formatting can also be updated using 
+A highlighted vector's conditional formatting can also be updated using
 `update_highlight()`, which takes the same arguments as `highlight()`.
+The following is equivalent to the update made above.
 
 ```{r}
 even_or_negative <- update_highlight(even_or_negative, precedence = c(2, 1))
 print(even_or_negative)
 ```
 
-Elements of `even_or_negative` which meet multiple conditions (i.e. are even
-and negative) are formatted multiple times (e.g. `"[(-4)]"`, `"[(-2)]"`). To 
-format elements according to the first condition met, set `format_once = TRUE`.
+Elements of `even_or_negative` which meet multiple conditions (i.e. are
+even and negative) are formatted multiple times (e.g. `"[(-4)]"`,
+`"[(-2)]"`). To format elements according to the first condition met,
+set `format_once = TRUE`.
 
 ```{r}
 update_highlight(even_or_negative, format_once = TRUE)
 ```
 
-`describe_highlight()` is useful to understand how a highlight is formatted.
+`describe_highlight()` is useful to understand how a highlight is
+formatted.
 
 ```{r}
+# With `format_once = FALSE`
 describe_highlight(even_or_negative)
 ```
 
-The `describe_highlight()` function uses the `description` attribute of a highlighted
-vector to provide additional context.
+The `describe_highlight()` function uses the `description` attribute of
+a highlighted vector to provide additional context.
 
 ```{r}
 even_or_negative <- update_highlight(
@@ -112,10 +138,10 @@ describe_highlight(even_or_negative)
 
 ### Manipulating Highlighted Data
 
-Highlighted vectors (class `vlightr_highlight`) are designed to introduce as 
-little friction as possible, but they do require some legwork to use. Attempting 
-to coerce or convert a `vlightr_highlight` to another vector type will result in
-an error.
+Highlighted vectors (class `vlightr_highlight`) are designed to
+introduce as little friction as possible, but they do require some
+legwork to use. Attempting to coerce or convert a `vlightr_highlight` to
+another vector type will result in an error.
 
 ```{r}
 mean_or_above <- highlight(1:6, ~ .x >= mean(.x), ~ paste0("[", .x, "]"))
@@ -124,7 +150,8 @@ try(mean_or_above[[5]] <- 100L)
 
 Highlights are, however, compatible with other highlights. Where
 possible, highlighted vectors have the same casting and coercion rules
-as their underlying vector type.
+as their underlying vector type. `hl()` is a synonym for `highlight()`,
+which is useful for quick inline highlighting.
 
 ```{r}
 # <highlight<int>> and <highlight<int>> are compatible
@@ -288,9 +315,9 @@ int_hl
 try(c(int_hl, hl(0.5)))
 ```
 
-When defining more complex conditional formatting, `highlight_case()` (inspired
-by `dplyr::case_when()`) can make the relationship between a conditions it's 
-corresponding format more clear.
+When defining more complex conditional formatting, `highlight_case()`
+(inspired by `dplyr::case_when()`) can make the relationship between a
+conditions it's corresponding format more clear.
 
 ```{r, collapse=TRUE}
 summary_hl <- highlight_case(
@@ -304,16 +331,17 @@ summary_hl <- highlight_case(
 summary_hl
 ```
 
-Unlike in `highlight()`, the `.format_once` argument of `highlight_case()` is 
-`TRUE` by default. As in `dplyr::case_when()`, this means that each element of 
-`x` is allowed to match exactly one condition (the first condition matched).
+Unlike in `highlight()`, the `.format_once` argument of
+`highlight_case()` is `TRUE` by default. As in `dplyr::case_when()`,
+this means that each element of `x` is allowed to match exactly one
+condition (the first condition matched).
 
 ### Highlighters
 
 `as_highlighter()` converts a conditionally formatted vector to a
 function which applies the same conditional formatting to other vectors.
 
-```{r, collapse=TRUE}
+```{r}
 summary_highlighter <- as_highlighter(summary_hl)
 summary_highlighter(1:5)
 ```
@@ -321,7 +349,7 @@ summary_highlighter(1:5)
 Highlighter functions accept the same arguments as `highlight()`, so
 additional highlights can be applied on top of existing ones.
 
-```{r, collapse=TRUE}
+```{r}
 summary_highlighter(
   x = 1:5, 
   conditions = ~ .x > 0, 
@@ -362,8 +390,8 @@ values red.
 highlight(c(1, 0, NA), is.na, cli::col_red)
 ```
 
-vlightr provides some convenience functions for selecting `cli` functions to use 
-as formatters.
+vlightr provides some convenience functions for selecting `cli`
+functions to use as formatters.
 
 -   `color()` and `colour()` return a `cli::col_*` function which colors
     text
@@ -383,6 +411,21 @@ highlight(c(1, 0, NA), is.na, colour("red"))
 ```
 
 ### Generic Highlighting
+
+Informally, a highlight-able vector is some collection of size 1
+elements. So a list, which can contain elements of varying sizes, is
+non-highlightable (although a list can contain highlighted vectors).
+
+Formally, `is_highlightable()` uses the following criteria to test
+whether an object `x` can be highlighted:
+
+-   `x` is not a dataframe (or dataframe subclass)
+
+-   `x` is not a bare `list()`
+
+-   `x` is otherwise a vector, as defined by `vctrs::obj_is_vector()`
+
+
 
 -   some examples from lubridate and ivs
 -   function `is_highlightable`
@@ -453,7 +496,7 @@ highlight_interval(
 ### Under the Hood
 
 This section is meant to provide some intuition into how
-`vlighter_highlight` vectors are formatted.
+`vlightr_highlight` vectors are formatted.
 
 Consider the vector `x_hl` defined below. We'll just assume that `x` is
 some highlight-able vector and `conditions`, `formatters`, `precedence`,
@@ -470,8 +513,8 @@ x_hl <- highlight(
 )
 ```
 
-When `format(x_hl)` is called (e.g. within `print()`) the following
-psuedo-code is executed.
+When `format(x_hl)` is called (e.g. within `print(x_hl)`) the following
+pseudo-code is executed.
 
 ```{r, eval = FALSE}
 # Apply an initial format to `x`, converting `x` into a character vector.
