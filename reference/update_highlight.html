@@ -117,8 +117,8 @@ is recycled to the length of the input character).</p>
 
 <dt>description</dt>
 <dd><p><code>[character / NULL]</code></p>
-<p>An optional description of the format applied by each function in
-<code>formatters</code>. This information is used by <code>describe_highlight()</code>.</p>
+<p>An optional description of the conditional format applied by each function
+in <code>formatters</code>. This information is used by <code>describe_highlight()</code>.</p>
 <p>If supplied, <code>description</code> must be the same length as <code>formatters</code> and
 <code>conditions</code>.</p></dd>
 
@@ -126,7 +126,7 @@ is recycled to the length of the input character).</p>
 <dt>precedence</dt>
 <dd><p><code>[numeric / NULL]</code></p>
 <p>A numeric vector indicating the order in which to apply the <code>formatters</code>. The
-formatter with the lowest corresponding <code>precedence</code> value is evaluatted first
+formatter with the lowest corresponding <code>precedence</code> value is evaluated first
 during formatting. By default <code>formatters</code> are applied in the order in which
 they were supplied.</p>
 <p>If supplied, <code>precedence</code> must be the same length as <code>formatters</code> and

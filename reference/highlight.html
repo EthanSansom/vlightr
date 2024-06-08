@@ -157,8 +157,8 @@ is recycled to the length of the input character).</p>
 
 <dt>description, .description</dt>
 <dd><p><code>[character / NULL]</code></p>
-<p>An optional description of the format applied by each function in
-<code>formatters</code>. This information is used by <code>describe_highlight()</code>.</p>
+<p>An optional description of the conditional format applied by each function
+in <code>formatters</code>. This information is used by <code>describe_highlight()</code>.</p>
 <p>If supplied, <code>description</code> must be the same length as <code>formatters</code> and
 <code>conditions</code>.</p></dd>
 
@@ -166,7 +166,7 @@ is recycled to the length of the input character).</p>
 <dt>precedence, .precedence</dt>
 <dd><p><code>[numeric / NULL]</code></p>
 <p>A numeric vector indicating the order in which to apply the <code>formatters</code>. The
-formatter with the lowest corresponding <code>precedence</code> value is evaluatted first
+formatter with the lowest corresponding <code>precedence</code> value is evaluated first
 during formatting. By default <code>formatters</code> are applied in the order in which
 they were supplied.</p>
 <p>If supplied, <code>precedence</code> must be the same length as <code>formatters</code> and
@@ -210,7 +210,7 @@ left-hand-side and a formatter on the right-hand-side.</p>
 <code>conditions[[i]] ~ formatters[[i]]</code>.</p>
 <p>The left-hand-side and right-hand-side of the formula may be a:</p><ul><li><p>Function, e.g. <code><a href="https://rlang.r-lib.org/reference/scalar-type-predicates.html" class="external-link">rlang::is_string</a></code>, <code>toupper</code></p></li>
 <li><p>A purrr-style lambda expression, e.g. <code>TRUE</code>, <code>paste(.x, "?")</code></p></li>
-</ul><p>The left-hand-side and righ-hand-side of the formula may not be a call to a
+</ul><p>The left-hand-side and right-hand-side of the formula may not be a call to a
 generator function (i.e. a function which returns another function). Examples
 include <code><a href="stylers.html">wrap()</a></code>, <code><a href="stylers.html">color()</a></code>, and <code><a href="stylers.html">bg()</a></code>. To use such a function, call it
 within a lambda expression instead, e.g. <code>color("blue")(.x)</code>.</p>
@@ -258,51 +258,54 @@ same conditional formatting as the input highlighted vector.</p></div>
 <span class="r-in"><span><span class="co"># Label indicators 1 and 0 by adding highlights to `x_hl`</span></span></span>
 <span class="r-in"><span><span class="va">x_hl</span> <span class="op">&lt;-</span> <span class="fu">highlight</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">x_hl</span>,</span></span>
-<span class="r-in"><span>  conditions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">~</span> <span class="va">.x</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  formatters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[Yes]"</span><span class="op">)</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[No]"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  conditions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">is.na</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  formatters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="stylers.html">color</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[Yes]"</span><span class="op">)</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[No]"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x_hl</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;double&gt;[5]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 [Yes] 0 [No]  NA      1 [Yes] 0 [No] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 [Yes] 0 [No]  <span style="color: #BB0000;">NA</span>      1 [Yes] 0 [No] </span>
 <span class="r-in"><span><span class="fu">describe_highlight</span><span class="op">(</span><span class="va">x_hl</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A conditionally formatted <span style="color: #0000BB;">&lt;numeric&gt;</span> vector with 2 conditional formats:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A conditionally formatted <span style="color: #0000BB;">&lt;numeric&gt;</span> vector with 3 conditional formats:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 1. Condition 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 2. Condition 2</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 3. Condition 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Element formatted using:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • 1: 1 -&gt; 1 [Yes]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • 2: 0 -&gt; 0 [No]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 1: NA -&gt; <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 2: 1 -&gt; 1 [Yes]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 3: 0 -&gt; 0 [No]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Using `dplyr::case_when` style syntax.</span></span></span>
-<span class="r-in"><span><span class="co"># The right hand side `formatters` must be explicit functions.</span></span></span>
 <span class="r-in"><span><span class="va">x_hl_case</span> <span class="op">&lt;-</span> <span class="fu">highlight_case</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">x</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="stylers.html">colour</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="va">.x</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"[Yes]"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="va">.x</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"[No]"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">~</span> <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_red</a></span>,</span></span>
+<span class="r-in"><span>  <span class="va">.x</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[Yes]"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="va">.x</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[No]"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  .description <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="st">"Colored Red if NA"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"Labelled Yes if 1"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"Labelled No if 0"</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in highlight(x = x, conditions = conditions, formatters = formatters,     description = .description, precedence = .precedence, format_once = .format_once,     init_formatter = .init_formatter, last_formatter = .last_formatter):</span> Attempted to create a malformed <span style="color: #0000BB;">&lt;vlightr_highlight&gt;</span> vector of type</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;double&gt;&gt;.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Can't evaluate <span style="color: #0000BB;">&lt;vlightr_highlight&gt;</span> vector's `format()` method.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `format()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Formatter `attr(,"formatters")[[1]]` must produce a <span style="color: #0000BB;">&lt;character&gt;</span> vector</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   of length 1 or `length(x)`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Produced a <span style="color: #0000BB;">&lt;cli_ansi_style/ansi_style&gt;</span> object.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x_hl_case</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'x_hl_case' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;double&gt;[5]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 [Yes] 0 [No]  <span style="color: #BB0000;">NA</span>      1 [Yes] 0 [No] </span>
 <span class="r-in"><span><span class="fu">describe_highlight</span><span class="op">(</span><span class="va">x_hl_case</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'x_hl_case' not found</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A conditionally formatted <span style="color: #0000BB;">&lt;numeric&gt;</span> vector with 3 conditional formats:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 1. Colored Red if NA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2. Labelled Yes if 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 3. Labelled No if 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Element formatted using:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 1: NA -&gt; <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 2: 1 -&gt; 1 [Yes]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 3: 0 -&gt; 0 [No]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Make a `highlighter` to apply the format of `x_hl_case`</span></span></span>
 <span class="r-in"><span><span class="va">indicator_highlighter</span> <span class="op">&lt;-</span> <span class="fu"><a href="as_highlighter.html">as_highlighter</a></span><span class="op">(</span><span class="va">x_hl_case</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'x_hl_case' not found</span>
 <span class="r-in"><span><span class="fu">indicator_highlighter</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="cn">NA</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in indicator_highlighter(c(1, 0, 1, NA, 0, 0)):</span> could not find function "indicator_highlighter"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;double&gt;[6]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 [Yes] 0 [No]  1 [Yes] <span style="color: #BB0000;">NA</span>      0 [No]  0 [No] </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Apply multiple formats to the same element</span></span></span>
 <span class="r-in"><span><span class="va">x_multi</span> <span class="op">&lt;-</span> <span class="fu">highlight</span><span class="op">(</span></span></span>
