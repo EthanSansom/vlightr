@@ -21,10 +21,44 @@
 #   - is the argument `x` and name `x_name`, `arg`, `arg_name`?
 #   - start putting together some naming/style conventions (element -> elt, index -> i, etc.)
 # - make sure that you run every example, to confirm there are no hidden errors
+# - simplify the beginning of the `vlightr` vignette to have only one example at the
+#   head, and then walk through the key arguments - start with `formatters` and
+#   `conditions`, then perhaps `precedence` and `format_once`.
+#
+# Start with a "one-highlight" example. Maybe keep going with the mean one for a
+# bit. Then, transition to a two-format example. Say Even and * 3 This can easily
+# introduce `precedence` and `format_once` (use wrap("[", "]")) so the highlights
+# are obviously ordered. Then, move to description (or maybe do this first). Introduce
+# `update_highlight()` early so it'll make examples easier to build on.
+#
+#> x_hl <- highlight(
+#>  1:6,
+#>  list(~ .x %% 2 == 0, ~ .x %% 3 == 0),
+#>  list(wrap("[", "]"), wrap("(", ")"))
+#> )
+#
+# When introducing `update_highlight()`. "`update_highlight()` takes the same
+# arguments as `highlight()`, and overwrites the attributes of an existing highlight.
+# Currently, `x_hl` has a default description.
+#
+#> {r}
+#> attr(x_hl, "description")
+#
+# The following produce the same vector with an updated description.
+#
+#> {r, eval = FALSE}
+#> x_hl_v2 <- highlight(
+#>  x_hl,
+#>  formatters = attr(x_hl, "formatters"),
+#>  conditions = attr(x_hl, "conditions"),
+#>  description = c("Even", "Multiple of 3")
+#> )
+#> x_hl_v2 <- update_highlight(x_hl, description = c("Even", "Multiple of 3"))
+#
+#
 
 # TODO Urgent:
 # - make a reprex for the `knitr::chunk_opts` "collapse" option being ignored when
-#
 
 # constructor ------------------------------------------------------------------
 
@@ -1005,9 +1039,9 @@ rl <- re_highlight
 #'
 #' @description
 #'
-#' A wrapper around the [magrittr::%>%] pipe which un-highlights the input value
-#' using `un_highlight(lhs)` and re-highlights the output value using
-#' `re_highlight(..., lhs)`.
+#' A wrapper around the \code{magrittr::\link[magrittr:pipe]{\%>\%}} pipe which
+#' un-highlights the input value using `un_highlight(lhs)` and re-highlights
+#' the output value using `re_highlight(..., lhs)`.
 #'
 #' @param lhs
 #'
@@ -1015,13 +1049,11 @@ rl <- re_highlight
 #'
 #' @param rhs
 #'
-#' A function call, using [magrittr::%>%] semantics.
+#' A function call, using \code{magrittr::\link[magrittr:pipe]{\%>\%}} semantics.
 #'
 #' @details
 #'
 #' `lhs %hl>% rhs` is equivalent to `re_highlight(un_highlight(lhs) %>% rhs, lhs)`.
-#'
-#' See the [magrittr::%>%] for details on how the pipe is used.
 #'
 #' @examples
 #' x <- highlight(c(1L, 0L, NA, 0L), is.na, color("red"))
@@ -1233,20 +1265,22 @@ highlighter_case <- function(
     stop_must_not(invalid_dot, must = "be a two-sided formula", not = not)
   }
 
-  # TODO: Update to follow how `highlight_case` does this.
-  conditions <- lapply(
-    dots,
-    \(x) {
-      rlang::new_formula(
-        lhs = NULL,
-        rhs = rlang::f_lhs(x),
-        env = rlang::f_env(x)
-      )
-    }
+  dot_names <- paste0("..", seq_along(dots))
+  conditions <- .mapply(
+    FUN = evalidate_case_fn,
+    dots = list(
+      case = dots,
+      case_name = dot_names
+    ),
+    MoreArgs = list(is_lhs = TRUE)
   )
-  formatters <- lapply(
-    dots,
-    \(x) eval(rlang::f_rhs(x), envir = rlang::f_env(x))
+  formatters <- .mapply(
+    FUN = evalidate_case_fn,
+    dots = list(
+      case = dots,
+      case_name = dot_names
+    ),
+    MoreArgs = list(is_lhs = FALSE)
   )
 
   highlighter(

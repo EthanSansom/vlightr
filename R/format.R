@@ -177,7 +177,6 @@ describe_highlight <- function(x) {
       last = "and"
     )
     fmts <- format(paste0(fmts, ":"), width = max(nchar(fmts)) + 1)
-    print(fmts)
     elms <- x_data[unique_formats_at]
     elms_fmt <- formatted[unique_formats_at]
 
