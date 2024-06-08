@@ -79,8 +79,14 @@ lists of functions or purrr-style lambdas. Elements of `x` for which
 ```{r}
 even_or_negative <- highlight(
   x = -4:3,
-  conditions = list(\(x) x %% 2 == 0, \(x) x < 0),
-  formatters = list(~ paste0("[", .x, "]"), ~ paste0("(", .x, ")"))
+  conditions = list(
+    \(x) x %% 2 == 0,        # test if `x` is even
+    \(x) x < 0               # test if `x` is negative
+  ),
+  formatters = list(
+    ~ paste0("[", .x, "]"),  # format if `x` is even
+    ~ paste0("(", .x, ")")   # format if `x` is negative
+  )
 )
 print(even_or_negative)
 ```
@@ -121,7 +127,6 @@ update_highlight(even_or_negative, format_once = TRUE)
 formatted.
 
 ```{r}
-# With `format_once = FALSE`
 describe_highlight(even_or_negative)
 ```
 
@@ -294,14 +299,14 @@ print(min_max)
 When two compatible highlights are combined, so are their `conditions`
 and `formatters`.
 
-```{r, collapse=TRUE}
+```{r}
 c(min_max[1:3], mean_or_above[2:4])
 ```
 
 An error will occur if the combination of multiple highlights causes any
 of `conditions` or `formatters` to fail.
 
-```{r, collapse=TRUE}
+```{r}
 # A highlighted vector with a hidden error
 int_hl <- highlight(
   c(1L, 2L, 3L), 
@@ -315,18 +320,28 @@ int_hl
 try(c(int_hl, hl(0.5)))
 ```
 
+The `precedence` of highlighted vectors is maintained when they are combined. For
+example, you can reduce highlighted vector's `precedence` to prioritize it's
+format.
+
+```{r}
+even_is_red <- hl(1:3, ~ .x %% 2 == 0, cli::col_red, precedence = 1)
+even_is_green <- hl(4:6, ~ .x %% 2 == 0, cli::col_green, precedence = 0)
+c(even_is_red, even_is_green)
+```
+
 When defining more complex conditional formatting, `highlight_case()`
 (inspired by `dplyr::case_when()`) can make the relationship between a
-conditions it's corresponding format more clear.
+condition and it's corresponding format more clear.
 
-```{r, collapse=TRUE}
+```{r}
 summary_hl <- highlight_case(
   x = 1:7,
-  .x == min(.x) ~ \(x) paste0("(Min = ", x, ")"),
-  .x == quantile(.x, 0.5) ~ \(x) paste0("(Mode = ", x, ")"),
-  .x == max(.x) ~ \(x) paste0("(Max = ", x, ")"),
-  .x > quantile(.x, 0.5) ~ \(x) paste("[ High", x, "]"),
-  TRUE ~ \(x) paste("[ Low", x, "]")
+  .x == min(.x) ~ paste0("(Min = ", .x, ")"),
+  .x == quantile(.x, 0.5) ~ paste0("(Mode = ", .x, ")"),
+  .x == max(.x) ~ paste0("(Max = ", .x, ")"),
+  .x > quantile(.x, 0.5) ~ paste("[ High", .x, "]"),
+  TRUE ~ paste("[ Low", .x, "]")
 )
 summary_hl
 ```
@@ -334,7 +349,7 @@ summary_hl
 Unlike in `highlight()`, the `.format_once` argument of
 `highlight_case()` is `TRUE` by default. As in `dplyr::case_when()`,
 this means that each element of `x` is allowed to match exactly one
-condition (the first condition matched).
+condition (the first condition met).
 
 ### Highlighters
 
