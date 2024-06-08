@@ -7,9 +7,10 @@ Authors@R: utils::person(
   email = "ethan.sansom29@gmail.com",
   role = c("aut", "cre")
   )
-Description: Provides a vector superclass with persistant conditional formatting. 
+Description: Provides a generic vector class with persistant conditional formatting. 
     `highlight` an arbitrary vector to color, emphasize, or otherwise reformat 
-    elements of interest when printed for easier EDA and bug catching.
+    elements of interest when printed as a vector or tibble column. Make
+    exploratory data analysis and interactive data validation easier on the eyes.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
