@@ -121,7 +121,7 @@ vector with a festive format method.</p>
 <h3 id="conditional-formatting">Conditional Formatting<a class="anchor" aria-label="anchor" href="#conditional-formatting"></a>
 </h3>
 <p>For it’s basic functionality, the <code><a href="../reference/highlight.html">highlight()</a></code> function
-requires 3 arguments: <code>x</code>, <code>conditions</code>, and
+needs 3 arguments: <code>x</code>, <code>conditions</code>, and
 <code>formatters</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">above_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">highlight</a></span><span class="op">(</span></span>
@@ -406,13 +406,13 @@ any of <code>conditions</code> or <code>formatters</code> to fail.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">2L</span>, <span class="fl">3L</span><span class="op">)</span>, </span>
 <span>  conditions <span class="op">=</span> <span class="op">~</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">is.integer</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span>,</span>
 <span>  formatters <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"Integers only!"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># This runs fine</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># This runs fine</span></span>
 <span><span class="va">int_hl</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;integer&gt;[3]&gt;</span></span>
 <span><span class="co">#&gt; [1] 1 2 3</span></span></code></pre></div>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># This does not</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">int_hl</span>, <span class="fu"><a href="../reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error in vec_cast() : </span></span>
@@ -424,7 +424,7 @@ any of <code>conditions</code> or <code>formatters</code> to fail.</p>
 <p>The <code>precedence</code> of highlighted vectors is maintained when
 they are combined. For example, you can reduce highlighted vector’s
 <code>precedence</code> to prioritize it’s format.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">even_is_red</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">2</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_red</a></span>, precedence <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">even_is_green</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">4</span><span class="op">:</span><span class="fl">6</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">2</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_green</a></span>, precedence <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">even_is_red</span>, <span class="va">even_is_green</span><span class="op">)</span></span>
@@ -434,18 +434,18 @@ they are combined. For example, you can reduce highlighted vector’s
 <code><a href="../reference/highlight.html">highlight_case()</a></code> (inspired by
 <code>dplyr::case_when()</code>) can make the relationship between a
 condition and it’s corresponding format more clear.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">summary_hl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">highlight_case</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">7</span>,</span>
+<span>  x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,</span>
 <span>  <span class="va">.x</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"(Min = "</span>, <span class="va">.x</span>, <span class="st">")"</span><span class="op">)</span>,</span>
-<span>  <span class="va">.x</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fl">0.5</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"(Mode = "</span>, <span class="va">.x</span>, <span class="st">")"</span><span class="op">)</span>,</span>
+<span>  <span class="va">.x</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fl">0.5</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"(Mid = "</span>, <span class="va">.x</span>, <span class="st">")"</span><span class="op">)</span>,</span>
 <span>  <span class="va">.x</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"(Max = "</span>, <span class="va">.x</span>, <span class="st">")"</span><span class="op">)</span>,</span>
 <span>  <span class="va">.x</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fl">0.5</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"[ High"</span>, <span class="va">.x</span>, <span class="st">"]"</span><span class="op">)</span>,</span>
-<span>  <span class="cn">TRUE</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"[ Low"</span>, <span class="va">.x</span>, <span class="st">"]"</span><span class="op">)</span></span>
+<span>  <span class="va">.x</span> <span class="op">&lt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fl">0.5</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"[ Low"</span>, <span class="va">.x</span>, <span class="st">"]"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">summary_hl</span></span>
-<span><span class="co">#&gt; &lt;highlight&lt;integer&gt;[7]&gt;</span></span>
-<span><span class="co">#&gt; [1] (Min = 1)  [ Low 2 ]  [ Low 3 ]  (Mode = 4) [ High 5 ] [ High 6 ] (Max = 7)</span></span></code></pre></div>
+<span><span class="co">#&gt; &lt;highlight&lt;integer&gt;[5]&gt;</span></span>
+<span><span class="co">#&gt; [1] (Min = 1)  [ Low 2 ]  (Mid = 3)  [ High 4 ] (Max = 5)</span></span></code></pre></div>
 <p>Unlike in <code><a href="../reference/highlight.html">highlight()</a></code>, the <code>.format_once</code>
 argument of <code><a href="../reference/highlight.html">highlight_case()</a></code> is <code>TRUE</code> by
 default. As in <code>dplyr::case_when()</code>, this means that each
@@ -458,29 +458,31 @@ first condition met).</p>
 <p><code><a href="../reference/as_highlighter.html">as_highlighter()</a></code> converts a conditionally formatted
 vector to a function which applies the same conditional formatting to
 other vectors.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">summary_highlighter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_highlighter.html">as_highlighter</a></span><span class="op">(</span><span class="va">summary_hl</span><span class="op">)</span></span>
-<span><span class="fu">summary_highlighter</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu">summary_highlighter</span><span class="op">(</span><span class="op">-</span><span class="fl">2</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;integer&gt;[5]&gt;</span></span>
-<span><span class="co">#&gt; [1] (Min = 1)  [ Low 2 ]  (Mode = 3) [ High 4 ] (Max = 5)</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] (Min = -2) [ Low -1 ] (Mid = 0)  [ High 1 ] (Max = 2)</span></span></code></pre></div>
 <p>Highlighter functions accept the same arguments as
 <code><a href="../reference/highlight.html">highlight()</a></code>, so additional highlights can be applied on top
 of existing ones.</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">summary_highlighter</span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, </span>
+<span>  x <span class="op">=</span> <span class="op">-</span><span class="fl">2</span><span class="op">:</span><span class="fl">2</span>, </span>
 <span>  conditions <span class="op">=</span> <span class="op">~</span> <span class="va">.x</span> <span class="op">&gt;</span> <span class="fl">0</span>, </span>
 <span>  formatters <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">.x</span><span class="op">)</span>,</span>
-<span>  precedence <span class="op">=</span> <span class="fl">0</span></span>
+<span>  precedence <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  format_once <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;integer&gt;[5]&gt;</span></span>
-<span><span class="co">#&gt; [1] +1 +2 +3 +4 +5</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] [ Low (Min = -2) ]  [ Low -1 ]          (Mid = 0)          </span></span>
+<span><span class="co">#&gt; [4] [ High +1 ]         [ High (Max = +2) ]</span></span></code></pre></div>
 <p>A highlighter can be defined from scratch using
 <code><a href="../reference/highlighter.html">highlighter()</a></code> or <code><a href="../reference/highlighter.html">highlighter_case()</a></code>. These
 functions take the same arguments as <code><a href="../reference/highlight.html">highlight()</a></code> and
 <code><a href="../reference/highlight.html">highlight_case()</a></code> respectively, excluding the first argument
 <code>x</code>.</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">secret</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlighter.html">highlighter</a></span><span class="op">(</span></span>
 <span>  conditions <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^&lt;.*&gt;$"</span>, <span class="va">.x</span><span class="op">)</span>, </span>
 <span>  formatters <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/strrep.html" class="external-link">strrep</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nchar</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">-</span> <span class="fl">2L</span><span class="op">)</span></span>
@@ -488,7 +490,7 @@ functions take the same arguments as <code><a href="../reference/highlight.html"
 <span><span class="fu">secret</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"This"</span>, <span class="st">"&lt;is&gt;"</span>, <span class="st">"a"</span>, <span class="st">"&lt;secret&gt;"</span>, <span class="st">"&lt;.&gt;"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;character&gt;[5]&gt;</span></span>
 <span><span class="co">#&gt; [1] "This"   "xx"     "a"      "xxxxxx" "x"</span></span></code></pre></div>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dollars</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlighter.html">highlighter_case</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NA"</span>,</span>
 <span>  <span class="va">.x</span> <span class="op">&gt;</span> <span class="fl">0</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"-$"</span>, <span class="va">.x</span><span class="op">)</span>,</span>
@@ -498,7 +500,7 @@ functions take the same arguments as <code><a href="../reference/highlight.html"
 <span><span class="fu">dollars</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">10</span>, <span class="fl">0.12</span>, <span class="fl">130.0234</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;double&gt;[4]&gt;</span></span>
 <span><span class="co">#&gt; [1] $10.00   -$0.12   -$130.02 NA</span></span></code></pre></div>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">no_nas</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlighter.html">highlighter_case</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NO PROBLEM"</span><span class="op">)</span></span>
 <span><span class="fu">no_nas</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;logical&gt;[3]&gt;</span></span>
@@ -507,15 +509,15 @@ functions take the same arguments as <code><a href="../reference/highlight.html"
 <div class="section level3">
 <h3 id="styling">Styling<a class="anchor" aria-label="anchor" href="#styling"></a>
 </h3>
-<p>ANSI escape sequences, such as those used to color text in the
-<code>cli</code> package, are also supported. The code below colors the
+<p>Highlights can be formatted using ANSI escape sequences, such as
+those used to color text in the cli package. The code below colors the
 formatted <code>NA</code> values red.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/highlight.html">highlight</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>, <span class="va">is.na</span>, <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_red</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;double&gt;[3]&gt;</span></span>
 <span><span class="co">#&gt; [1] 1  0  <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
-<p>vlightr provides some convenience functions for selecting
-<code>cli</code> functions to use as formatters.</p>
+<p>vlightr provides some convenience functions for selecting cli
+functions to use as formatters.</p>
 <ul>
 <li><p><code><a href="../reference/stylers.html">color()</a></code> and <code><a href="../reference/stylers.html">colour()</a></code> return a
 <code>cli::col_*</code> function which colors text</p></li>
@@ -523,15 +525,16 @@ formatted <code>NA</code> values red.</p>
 <code>cli::bg_*</code> function which colors the text’s
 background</p></li>
 <li><p><code><a href="../reference/stylers.html">style()</a></code> returns a <code>cli::style_*</code> function
-which can bold, underline, or italicize text among other things</p></li>
+which bold, underline, or italicize text among other things</p></li>
 </ul>
-<p>See <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::style_bold()</a></code> and friends for details.</p>
 <p>For example, the same <code>NA</code> highlight as above can be
 achieved like so:</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/highlight.html">highlight</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>, <span class="va">is.na</span>, <span class="fu"><a href="../reference/stylers.html">colour</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;double&gt;[3]&gt;</span></span>
 <span><span class="co">#&gt; [1] 1  0  <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
+<p>See <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::style_bold()</a></code> and friends for details on ANSI
+colored and styled text.</p>
 </div>
 <div class="section level3">
 <h3 id="generic-highlighting">Generic Highlighting<a class="anchor" aria-label="anchor" href="#generic-highlighting"></a>
@@ -542,20 +545,18 @@ non-highlightable (although a list can contain highlighted vectors).</p>
 <p>Formally, <code><a href="../reference/is_highlightable.html">is_highlightable()</a></code> uses the following criteria
 to test whether an object <code>x</code> can be highlighted:</p>
 <ul>
-<li><p><code>x</code> is not a dataframe (or dataframe
+<li><p><code>x</code> is not a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame()</a></code> (or dataframe
 subclass)</p></li>
 <li><p><code>x</code> is not a bare <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code></p></li>
 <li><p><code>x</code> is otherwise a vector, as defined by
 <code><a href="https://vctrs.r-lib.org/reference/vector-checks.html" class="external-link">vctrs::obj_is_vector()</a></code></p></li>
-<li><p>some examples from lubridate and ivs</p></li>
-<li><p>function <code>is_highlightable</code></p></li>
-<li><p>what CAN’T you highlight -&gt; data frames and bare
-lists</p></li>
-<li><p>demonstrate the use of the <code>init_formatter</code> to add
-better default formatting, with a lubridate ymd_hms interval
-(interval(now(), now()) is super long, truncate)</p></li>
 </ul>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<p>TODO Add: - some examples from lubridate and ivs - what CAN’T you
+highlight -&gt; data frames and bare lists - demonstrate the use of the
+<code>init_formatter</code> to add better default formatting, with a
+lubridate ymd_hms interval (interval(now(), now()) is super long,
+truncate)</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">long_interval</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/interval.html" class="external-link">interval</a></span><span class="op">(</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/now.html" class="external-link">now</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="https://lubridate.tidyverse.org/reference/now.html" class="external-link">now</a></span><span class="op">(</span><span class="op">)</span>, tzone <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span></span>
@@ -573,11 +574,11 @@ better default formatting, with a lubridate ymd_hms interval
 <span><span class="va">highlight_interval</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlighter.html">highlighter</a></span><span class="op">(</span>init_formatter <span class="op">=</span> <span class="va">format_interval</span><span class="op">)</span></span>
 <span><span class="fu">highlight_interval</span><span class="op">(</span><span class="va">long_interval</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;Interval&gt;[1]&gt;</span></span>
-<span><span class="co">#&gt; [1] 2024-06-08 - 2024-06-08 UTC</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 2024-06-10 - 2024-06-10 UTC</span></span></code></pre></div>
 <p>Similarly, the <code>last_formatter</code> is applied after all of
 the conditional formatting has been added. This is useful for limiting
 the text width of a formatted highlight.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">truncate_formatter</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">char_limit</span> <span class="op">=</span> <span class="fl">40</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Check which strings in `x` exceed the `char_limit` </span></span>
 <span>  <span class="va">x_char</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nchar</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
@@ -601,7 +602,7 @@ the text width of a formatted highlight.</p>
 <span><span class="co"># Test the formatter</span></span>
 <span><span class="fu">truncate_formatter</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"this"</span>, <span class="st">"is"</span>, <span class="st">"a"</span>, <span class="st">"huuuuuuuuuge"</span>, <span class="st">"character"</span><span class="op">)</span>, <span class="fl">7</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "this"    "is"      "a"       "hu...ge" "ch...er"</span></span></code></pre></div>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># In a highlighter</span></span>
 <span><span class="va">highlight_interval</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlighter.html">highlighter</a></span><span class="op">(</span></span>
@@ -614,7 +615,7 @@ the text width of a formatted highlight.</p>
 <span>  formatters <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"(is in the 21st Century)"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;Interval&gt;[1]&gt;</span></span>
-<span><span class="co">#&gt; [1] 2024-06-08 - 2024-0...n the 21st Century)</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 2024-06-10 - 2024-0...n the 21st Century)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="under-the-hood">Under the Hood<a class="anchor" aria-label="anchor" href="#under-the-hood"></a>
@@ -626,7 +627,7 @@ assume that <code>x</code> is some highlight-able vector and
 <code>conditions</code>, <code>formatters</code>,
 <code>precedence</code>, <code>init_formatter</code>, and
 <code>last_formatter</code> are all valid arguments.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_hl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">highlight</a></span><span class="op">(</span></span>
 <span> x <span class="op">=</span> <span class="va">x</span>,</span>
 <span> conditions <span class="op">=</span> <span class="va">conditions</span>,</span>
@@ -637,7 +638,7 @@ assume that <code>x</code> is some highlight-able vector and
 <span><span class="op">)</span></span></code></pre></div>
 <p>When <code>format(x_hl)</code> is called (e.g. within
 <code>print(x_hl)</code>) the following pseudo-code is executed.</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Apply an initial format to `x`, converting `x` into a character vector.</span></span>
 <span><span class="va">formatted</span> <span class="op">&lt;-</span> <span class="fu">init_formatter</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span></span>
