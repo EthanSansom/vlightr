@@ -57,7 +57,7 @@ highlight(ints, ~ ymd("2023-12-25") %within% .x, ~ sapply(.x, format_festive))
 
 ### Conditional Formatting
 
-For it's basic functionality, the `highlight()` function requires 3
+For it's basic functionality, the `highlight()` function needs 3
 arguments: `x`, `conditions`, and `formatters`.
 
 ```{r, eval = FALSE}
@@ -313,16 +313,18 @@ int_hl <- highlight(
   conditions = ~ !is.integer(.x),
   formatters = \(x) stop("Integers only!")
 )
+```
 
+```{r}
 # This runs fine
 int_hl
 # This does not
 try(c(int_hl, hl(0.5)))
 ```
 
-The `precedence` of highlighted vectors is maintained when they are combined. For
-example, you can reduce highlighted vector's `precedence` to prioritize it's
-format.
+The `precedence` of highlighted vectors is maintained when they are
+combined. For example, you can reduce highlighted vector's `precedence`
+to prioritize it's format.
 
 ```{r}
 even_is_red <- hl(1:3, ~ .x %% 2 == 0, cli::col_red, precedence = 1)
@@ -336,12 +338,12 @@ condition and it's corresponding format more clear.
 
 ```{r}
 summary_hl <- highlight_case(
-  x = 1:7,
+  x = 1:5,
   .x == min(.x) ~ paste0("(Min = ", .x, ")"),
-  .x == quantile(.x, 0.5) ~ paste0("(Mode = ", .x, ")"),
+  .x == quantile(.x, 0.5) ~ paste0("(Mid = ", .x, ")"),
   .x == max(.x) ~ paste0("(Max = ", .x, ")"),
   .x > quantile(.x, 0.5) ~ paste("[ High", .x, "]"),
-  TRUE ~ paste("[ Low", .x, "]")
+  .x < quantile(.x, 0.5) ~ paste("[ Low", .x, "]")
 )
 summary_hl
 ```
@@ -358,7 +360,7 @@ function which applies the same conditional formatting to other vectors.
 
 ```{r}
 summary_highlighter <- as_highlighter(summary_hl)
-summary_highlighter(1:5)
+summary_highlighter(-2:2)
 ```
 
 Highlighter functions accept the same arguments as `highlight()`, so
@@ -366,10 +368,11 @@ additional highlights can be applied on top of existing ones.
 
 ```{r}
 summary_highlighter(
-  x = 1:5, 
+  x = -2:2, 
   conditions = ~ .x > 0, 
   formatters = ~ paste0("+", .x),
-  precedence = 0
+  precedence = 0,
+  format_once = FALSE
 )
 ```
 
@@ -384,6 +387,9 @@ secret <- highlighter(
   formatters = ~ strrep("x", nchar(.x) - 2L)
 )
 secret(c("This", "<is>", "a", "<secret>", "<.>"))
+```
+
+```{r}
 dollars <- highlighter_case(
   is.na(.x) ~ "NA",
   .x > 0 ~ paste0("-$", .x),
@@ -391,22 +397,25 @@ dollars <- highlighter_case(
   .init_formatter = \(x) sprintf("%.2f", abs(x))
 )
 dollars(c(-10, 0.12, 130.0234, NA))
+```
+
+```{r}
 no_nas <- highlighter_case(is.na(.x) ~ "NO PROBLEM")
 no_nas(c(TRUE, FALSE, NA))
 ```
 
 ### Styling
 
-ANSI escape sequences, such as those used to color text in the `cli`
-package, are also supported. The code below colors the formatted `NA`
-values red.
+Highlights can be formatted using ANSI escape sequences, such as those
+used to color text in the cli package. The code below colors the
+formatted `NA` values red.
 
-```{r, collapse=TRUE}
+```{r}
 highlight(c(1, 0, NA), is.na, cli::col_red)
 ```
 
-vlightr provides some convenience functions for selecting `cli`
-functions to use as formatters.
+vlightr provides some convenience functions for selecting cli functions
+to use as formatters.
 
 -   `color()` and `colour()` return a `cli::col_*` function which colors
     text
@@ -414,16 +423,17 @@ functions to use as formatters.
 -   `bg()` and `background()` return a `cli::bg_*` function which colors
     the text's background
 
--   `style()` returns a `cli::style_*` function which can bold,
-    underline, or italicize text among other things
-
-See `cli::style_bold()` and friends for details.
+-   `style()` returns a `cli::style_*` function which bold, underline,
+    or italicize text among other things
 
 For example, the same `NA` highlight as above can be achieved like so:
 
 ```{r}
 highlight(c(1, 0, NA), is.na, colour("red"))
 ```
+
+See `cli::style_bold()` and friends for details on ANSI colored and
+styled text.
 
 ### Generic Highlighting
 
@@ -434,20 +444,16 @@ non-highlightable (although a list can contain highlighted vectors).
 Formally, `is_highlightable()` uses the following criteria to test
 whether an object `x` can be highlighted:
 
--   `x` is not a dataframe (or dataframe subclass)
+-   `x` is not a `data.frame()` (or dataframe subclass)
 
 -   `x` is not a bare `list()`
 
 -   `x` is otherwise a vector, as defined by `vctrs::obj_is_vector()`
 
-
-
--   some examples from lubridate and ivs
--   function `is_highlightable`
--   what CAN'T you highlight -\> data frames and bare lists
--   demonstrate the use of the `init_formatter` to add better default
-    formatting, with a lubridate ymd_hms interval (interval(now(),
-    now()) is super long, truncate)
+TODO Add: - some examples from lubridate and ivs - what CAN'T you
+highlight -\> data frames and bare lists - demonstrate the use of the
+`init_formatter` to add better default formatting, with a lubridate
+ymd_hms interval (interval(now(), now()) is super long, truncate)
 
 ```{r}
 library(lubridate, warn.conflicts = FALSE)

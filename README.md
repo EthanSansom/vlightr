@@ -193,8 +193,8 @@ vlightr::highlight_case(
 
 ### Highlight Arbitrary Vectors
 
-Highlighted vectors are generic, meaning that S3 and S4 vector classes
-from other packages are highlight-able.
+Highlights are generic, meaning that S3 and S4 vector classes from other
+packages are highlight-able.
 
 ``` r
 library(lubridate, warn.conflicts = FALSE)
