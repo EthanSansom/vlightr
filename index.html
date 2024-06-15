@@ -129,52 +129,28 @@
 #&gt; <span style="color: #c2c2c2;">6</span> Jul      2024-07-03                                                           
 </pre>
 </div>
-<p>Apply a custom format to elements of <code>x</code> for which a condition returns <code>TRUE</code>. For example, color only <code>NA</code> values red, as they would appear in a <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">0L</span>, <span class="cn">NA</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span></span>
-<span><span class="va">x_hl</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="va">x</span>, </span>
-<span>  conditions <span class="op">=</span> <span class="va">is.na</span>, </span>
-<span>  formatters <span class="op">=</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/stylers.html">colour</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x_hl</span><span class="op">)</span></span></code></pre></div>
-<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
-<pre>
-#&gt; &lt;highlight&lt;integer&gt;[5]&gt;                                                         
-#&gt; [1] 1  0  <span style="color: #DC322F;">NA</span> 1  0                                                               
-</pre>
-</div>
 <div class="section level3">
 <h3 id="highlight-un-highlight-re-highlight">Highlight, Un-Highlight, Re-Highlight<a class="anchor" aria-label="anchor" href="#highlight-un-highlight-re-highlight"></a>
 </h3>
-<p>Highlighted vectors can’t be implicitly coerced or converted to another vector type. To use a function which expects the highlight’s underlying type (ex. an integer) first <code><a href="reference/un_highlight.html">un_highlight()</a></code> (AKA <code><a href="reference/un_highlight.html">ul()</a></code>) to expose the highlighted data and then <code><a href="reference/re_highlight.html">re_highlight()</a></code> (AKA <code><a href="reference/re_highlight.html">rl()</a></code>) to re-apply the conditional formatting.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x_hl</span> <span class="op">|&gt;</span></span>
+<p>Highlighted vectors can’t be implicitly coerced or converted to another vector type. To use a function which expects the highlight’s underlying type (ex. a date) first <code><a href="reference/un_highlight.html">un_highlight()</a></code> (AKA <code><a href="reference/un_highlight.html">ul()</a></code>) to expose the highlighted data and then <code><a href="reference/re_highlight.html">re_highlight()</a></code> (AKA <code><a href="reference/re_highlight.html">rl()</a></code>) to re-apply the conditional formatting.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dates</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/un_highlight.html">ul</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/re_highlight.html">rl</a></span><span class="op">(</span><span class="va">x_hl</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/rollbackward.html" class="external-link">rollback</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/re_highlight.html">rl</a></span><span class="op">(</span><span class="va">dates</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
 <pre>
-#&gt; &lt;highlight&lt;logical&gt;[5]&gt;                                                         
-#&gt; [1] TRUE  FALSE <span style="color: #DC322F;">NA</span>    TRUE  FALSE                                               
+#&gt; &lt;highlight&lt;date&gt;[6]&gt;                                                            
+#&gt; [1] 2024-04-30 2024-05-31 2024-05-31 2024-05-31 2024-05-31 <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">3</span><span style="color: #657C83;">0</span>           
 </pre>
 </div>
 <p>The “highlight-pipe” <code>%hl&gt;%</code> wraps the magrittr <code>%&gt;%</code> to do this automatically.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x_hl</span> <span class="op"><a href="reference/grapes-hl-greater-than-grapes.html">%hl&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dates</span> <span class="op"><a href="reference/grapes-hl-greater-than-grapes.html">%hl&gt;%</a></span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/rollbackward.html" class="external-link">rollback</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
 <pre>
-#&gt; &lt;highlight&lt;logical&gt;[5]&gt;                                                         
-#&gt; [1] TRUE  FALSE <span style="color: #DC322F;">NA</span>    TRUE  FALSE                                               
-</pre>
-</div>
-<p>Attempting to convert a <code>vlighter_highlight</code> vector to another class will raise an error.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="va">x_hl</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
-<pre>
-#&gt; Error in as.logical(x_hl) :                                                     
-#&gt;   Can't convert `x` &lt;highlight&lt;integer&gt;&gt; to &lt;logical&gt;.                          
+#&gt; &lt;highlight&lt;date&gt;[6]&gt;                                                            
+#&gt; [1] 2024-04-30 2024-05-31 2024-05-31 2024-05-31 2024-05-31 <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">3</span><span style="color: #657C83;">0</span>           
 </pre>
 </div>
 </div>
@@ -182,41 +158,44 @@
 <h3 id="manipulate-highlighted-data">Manipulate Highlighted Data<a class="anchor" aria-label="anchor" href="#manipulate-highlighted-data"></a>
 </h3>
 <p>Highlighted vectors are happy to be cast or coerced to other compatible highlights. The shorthand <code><a href="reference/highlight.html">hl()</a></code> is useful for quickly highlighting a vector for this purpose.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Arithmetic</span></span>
-<span><span class="va">x_hl</span> <span class="op">+</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">10L</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">dates</span> <span class="op">+</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">17</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
 <pre>
-#&gt; &lt;highlight&lt;integer&gt;[5]&gt;                                                         
-#&gt; [1] 11 10 <span style="color: #DC322F;">NA</span> 11 10                                                              
+#&gt; &lt;highlight&lt;date&gt;[6]&gt;                                                            
+#&gt; [1] <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">1</span><span style="color: #657C83;">5</span> <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">2</span><span style="color: #657C83;">2</span> <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">2</span><span style="color: #657C83;">9</span> 2024-07-06 2024-07-13 2024-07-20           
 </pre>
 </div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Assignment</span></span>
-<span><span class="va">x_hl</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span></span>
-<span><span class="va">x_hl</span></span></code></pre></div>
+<span><span class="va">dates</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span></span>
+<span><span class="va">dates</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
 <pre>
-#&gt; &lt;highlight&lt;integer&gt;[5]&gt;                                                         
-#&gt; [1] <span style="color: #DC322F;">NA</span> 0  <span style="color: #DC322F;">NA</span> 1  0                                                               
+#&gt; &lt;highlight&lt;date&gt;[6]&gt;                                                            
+#&gt; [1] NA         <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">5</span> <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">1</span><span style="color: #657C83;">2</span> <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">1</span><span style="color: #657C83;">9</span> <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">2</span><span style="color: #657C83;">6</span> 2024-07-03           
 </pre>
 </div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Coercion</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">x_hl</span>, <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dates</span>, <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd_hms.html" class="external-link">ymd_hm</a></span><span class="op">(</span><span class="st">"2020-06-01 12:00"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
 <pre>
-#&gt; &lt;highlight&lt;double&gt;[7]&gt;                                                          
-#&gt; [1] <span style="color: #DC322F;">NA</span>   0.0  <span style="color: #DC322F;">NA</span>   1.0  0.0  -1.5 <span style="color: #DC322F;">NA</span>                                            
+#&gt; &lt;highlight&lt;datetime&lt;UTC&gt;&gt;[7]&gt;                                                   
+#&gt; [1] NA                  <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">5</span><span style="color: #859900;"> </span><span style="color: #268BD2;">0</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">:</span><span style="color: #DC322F;">0</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">:</span><span style="color: #859900;">0</span><span style="color: #268BD2;">0</span> <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">1</span><span style="color: #657C83;">2</span><span style="color: #859900;"> </span><span style="color: #268BD2;">0</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">:</span><span style="color: #DC322F;">0</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">:</span><span style="color: #859900;">0</span><span style="color: #268BD2;">0</span>                 
+#&gt; [4] <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">1</span><span style="color: #657C83;">9</span><span style="color: #859900;"> </span><span style="color: #268BD2;">0</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">:</span><span style="color: #DC322F;">0</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">:</span><span style="color: #859900;">0</span><span style="color: #268BD2;">0</span> <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">4</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">2</span><span style="color: #657C83;">6</span><span style="color: #859900;"> </span><span style="color: #268BD2;">0</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">:</span><span style="color: #DC322F;">0</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">:</span><span style="color: #859900;">0</span><span style="color: #268BD2;">0</span> 2024-07-03 00:00:00                 
+#&gt; [7] <span style="color: #DC322F;">2</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">2</span><span style="color: #859900;">0</span><span style="color: #268BD2;">-</span><span style="color:#a020f0;">0</span><span style="color:#ee82ee;">6</span><span style="color: #DC322F;">-</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">1</span><span style="color: #859900;"> </span><span style="color: #268BD2;">1</span><span style="color:#a020f0;">2</span><span style="color:#ee82ee;">:</span><span style="color: #DC322F;">0</span><span style="color:#ffa500;">0</span><span style="color: #657C83;">:</span><span style="color: #859900;">0</span><span style="color: #268BD2;">0</span>                                                         
 </pre>
 </div>
 </div>
 <div class="section level3">
 <h3 id="multiple-conditional-formats">Multiple Conditional Formats<a class="anchor" aria-label="anchor" href="#multiple-conditional-formats"></a>
 </h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<p>Multiple conditions and formatters can be specified by supplying lists of functions or purrr-style lambdas. Elements of <code>x</code> for which <code>conditions[[i]](x)</code> is <code>TRUE</code> are formatted using the formatter function <code>formatters[[i]]</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dummies</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">0L</span>, <span class="cn">NA</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span>,</span>
 <span>  conditions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    <span class="va">is.na</span>, </span>
 <span>    <span class="op">~</span> <span class="va">.x</span> <span class="op">==</span> <span class="fl">1</span>, </span>
@@ -235,43 +214,8 @@
 #&gt; [1] 1 [Yes] 0 [No]  <span style="color: #DC322F;">NA</span>      1 [Yes] 0 [No]                                      
 </pre>
 </div>
-</div>
-<div class="section level3">
-<h3 id="column-rendering-in-tibbletibble">Column Rendering in <code>tibble::tibble()</code>
-<a class="anchor" aria-label="anchor" href="#column-rendering-in-tibbletibble"></a>
-</h3>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>dummy <span class="op">=</span> <span class="va">dummies</span><span class="op">)</span></span></code></pre></div>
-<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
-<pre>
-#&gt; <span style="color: #999999;"># A tibble: 5 × 1</span>                                                               
-#&gt;          dummy                                                                  
-#&gt;   <span style="font-style: italic;color: #999999;">&lt;hlght&lt;int&gt;&gt;</span>                                                                  
-#&gt; <span style="color: #c2c2c2;">1</span>      1 [Yes]                                                                  
-#&gt; <span style="color: #c2c2c2;">2</span>       0 [No]                                                                  
-#&gt; <span style="color: #c2c2c2;">3</span>           <span style="color: #DC322F;">NA</span>                                                                  
-#&gt; <span style="color: #c2c2c2;">4</span>      1 [Yes]                                                                  
-#&gt; <span style="color: #c2c2c2;">5</span>       0 [No]                                                                  
-</pre>
-</div>
-</div>
-<div class="section level3">
-<h3 id="define-highlighter-functions">Define Highlighter Functions<a class="anchor" aria-label="anchor" href="#define-highlighter-functions"></a>
-</h3>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dummy_highlighter</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/as_highlighter.html">as_highlighter</a></span><span class="op">(</span><span class="va">dummies</span><span class="op">)</span></span>
-<span><span class="fu">dummy_highlighter</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
-<pre>
-#&gt; &lt;highlight&lt;double&gt;[3]&gt;                                                          
-#&gt; [1] 0 [No]  1 [Yes] <span style="color: #DC322F;">NA</span>                                                          
-</pre>
-</div>
-</div>
-<div class="section level3">
-<h3 id="alternate-dplyrcase_when-style-syntax">Alternate <code>dplyr::case_when()</code> Style Syntax<a class="anchor" aria-label="anchor" href="#alternate-dplyrcase_when-style-syntax"></a>
-</h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p><code><a href="reference/highlight.html">highlight_case()</a></code> provides a <code>dplyr::case_when</code> inspired syntax for defining multiple conditional formats.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bad_words</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"darn"</span>, <span class="st">"gosh"</span><span class="op">)</span></span>
 <span><span class="va">affirmations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"good job"</span>, <span class="st">"way-to-go"</span><span class="op">)</span></span>
 <span><span class="va">message</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hey"</span>, <span class="st">"good job"</span>, <span class="st">"but"</span>, <span class="st">"darn"</span>, <span class="st">"please"</span>, <span class="st">"don't"</span>, <span class="st">"say"</span>, <span class="st">"gosh"</span><span class="op">)</span></span>
@@ -291,10 +235,24 @@
 </div>
 </div>
 <div class="section level3">
+<h3 id="define-highlighter-functions">Define Highlighter Functions<a class="anchor" aria-label="anchor" href="#define-highlighter-functions"></a>
+</h3>
+<p>Re-use the formatting of any highlighted vector by converting in into a highlighter.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dummy_highlighter</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/as_highlighter.html">as_highlighter</a></span><span class="op">(</span><span class="va">dummies</span><span class="op">)</span></span>
+<span><span class="fu">dummy_highlighter</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; &lt;highlight&lt;double&gt;[3]&gt;                                                          
+#&gt; [1] 0 [No]  1 [Yes] <span style="color: #DC322F;">NA</span>                                                          
+</pre>
+</div>
+</div>
+<div class="section level3">
 <h3 id="highlight-arbitrary-vectors">Highlight Arbitrary Vectors<a class="anchor" aria-label="anchor" href="#highlight-arbitrary-vectors"></a>
 </h3>
 <p>Highlights are generic, meaning that S3 and S4 vector classes from other packages are highlight-able.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">today</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd.html" class="external-link">ymd</a></span><span class="op">(</span><span class="st">"2020-01-01"</span><span class="op">)</span></span>
@@ -321,7 +279,7 @@
 </h2>
 <p>This package is heavily inspired by the <a href="https://github.com/DavisVaughan/ivs" class="external-link">ivs</a> package, which implements generic right-open intervals defined by a pair of parallel start and end vectors.</p>
 <p>As a testament to the genericity of the <code><a href="https://davisvaughan.github.io/ivs/reference/iv.html" class="external-link">ivs::iv</a></code>, here is an ill-advised but perfectly legal interval vector.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/DavisVaughan/ivs" class="external-link">ivs</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">starts</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span><span class="op">:</span><span class="fl">2</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">2</span> <span class="op">==</span> <span class="fl">0</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[Even]"</span><span class="op">)</span><span class="op">)</span></span>
@@ -332,12 +290,12 @@
 <span><span class="co">#&gt; &lt;iv&lt;highlight&lt;double&gt;&gt;[6]&gt;</span></span>
 <span><span class="co">#&gt; [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       </span></span>
 <span><span class="co">#&gt; [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># We can even manipulate it</span></span>
 <span><span class="fu">ivs</span><span class="fu">::</span><span class="fu"><a href="https://davisvaughan.github.io/ivs/reference/iv-groups.html" class="external-link">iv_groups</a></span><span class="op">(</span><span class="fu">ivs</span><span class="fu">::</span><span class="fu"><a href="https://davisvaughan.github.io/ivs/reference/iv.html" class="external-link">iv</a></span><span class="op">(</span><span class="va">starts</span>, <span class="va">ends</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;iv&lt;highlight&lt;double&gt;&gt;[1]&gt;</span></span>
 <span><span class="co">#&gt; [1] [-3, +8 [Even])</span></span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Or highlight it...</span></span>
 <span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span></span>
 <span>  <span class="fu">ivs</span><span class="fu">::</span><span class="fu"><a href="https://davisvaughan.github.io/ivs/reference/iv.html" class="external-link">iv</a></span><span class="op">(</span><span class="va">starts</span>, <span class="va">ends</span><span class="op">)</span>, </span>
