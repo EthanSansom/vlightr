@@ -70,37 +70,19 @@ tibble::tibble(
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/june2-dark.svg">
 <img src="man/figures/README-/june2.svg" width="100%" /> </picture>
 
-Apply a custom format to elements of `x` for which a condition returns
-`TRUE`. For example, color only `NA` values red, as they would appear in
-a `tibble::tibble()`.
-
-``` r
-x <- c(1L, 0L, NA, 1L, 0L)
-x_hl <- vlightr::highlight(
-  x = x, 
-  conditions = is.na, 
-  formatters = vlightr::colour("red")
-)
-print(x_hl)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/red-nas1-dark.svg">
-<img src="man/figures/README-/red-nas1.svg" width="100%" /> </picture>
-
 ### Highlight, Un-Highlight, Re-Highlight
 
 Highlighted vectors can’t be implicitly coerced or converted to another
 vector type. To use a function which expects the highlight’s underlying
-type (ex. an integer) first `un_highlight()` (AKA `ul()`) to expose the
+type (ex. a date) first `un_highlight()` (AKA `ul()`) to expose the
 highlighted data and then `re_highlight()` (AKA `rl()`) to re-apply the
 conditional formatting.
 
 ``` r
-x_hl |>
+dates |>
   vlightr::ul() |>
-  as.logical() |>
-  vlightr::rl(x_hl)
+  lubridate::rollback() |>
+  vlightr::rl(dates)
 ```
 
 <picture>
@@ -112,24 +94,12 @@ The “highlight-pipe” `%hl>%` wraps the magrittr `%>%` to do this
 automatically.
 
 ``` r
-x_hl %hl>% as.logical()
+dates %hl>% lubridate::rollback()
 ```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight2-dark.svg">
 <img src="man/figures/README-/rehighlight2.svg" width="100%" />
-</picture>
-
-Attempting to convert a `vlighter_highlight` vector to another class
-will raise an error.
-
-``` r
-try(as.logical(x_hl))
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight3-dark.svg">
-<img src="man/figures/README-/rehighlight3.svg" width="100%" />
 </picture>
 
 ### Manipulate Highlighted Data
@@ -140,7 +110,7 @@ vector for this purpose.
 
 ``` r
 # Arithmetic
-x_hl + vlightr::hl(10L)
+dates + vlightr::hl(17)
 ```
 
 <picture>
@@ -149,8 +119,8 @@ x_hl + vlightr::hl(10L)
 
 ``` r
 # Assignment
-x_hl[[1]] <- vlightr::hl(NA)
-x_hl
+dates[[1]] <- vlightr::hl(NA)
+dates
 ```
 
 <picture>
@@ -159,7 +129,7 @@ x_hl
 
 ``` r
 # Coercion
-c(x_hl, vlightr::hl(c(-1.5, NA)))
+c(dates, vlightr::hl(lubridate::ymd_hm("2020-06-01 12:00")))
 ```
 
 <picture>
@@ -168,9 +138,14 @@ c(x_hl, vlightr::hl(c(-1.5, NA)))
 
 ### Multiple Conditional Formats
 
+Multiple conditions and formatters can be specified by supplying lists
+of functions or purrr-style lambdas. Elements of `x` for which
+`conditions[[i]](x)` is `TRUE` are formatted using the formatter
+function `formatters[[i]]`.
+
 ``` r
 dummies <- vlightr::highlight(
-  x = x,
+  x = c(1L, 0L, NA, 1L, 0L),
   conditions = list(
     is.na, 
     ~ .x == 1, 
@@ -190,29 +165,8 @@ dummies
 <img src="man/figures/README-/multiple-formats.svg" width="100%" />
 </picture>
 
-### Column Rendering in `tibble::tibble()`
-
-``` r
-tibble::tibble(dummy = dummies)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/tibble-dark.svg">
-<img src="man/figures/README-/tibble.svg" width="100%" /> </picture>
-
-### Define Highlighter Functions
-
-``` r
-dummy_highlighter <- vlightr::as_highlighter(dummies)
-dummy_highlighter(c(0, 1, NA))
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlighter-dark.svg">
-<img src="man/figures/README-/highlighter.svg" width="100%" />
-</picture>
-
-### Alternate `dplyr::case_when()` Style Syntax
+`highlight_case()` provides a `dplyr::case_when` inspired syntax for
+defining multiple conditional formats.
 
 ``` r
 bad_words <- c("darn", "gosh")
@@ -230,6 +184,21 @@ vlightr::highlight_case(
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/case-syntax-dark.svg">
 <img src="man/figures/README-/case-syntax.svg" width="100%" />
+</picture>
+
+### Define Highlighter Functions
+
+Re-use the formatting of any highlighted vector by converting in into a
+highlighter.
+
+``` r
+dummy_highlighter <- vlightr::as_highlighter(dummies)
+dummy_highlighter(c(0, 1, NA))
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlighter-dark.svg">
+<img src="man/figures/README-/highlighter.svg" width="100%" />
 </picture>
 
 ### Highlight Arbitrary Vectors

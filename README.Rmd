@@ -40,8 +40,7 @@ asciicast::init_knitr_engine(
 vlightr is a package for conditionally formatting vectors. You can `highlight()` a vector to style, colour, or otherwise re-format it's elements when the vector is printed or formatted. Highlights are:
 
 -   **Persistent**, meaning highlighted vectors can be manipulated (with minimal legwork) while maintaining their custom formatting.
--   **Generic**, meaning that many vectors you'll encounter in the wild and all 
-base atomic vectors (`"logical"`, `"integer"`, `"numeric"`, `"complex"`, `"character"` and `"raw"`) can be highlighted.
+-   **Generic**, meaning that many vectors you'll encounter in the wild and all base atomic vectors (`"logical"`, `"integer"`, `"numeric"`, `"complex"`, `"character"` and `"raw"`) can be highlighted.
 
 ## Installation
 
@@ -89,39 +88,21 @@ tibble::tibble(
 )
 ```
 
-Apply a custom format to elements of `x` for which a condition returns `TRUE`. For example, color only `NA` values red, as they would appear in a `tibble::tibble()`.
-
-```{asciicast red-nas1}
-x <- c(1L, 0L, NA, 1L, 0L)
-x_hl <- vlightr::highlight(
-  x = x, 
-  conditions = is.na, 
-  formatters = vlightr::colour("red")
-)
-print(x_hl)
-```
-
 ### Highlight, Un-Highlight, Re-Highlight
 
-Highlighted vectors can't be implicitly coerced or converted to another vector type. To use a function which expects the highlight's underlying type (ex. an integer) first `un_highlight()` (AKA `ul()`) to expose the highlighted data and then `re_highlight()` (AKA `rl()`) to re-apply the conditional formatting.
+Highlighted vectors can't be implicitly coerced or converted to another vector type. To use a function which expects the highlight's underlying type (ex. a date) first `un_highlight()` (AKA `ul()`) to expose the highlighted data and then `re_highlight()` (AKA `rl()`) to re-apply the conditional formatting.
 
 ```{asciicast rehighlight1}
-x_hl |>
+dates |>
   vlightr::ul() |>
-  as.logical() |>
-  vlightr::rl(x_hl)
+  lubridate::rollback() |>
+  vlightr::rl(dates)
 ```
 
 The "highlight-pipe" `%hl>%` wraps the magrittr `%>%` to do this automatically.
 
 ```{asciicast rehighlight2}
-x_hl %hl>% as.logical()
-```
-
-Attempting to convert a `vlighter_highlight` vector to another class will raise an error.
-
-```{asciicast rehighlight3}
-try(as.logical(x_hl))
+dates %hl>% lubridate::rollback()
 ```
 
 ### Manipulate Highlighted Data
@@ -130,25 +111,29 @@ Highlighted vectors are happy to be cast or coerced to other compatible highligh
 
 ```{asciicast operation}
 # Arithmetic
-x_hl + vlightr::hl(10L)
+dates + vlightr::hl(17)
 ```
 
 ```{asciicast assign}
 # Assignment
-x_hl[[1]] <- vlightr::hl(NA)
-x_hl
+dates[[1]] <- vlightr::hl(NA)
+dates
 ```
 
 ```{asciicast coerce}
 # Coercion
-c(x_hl, vlightr::hl(c(-1.5, NA)))
+c(dates, vlightr::hl(lubridate::ymd_hm("2020-06-01 12:00")))
 ```
 
 ### Multiple Conditional Formats
 
+Multiple conditions and formatters can be specified by supplying lists
+of functions or purrr-style lambdas. Elements of `x` for which `conditions[[i]](x)` 
+is `TRUE` are formatted using the formatter function `formatters[[i]]`.
+
 ```{asciicast multiple-formats}
 dummies <- vlightr::highlight(
-  x = x,
+  x = c(1L, 0L, NA, 1L, 0L),
   conditions = list(
     is.na, 
     ~ .x == 1, 
@@ -163,20 +148,8 @@ dummies <- vlightr::highlight(
 dummies
 ```
 
-### Column Rendering in `tibble::tibble()`
-
-```{asciicast tibble}
-tibble::tibble(dummy = dummies)
-```
-
-### Define Highlighter Functions
-
-```{asciicast highlighter}
-dummy_highlighter <- vlightr::as_highlighter(dummies)
-dummy_highlighter(c(0, 1, NA))
-```
-
-### Alternate `dplyr::case_when()` Style Syntax
+`highlight_case()` provides a `dplyr::case_when` inspired syntax for defining
+multiple conditional formats.
 
 ```{asciicast case-syntax}
 bad_words <- c("darn", "gosh")
@@ -189,6 +162,15 @@ vlightr::highlight_case(
   .x %in% affirmations ~ toupper(.x),
   TRUE ~ cli::style_italic
 )
+```
+
+### Define Highlighter Functions
+
+Re-use the formatting of any highlighted vector by converting in into a highlighter.
+
+```{asciicast highlighter}
+dummy_highlighter <- vlightr::as_highlighter(dummies)
+dummy_highlighter(c(0, 1, NA))
 ```
 
 ### Highlight Arbitrary Vectors
@@ -238,4 +220,3 @@ highlight(
   ~ paste("{", .x, "}")
 )
 ```
-
