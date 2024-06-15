@@ -61,12 +61,12 @@ library(vlightr)
 library(lubridate, warn.conflicts = FALSE)
 ```
 
-Quickly customize how an arbitrary vector is printed.
+Quickly customize how a vector is printed.
 
 ```{asciicast june1}
-dates <- lubridate::ymd("20240619") + lubridate::weeks(-3:3)
+dates <- lubridate::ymd("20240619") + lubridate::weeks(-3:2)
 
-format_roygbiv <- function(x) {
+format_roygbiv1 <- function(x) {
   vroygbi <- c("violet", "red", "orange", "yellow1", "green", "blue", "purple")
   crayons <- lapply(vroygbi, vlightr::color)
   letters <- strsplit(as.character(x), "")[[1]]
@@ -74,6 +74,7 @@ format_roygbiv <- function(x) {
     mapply(seq_along(letters), FUN = \(x, i) crayons[[i %% 7 + 1]](x)) |>
     paste(collapse = "")
 }
+format_roygbiv <- function(x) sapply(x, format_roygbiv1)
 
 dates <- vlightr::highlight(dates, ~ lubridate::month(.x) == 6, format_roygbiv)
 print(dates)
