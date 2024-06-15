@@ -86,11 +86,49 @@
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/EthanSansom/vlightr" class="external-link">vlightr</a></span><span class="op">)</span></span></code></pre></div>
-<p>Apply a custom format to elements of <code>x</code> for which a condition returns <code>TRUE</code>. For example, color only <code>NA</code> values red, as they would appear in a <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code>.</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/EthanSansom/vlightr" class="external-link">vlightr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>Quickly customize how a vector is printed.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd.html" class="external-link">ymd</a></span><span class="op">(</span><span class="st">"20240619"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/period.html" class="external-link">weeks</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">format_roygbiv</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">vroygbi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"violet"</span>, <span class="st">"red"</span>, <span class="st">"orange"</span>, <span class="st">"yellow1"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>, <span class="st">"purple"</span><span class="op">)</span></span>
+<span>  <span class="va">crayons</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">vroygbi</span>, <span class="fu">vlightr</span><span class="fu">::</span><span class="va"><a href="reference/stylers.html">color</a></span><span class="op">)</span></span>
+<span>  <span class="va">letters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="st">""</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="va">letters</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/mapply.html" class="external-link">mapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">letters</span><span class="op">)</span>, FUN <span class="op">=</span> \<span class="op">(</span><span class="va">x</span>, <span class="va">i</span><span class="op">)</span> <span class="va">crayons</span><span class="op">[[</span><span class="va">i</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">7</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span>collapse <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">dates</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span><span class="va">dates</span>, <span class="op">~</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/month.html" class="external-link">month</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">6</span>, <span class="va">format_roygbiv</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">dates</span><span class="op">)</span></span></code></pre></div>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; Error in ymd("20240619") : could not find function "ymd"                        
+#&gt; Error: object 'dates' not found                                                 
+#&gt; Error: object 'dates' not found                                                 
+</pre>
+</div>
+<p>And how a column is displayed.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  month <span class="op">=</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/month.html" class="external-link">month</a></span><span class="op">(</span><span class="fu"><a href="reference/un_highlight.html">ul</a></span><span class="op">(</span><span class="va">dates</span><span class="op">)</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  date <span class="op">=</span> <span class="va">dates</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
+<pre>
+#&gt; Error in month(ul(dates), label = TRUE) : could not find function "month"       
+</pre>
+</div>
+<p>Apply a custom format to elements of <code>x</code> for which a condition returns <code>TRUE</code>. For example, color only <code>NA</code> values red, as they would appear in a <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code>.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">0L</span>, <span class="cn">NA</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span></span>
-<span><span class="va">x_hl</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">is.na</span>, <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/stylers.html">colour</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">x_hl</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">x</span>, </span>
+<span>  conditions <span class="op">=</span> <span class="va">is.na</span>, </span>
+<span>  formatters <span class="op">=</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/stylers.html">colour</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x_hl</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
 <pre>
@@ -102,7 +140,7 @@
 <h3 id="highlight-un-highlight-re-highlight">Highlight, Un-Highlight, Re-Highlight<a class="anchor" aria-label="anchor" href="#highlight-un-highlight-re-highlight"></a>
 </h3>
 <p>Highlighted vectors can’t be implicitly coerced or converted to another vector type. To use a function which expects the highlight’s underlying type (ex. an integer) first <code><a href="reference/un_highlight.html">un_highlight()</a></code> (AKA <code><a href="reference/un_highlight.html">ul()</a></code>) to expose the highlighted data and then <code><a href="reference/re_highlight.html">re_highlight()</a></code> (AKA <code><a href="reference/re_highlight.html">rl()</a></code>) to re-apply the conditional formatting.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_hl</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/un_highlight.html">ul</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -114,7 +152,7 @@
 </pre>
 </div>
 <p>The “highlight-pipe” <code>%hl&gt;%</code> wraps the magrittr <code>%&gt;%</code> to do this automatically.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_hl</span> <span class="op"><a href="reference/grapes-hl-greater-than-grapes.html">%hl&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
 <pre>
@@ -123,7 +161,7 @@
 </pre>
 </div>
 <p>Attempting to convert a <code>vlighter_highlight</code> vector to another class will raise an error.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="va">x_hl</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
 <pre>
@@ -136,7 +174,7 @@
 <h3 id="manipulate-highlighted-data">Manipulate Highlighted Data<a class="anchor" aria-label="anchor" href="#manipulate-highlighted-data"></a>
 </h3>
 <p>Highlighted vectors are happy to be cast or coerced to other compatible highlights. The shorthand <code><a href="reference/highlight.html">hl()</a></code> is useful for quickly highlighting a vector for this purpose.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Arithmetic</span></span>
 <span><span class="va">x_hl</span> <span class="op">+</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">10L</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
@@ -145,7 +183,7 @@
 #&gt; [1] 11 10 <span style="color: #DC322F;">NA</span> 11 10                                                              
 </pre>
 </div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Assignment</span></span>
 <span><span class="va">x_hl</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span></span>
 <span><span class="va">x_hl</span></span></code></pre></div>
@@ -155,7 +193,7 @@
 #&gt; [1] <span style="color: #DC322F;">NA</span> 0  <span style="color: #DC322F;">NA</span> 1  0                                                               
 </pre>
 </div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Coercion</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">x_hl</span>, <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">hl</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
@@ -168,7 +206,7 @@
 <div class="section level3">
 <h3 id="multiple-conditional-formats">Multiple Conditional Formats<a class="anchor" aria-label="anchor" href="#multiple-conditional-formats"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dummies</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="va">x</span>,</span>
 <span>  conditions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -194,7 +232,7 @@
 <h3 id="column-rendering-in-tibbletibble">Column Rendering in <code>tibble::tibble()</code>
 <a class="anchor" aria-label="anchor" href="#column-rendering-in-tibbletibble"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>dummy <span class="op">=</span> <span class="va">dummies</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
 <pre>
@@ -212,7 +250,7 @@
 <div class="section level3">
 <h3 id="define-highlighter-functions">Define Highlighter Functions<a class="anchor" aria-label="anchor" href="#define-highlighter-functions"></a>
 </h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dummy_highlighter</span> <span class="op">&lt;-</span> <span class="fu">vlightr</span><span class="fu">::</span><span class="fu"><a href="reference/as_highlighter.html">as_highlighter</a></span><span class="op">(</span><span class="va">dummies</span><span class="op">)</span></span>
 <span><span class="fu">dummy_highlighter</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="asciicast" style="color: #172431;font-family: 'Fira Code',Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace;line-height: 1.300000">
@@ -225,7 +263,7 @@
 <div class="section level3">
 <h3 id="alternate-dplyrcase_when-style-syntax">Alternate <code>dplyr::case_when()</code> Style Syntax<a class="anchor" aria-label="anchor" href="#alternate-dplyrcase_when-style-syntax"></a>
 </h3>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bad_words</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"darn"</span>, <span class="st">"gosh"</span><span class="op">)</span></span>
 <span><span class="va">affirmations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"good job"</span>, <span class="st">"way-to-go"</span><span class="op">)</span></span>
 <span><span class="va">message</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hey"</span>, <span class="st">"good job"</span>, <span class="st">"but"</span>, <span class="st">"darn"</span>, <span class="st">"please"</span>, <span class="st">"don't"</span>, <span class="st">"say"</span>, <span class="st">"gosh"</span><span class="op">)</span></span>
@@ -248,7 +286,7 @@
 <h3 id="highlight-arbitrary-vectors">Highlight Arbitrary Vectors<a class="anchor" aria-label="anchor" href="#highlight-arbitrary-vectors"></a>
 </h3>
 <p>Highlights are generic, meaning that S3 and S4 vector classes from other packages are highlight-able.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">today</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd.html" class="external-link">ymd</a></span><span class="op">(</span><span class="st">"2020-01-01"</span><span class="op">)</span></span>
@@ -275,7 +313,7 @@
 </h2>
 <p>This package is heavily inspired by the <a href="https://github.com/DavisVaughan/ivs" class="external-link">ivs</a> package, which implements generic right-open intervals defined by a pair of parallel start and end vectors.</p>
 <p>As a testament to the genericity of the <code><a href="https://davisvaughan.github.io/ivs/reference/iv.html" class="external-link">ivs::iv</a></code>, here is an ill-advised but perfectly legal interval vector.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/DavisVaughan/ivs" class="external-link">ivs</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">starts</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span><span class="op">:</span><span class="fl">2</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">2</span> <span class="op">==</span> <span class="fl">0</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[Even]"</span><span class="op">)</span><span class="op">)</span></span>
@@ -286,12 +324,12 @@
 <span><span class="co">#&gt; &lt;iv&lt;highlight&lt;double&gt;&gt;[6]&gt;</span></span>
 <span><span class="co">#&gt; [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       </span></span>
 <span><span class="co">#&gt; [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])</span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># We can even manipulate it</span></span>
 <span><span class="fu">ivs</span><span class="fu">::</span><span class="fu"><a href="https://davisvaughan.github.io/ivs/reference/iv-groups.html" class="external-link">iv_groups</a></span><span class="op">(</span><span class="fu">ivs</span><span class="fu">::</span><span class="fu"><a href="https://davisvaughan.github.io/ivs/reference/iv.html" class="external-link">iv</a></span><span class="op">(</span><span class="va">starts</span>, <span class="va">ends</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;iv&lt;highlight&lt;double&gt;&gt;[1]&gt;</span></span>
 <span><span class="co">#&gt; [1] [-3, +8 [Even])</span></span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Or highlight it...</span></span>
 <span><span class="fu"><a href="reference/highlight.html">highlight</a></span><span class="op">(</span></span>
 <span>  <span class="fu">ivs</span><span class="fu">::</span><span class="fu"><a href="https://davisvaughan.github.io/ivs/reference/iv.html" class="external-link">iv</a></span><span class="op">(</span><span class="va">starts</span>, <span class="va">ends</span><span class="op">)</span>, </span>
