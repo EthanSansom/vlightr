@@ -34,7 +34,7 @@ library(vlightr)
 library(lubridate, warn.conflicts = FALSE)
 ```
 
-Quickly customize how a vector is printed.
+Quickly customize how an arbitrary vector is printed.
 
 ``` r
 dates <- lubridate::ymd("20240619") + lubridate::weeks(-3:3)
