@@ -31,7 +31,43 @@ devtools::install_github("EthanSansom/vlightr")
 
 ``` r
 library(vlightr)
+library(lubridate, warn.conflicts = FALSE)
 ```
+
+Quickly customize how a vector is printed.
+
+``` r
+dates <- ymd("20240619") + weeks(-3:3)
+
+format_roygbiv <- function(x) {
+  vroygbi <- c("violet", "red", "orange", "yellow1", "green", "blue", "purple")
+  crayons <- lapply(vroygbi, vlightr::color)
+  letters <- strsplit(as.character(x), "")[[1]]
+  letters |>
+    mapply(seq_along(letters), FUN = \(x, i) crayons[[i %% 7 + 1]](x)) |>
+    paste(collapse = "")
+}
+
+dates <- vlightr::highlight(dates, ~ month(.x) == 6, format_roygbiv)
+print(dates)
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/june1-dark.svg">
+<img src="man/figures/README-/june1.svg" width="100%" /> </picture>
+
+And how a column is displayed.
+
+``` r
+tibble::tibble(
+  month = month(ul(dates), label = TRUE),
+  date = dates
+)
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/june2-dark.svg">
+<img src="man/figures/README-/june2.svg" width="100%" /> </picture>
 
 Apply a custom format to elements of `x` for which a condition returns
 `TRUE`. For example, color only `NA` values red, as they would appear in
@@ -39,7 +75,11 @@ a `tibble::tibble()`.
 
 ``` r
 x <- c(1L, 0L, NA, 1L, 0L)
-x_hl <- vlightr::highlight(x, is.na, vlightr::colour("red"))
+x_hl <- vlightr::highlight(
+  x = x, 
+  conditions = is.na, 
+  formatters = vlightr::colour("red")
+)
 print(x_hl)
 ```
 
