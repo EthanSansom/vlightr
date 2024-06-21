@@ -1333,7 +1333,7 @@ highlighter <- function(
     )
   }
   if (is.null(description)) {
-    hlghtr_description <- sprintf("Conditional Format %i", order(precedence))
+    hlghtr_description <- sprintf("Conditional Format %i", order(hlghtr_precedence))
   } else {
     hlghtr_description <- check_is_vector(description, "character", nas = FALSE)
     stop_different_length(
