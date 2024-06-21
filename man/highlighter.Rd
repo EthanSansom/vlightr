@@ -39,8 +39,8 @@ a logical vector the same length as \code{x} or of length 1 (in which case the
 result will be recycled to the length of \code{x}).
 
 Elements of \code{x} for which \code{conditions[[i]](x)} is \code{TRUE} are formatted using
-the formatter function \code{formatters[[i]]}. Consequently, an equal number of
-\code{conditions} and \code{formatters} must be supplied.}
+the formatter function \code{formatters[[i]]}. If both \code{conditions} and \code{formatters}
+are supplied, then they must be the same length.}
 
 \item{formatters}{\verb{[function / list]}
 
@@ -59,15 +59,21 @@ is recycled to the length of the input character).
 ANSI string vectors (class \code{cli_ansi_string}) are also supported (see
 \link[cli:ansi-styles]{cli::ansi-styles} for details).
 
-The same number of \code{formatters} and \code{conditions} must be supplied.}
+When \code{formatters} is not supplied a default set of formatters are provided.
+By default, the formatters are a list of \code{cli::bg_br_yellow}, \code{cli::bg_br_green},
+\code{cli::bg_br_red}, \code{cli::bg_br_cyan}, \code{cli::bg_br_magenta}, and \code{cli::bg_br_blue},
+repeated to the length of \code{conditions}.
+
+If the option \code{vlightr.colorful_default_formatters} is set via \code{options()} to
+anything other than \code{TRUE}, then \code{formatters} is set to roughly:
+\verb{lapply(1:length(conditions), \\(idx) paste0("[ ", x, " ][", idx, "]")}}
 
 \item{description, .description}{\verb{[character / NULL]}
 
 An optional description of the conditional format applied by each function
 in \code{formatters}. This information is used by \code{\link[=describe_highlight]{describe_highlight()}}.
 
-If supplied, \code{description} must be the same length as \code{formatters} and
-\code{conditions}.}
+If supplied, \code{description} must be the same length as \code{conditions}.}
 
 \item{precedence, .precedence}{\verb{[numeric / NULL]}
 
@@ -76,8 +82,7 @@ formatter with the lowest corresponding \code{precedence} value is evaluated fir
 during formatting. By default \code{formatters} are applied in the order in which
 they were supplied.
 
-If supplied, \code{precedence} must be the same length as \code{formatters} and
-\code{conditions}.}
+If supplied, \code{precedence} must be the same length as \code{conditions}.}
 
 \item{format_once, .format_once}{\verb{[logical(1)]}
 

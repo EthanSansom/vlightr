@@ -27,7 +27,7 @@ dummy <- highlight_case(
  x = c(1L, NA, 0L, 1L, NA),
  .x == 0 ~ paste0(.x, "[No]"),
  .x == 1 ~ paste0(.x, "[Yes]"),
- is.na ~ color("red"),
+ is.na ~ cli::col_red,
  .description = c(
     "Responded No",
     "Responded Yes",
