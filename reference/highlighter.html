@@ -121,8 +121,8 @@ to a highlighter, then the supplied arguments override the pre-filled defaults.<
 a logical vector the same length as <code>x</code> or of length 1 (in which case the
 result will be recycled to the length of <code>x</code>).</p>
 <p>Elements of <code>x</code> for which <code>conditions[[i]](x)</code> is <code>TRUE</code> are formatted using
-the formatter function <code>formatters[[i]]</code>. Consequently, an equal number of
-<code>conditions</code> and <code>formatters</code> must be supplied.</p></dd>
+the formatter function <code>formatters[[i]]</code>. If both <code>conditions</code> and <code>formatters</code>
+are supplied, then they must be the same length.</p></dd>
 
 
 <dt>formatters</dt>
@@ -136,15 +136,20 @@ vector the same length as it's input or of length 1 (in which case the result
 is recycled to the length of the input character).</p>
 <p>ANSI string vectors (class <code>cli_ansi_string</code>) are also supported (see
 <a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::ansi-styles</a> for details).</p>
-<p>The same number of <code>formatters</code> and <code>conditions</code> must be supplied.</p></dd>
+<p>When <code>formatters</code> is not supplied a default set of formatters are provided.
+By default, the formatters are a list of <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::bg_br_yellow</a></code>, <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::bg_br_green</a></code>,
+<code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::bg_br_red</a></code>, <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::bg_br_cyan</a></code>, <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::bg_br_magenta</a></code>, and <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::bg_br_blue</a></code>,
+repeated to the length of <code>conditions</code>.</p>
+<p>If the option <code>vlightr.colorful_default_formatters</code> is set via <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code> to
+anything other than <code>TRUE</code>, then <code>formatters</code> is set to roughly:
+<code>lapply(1:length(conditions), \(idx) paste0("[ ", x, " ][", idx, "]")</code></p></dd>
 
 
 <dt>description, .description</dt>
 <dd><p><code>[character / NULL]</code></p>
 <p>An optional description of the conditional format applied by each function
 in <code>formatters</code>. This information is used by <code>describe_highlight()</code>.</p>
-<p>If supplied, <code>description</code> must be the same length as <code>formatters</code> and
-<code>conditions</code>.</p></dd>
+<p>If supplied, <code>description</code> must be the same length as <code>conditions</code>.</p></dd>
 
 
 <dt>precedence, .precedence</dt>
@@ -153,8 +158,7 @@ in <code>formatters</code>. This information is used by <code>describe_highlight
 formatter with the lowest corresponding <code>precedence</code> value is evaluated first
 during formatting. By default <code>formatters</code> are applied in the order in which
 they were supplied.</p>
-<p>If supplied, <code>precedence</code> must be the same length as <code>formatters</code> and
-<code>conditions</code>.</p></dd>
+<p>If supplied, <code>precedence</code> must be the same length as <code>conditions</code>.</p></dd>
 
 
 <dt>format_once, .format_once</dt>
