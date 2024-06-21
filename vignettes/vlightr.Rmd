@@ -4,7 +4,7 @@ output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{vlightr}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{rmarkdown::render}
 editor_options: 
   markdown: 
     wrap: 72
@@ -383,7 +383,7 @@ argument `x`.
 
 ```{r}
 secret <- highlighter(
-  conditions = ~ grepl("^<.*>$", .x), 
+  conditions = ~ grepl("^<.*>$", .x),
   formatters = ~ strrep("x", nchar(.x) - 2L)
 )
 secret(c("This", "<is>", "a", "<secret>", "<.>"))
@@ -435,11 +435,11 @@ highlight(c(1, 0, NA), is.na, colour("red"))
 See `cli::style_bold()` and friends for details on ANSI colored and
 styled text.
 
-### Generic Highlighting
+### Highlighting Vectors in the Wild
 
 Informally, a highlight-able vector is some collection of size 1
-elements. So a list, which can contain elements of varying sizes, is
-non-highlightable (although a list can contain highlighted vectors).
+elements. This means that a list, which can contain elements of varying sizes, 
+is non-highlightable (although a list can contain highlighted vectors).
 
 Formally, `is_highlightable()` uses the following criteria to test
 whether an object `x` can be highlighted:
@@ -450,37 +450,58 @@ whether an object `x` can be highlighted:
 
 -   `x` is otherwise a vector, as defined by `vctrs::obj_is_vector()`
 
-TODO Add: - some examples from lubridate and ivs - what CAN'T you
-highlight -\> data frames and bare lists - demonstrate the use of the
-`init_formatter` to add better default formatting, with a lubridate
-ymd_hms interval (interval(now(), now()) is super long, truncate)
+The `highlight()` function (and friends `hl()`, `highlight_case()`) provide some
+extra arguments which are useful for refining how user-generated vectors are
+highlighted.
+
+Let's highlight a `lubridate::interval` vector named `long_interval` and refine 
+it's format method using these extra arguments.
 
 ```{r}
-library(lubridate, warn.conflicts = FALSE)
+long_interval <- interval(
+  start = ymd_hms("19910101120000") + dyears(c(5, 10, 15)), 
+  end = ymd_hms("20240101120000") + dseconds(c(3, 7, 12)), 
+  tzone = "UTC"
+)
 
-long_interval <- interval(now(), now(), tzone = "UTC")
+highlight(long_interval)
+```
 
+The `init_formatter` ("initial formatter") is a function which is called at the 
+start of a highlighted vector's `format()` method, before any conditional formatting 
+takes place. It expects a single input, the highlighted vector's data, and should 
+return a formatted vector as it's result.
+
+Suppose we don't want to see the hours-minutes-seconds component of the dates in
+our `long_interval`. We can define an initial formatter `format_interval` to do
+just that. While we're at it, we'll replace the repeated timezone with a single
+timezone placed after each element.
+
+```{r}
 format_interval <- function(x) {
-  starts <- as.Date(int_start(x))
-  ends <- as.Date(int_end(x))
-  tzone <- attr(x, "tzone")
+  # Remove the h-m-s component of the interval's start and end
+  start <- as.Date(int_start(x))
+  end <- as.Date(int_end(x))
   
-  out <- paste(starts, "-", ends, tzone)
-  out[is.na(x)] <- NA
+  # Format the output like "start--end tzone"
+  out <- paste0(start, "--", end, " ", attr(x, "tzone"))
+  
+  # Remember to preserve NA values in the formatted output
+  out[is.na(x)] <- NA_character_
   out
 }
 
-highlight_interval <- highlighter(init_formatter = format_interval)
-highlight_interval(long_interval)
+highlight(long_interval, init_formatter = format_interval)
 ```
 
-Similarly, the `last_formatter` is applied after all of the conditional
-formatting has been added. This is useful for limiting the text width of
-a formatted highlight.
+The `last_formatter` is a function which is called at the end of a highlighted 
+vector's `format()` method, after it has been conditionally formatted. This is 
+useful for limiting the text width of a formatted highlight.
 
 ```{r}
-truncate_formatter <- function(x, char_limit = 40) {
-  # Check which strings in `x` exceed the `char_limit` 
+# Truncate elements of a character vector such that `all(nchar(x) <= char_limit)`
+format_truncated <- function(x, char_limit = 40) {
+  # Check which strings in `x` exceed the `char_limit`
   x_char <- nchar(x)
   above_limit <- x_char > char_limit
   if (!any(above_limit)) {
@@ -500,17 +521,22 @@ truncate_formatter <- function(x, char_limit = 40) {
 }
 
 # Test the formatter
-truncate_formatter(c("this", "is", "a", "huuuuuuuuuge", "character"), 7)
+format_truncated(c("this", "is", "a", "huuuuuuuuuge", "character"), 7)
+```
 
-# In a highlighter
+We'll package the `init_formatter` and `last_formatter` together in a highlighter,
+so we can use them whenever we want to highlight an interval vector.
+
+```{r}
 highlight_interval <- highlighter(
   init_formatter = format_interval,
-  last_formatter = truncate_formatter
+  last_formatter = format_truncated
 )
+
 highlight_interval(
-  long_interval,
-  conditions = ~ int_start(.x) > as.Date("2000-01-01"),
-  formatters = ~ paste(.x, "(is in the 21st Century)")
+  long_interval, 
+  ~ym("200001") %within% .x, 
+  ~paste(.x, "[Contains the Millenium!!]")
 )
 ```
 

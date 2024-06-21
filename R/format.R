@@ -82,7 +82,7 @@ evalidate_highlight_fn <- function(
   result <- rlang::try_fetch(
     eval(fn(x), envir = fn_env),
     error = function(cnd) {
-      # `cnd$call` won't be a valid call name most of the time, but will appear
+      # `fn_name` won't be a valid call name most of the time, but will appear
       # as something like "attr(,"conditions")[[1]]()", which will provide more
       # context in the error chain.
       cnd$call <- rlang::call2(fn_name)
@@ -176,11 +176,15 @@ describe_highlight <- function(x) {
       character(1L),
       last = "and"
     )
-    fmts <- format(paste0(fmts, ":"), width = max(nchar(fmts)) + 1)
-    elms <- x_data[unique_formats_at]
-    elms_fmt <- formatted[unique_formats_at]
+    elms <- format(x_data[unique_formats_at])
 
-    examples <- paste(fmts, elms, "->", elms_fmt)
+    # Each example looks like "1, ..., and n: {element} -> {format(element)}"
+    examples <- paste(
+      format(paste0(fmts, ":"), width = max(nchar(fmts)) + 1),
+      format(elms, width = max(nchar(elms))),
+      "->",
+      formatted[unique_formats_at]
+    )
     examples <- examples[order_ragged(formatted_using[unique_formats_at])]
   }
 
@@ -192,7 +196,7 @@ describe_highlight <- function(x) {
   if (any_formatted) {
     cli::cat_line()
     cli::cli_text("Element formatted using:")
-    # Not using `cli::cli_ul` here for bulleted list, since it removes whitespace
+    # Not using `cli::cli_ul` for bulleted list, since it removes whitespace
     # which I don't want here.
     cli::cat_line(paste(cli::symbol$bullet, examples))
   }
