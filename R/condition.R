@@ -1,7 +1,3 @@
-# TODO:
-# - Implement some utilities for working with the highlight's conditions
-# - Do the documentation
-
 #' Split a highlighted vector by conditions
 #'
 #' @description
@@ -33,13 +29,36 @@ condition_id <- function(x, no_id = NA_character_) {
 
 condition_met <- function(
     x,
-    conds = 1L,
-    meets = c("all", "any", "none"),
-    na_as = FALSE
+    conds = NULL,
+    meets = c("all", "any", "none")
   ) {
 
+  x <- check_is_highlight(x)
+  meets <- rlang::arg_match(meets)
+  conditions <- attr(x, "conditions")
+
+  # If no conditions were supplied, use all of them
+  if (!is.null(conds)) {
+    # TODO: Add ability to reference conditions by index OR by description
+    conditions <- vctrs::vec_slice(conditions, conds)
+  }
+
+  # Occurs after slicing, so invalid `conds` still errors for empty conditions.
+  if (rlang::is_empty(conditions)) {
+    return(rep(TRUE, length(x)))
+  }
+
+  # TODO: Use `evalidate_format_fn` here
+  out <- conditions[[1]](x)
+  op <- if (meets == "any") `|` else `&`
+  for (condition in conditions[-1]) {
+    out <- op(out, condition(x))
+    out[is.na(out)] <- FALSE
+  }
+
+  if (meets == "none") !out else out
 }
 
-condition_filter <- function(x, conds = 1L, meets = c("all", "any", "none")) {
-  x[condition_met(x, conds = conds, meets = meets, na_as = FALSE)]
+condition_filter <- function(x, conds = NULL, meets = c("all", "any", "none")) {
+  x[condition_met(x, conds = conds, meets = meets)]
 }
