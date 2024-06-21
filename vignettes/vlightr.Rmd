@@ -11,6 +11,10 @@ editor_options:
 ---
 
 ```{r, include = FALSE}
+# Setting `VignetteEngine{rmarkdown::render}` instead of `VignetteEngine{knitr::rmarkdown}`
+# because `devtools::build_vignettes()` started failing after I updated `knitr`.
+# See: https://forum.posit.co/t/devtools-check-error-with-vignette-but-vignette-can-be-knitted-without-problem/55962/2
+
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
