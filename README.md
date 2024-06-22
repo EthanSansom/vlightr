@@ -40,7 +40,8 @@ Quickly customize how a vector is printed.
 dates <- lubridate::ymd("20240619") + lubridate::weeks(-3:2)
 
 format_roygbiv1 <- function(x) {
-  vroygbi <- c("violet", "red", "orange", "br_yellow", "green", "blue", "purple")
+  # vroygbi <- c("violet", "red", "orange", "br_yellow", "green", "blue", "purple")
+  vroygbi <- c("violet", "red", "orange", "gold", "green", "blue", "purple")
   crayons <- lapply(vroygbi, vlightr::color)
   letters <- strsplit(as.character(x), "")[[1]]
   letters |>
