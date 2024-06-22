@@ -25,24 +25,45 @@ wrap(left = "[", right = "]")
 \arguments{
 \item{x}{\verb{[character(1)]}
 
-For \code{bg()} and \code{color()}, a recognized R color name (see \code{grDevices::colors()}),
-a \code{cli} package color (e.g. \code{"yellow"}, \code{"br_blue"}), or a 6- or 8-digit
-hexadecimal color string (e.g. \code{"⁠#ff0000"}).}
+For \code{background()} and \code{color()}, the color that the output function applies
+to the text background or text of a character vector, specified by a:
+\itemize{
+\item recognized R color name (see \code{\link[grDevices:colors]{grDevices::colors()}})
+\item \code{cli} package color (e.g. \code{"yellow"}, \code{"br_blue"})
+\item 6- or 8-digit hexadecimal color string (e.g. \code{"⁠#ff0000"})
+}
+
+For \code{style}, the text effect that the output function adds to the text of a
+character vector, specified by a \code{cli} package style (e.g. \code{"bold"},
+\code{"italic"}, \code{"underline"}).
+
+See \code{\link[cli:ansi-styles]{cli::style_bold()}} and friends for recognized \code{cli} styles and colors.}
 
 \item{left, right}{\verb{[character(1)]}
 
-For \code{wrap()}.}
+For \code{wrap()}, a prefix (\code{left}) or suffix \code{right} that the output function
+pastes onto a character vector. By default, \code{left} is \code{"["} and \code{right}
+is \code{"]"}.}
 }
 \value{
 A function which returns a styled character or ANSI string vector.
 }
 \description{
-vlightr provides some helpers to quickly generate new formatting functions
-for use in the \code{formatters}, \code{init_formatter}, and \code{last_formatter} arguments
-of \code{\link[=highlight]{highlight()}}, \code{\link[=highlighter]{highlighter()}}, and friends.
+Function factors used to generate new formatting functions for use in the
+\code{formatters}, \code{init_formatter}, and \code{last_formatter} arguments of highlight
+functions (e.g. \code{\link[=highlight]{highlight()}}, \code{\link[=highlighter]{highlighter()}}).
 }
 \examples{
 color_red <- color("red")
 color_red(1:3)
+
+background_yellow <- background("yellow")
+background_yellow(LETTERS[1:3])
+
+style_bold <- style("bold")
+style_bold(c(TRUE, FALSE, NA))
+
+embrace <- wrap("(", ")")
+embrace(c(2.2, 3.3, 4.4))
 }
 \concept{styles}

@@ -2,19 +2,30 @@
 #'
 #' @description
 #'
-#' vlightr provides some helpers to quickly generate new formatting functions
-#' for use in the `formatters`, `init_formatter`, and `last_formatter` arguments
-#' of [highlight()], [highlighter()], and friends.
+#' Function factors used to generate new formatting functions for use in the
+#' `formatters`, `init_formatter`, and `last_formatter` arguments of highlight
+#' functions (e.g. [highlight()], [highlighter()]).
 #'
 #' @param x `[character(1)]`
 #'
-#' For `bg()` and `color()`, a recognized R color name (see `grDevices::colors()`),
-#' a `cli` package color (e.g. `"yellow"`, `"br_blue"`), or a 6- or 8-digit
-#' hexadecimal color string (e.g. `"⁠#ff0000"`).
+#' For `background()` and `color()`, the color that the output function applies
+#' to the text background or text of a character vector, specified by a:
+#'
+#' - recognized R color name (see [grDevices::colors()])
+#' - `cli` package color (e.g. `"yellow"`, `"br_blue"`)
+#' - 6- or 8-digit hexadecimal color string (e.g. `"⁠#ff0000"`)
+#'
+#' For `style`, the text effect that the output function adds to the text of a
+#' character vector, specified by a `cli` package style (e.g. `"bold"`,
+#' `"italic"`, `"underline"`).
+#'
+#' See [cli::style_bold()] and friends for recognized `cli` styles and colors.
 #'
 #' @param left,right `[character(1)]`
 #'
-#' For `wrap()`.
+#' For `wrap()`, a prefix (`left`) or suffix `right` that the output function
+#' pastes onto a character vector. By default, `left` is `"["` and `right`
+#' is `"]"`.
 #'
 #' @return
 #'
@@ -25,17 +36,16 @@
 #' @examples
 #' color_red <- color("red")
 #' color_red(1:3)
+#'
+#' background_yellow <- background("yellow")
+#' background_yellow(LETTERS[1:3])
+#'
+#' style_bold <- style("bold")
+#' style_bold(c(TRUE, FALSE, NA))
+#'
+#' embrace <- wrap("(", ")")
+#' embrace(c(2.2, 3.3, 4.4))
 NULL
-
-# TODO: Grouping these for now (with incomplete documentation), but they should
-# be documented seperately. Maybe included in the same family however.
-#
-# - bg, background, colour, color can be documented together
-# By themselves:
-# - style
-# - wrap
-# - emph
-# - make_formatter
 
 # cli --------------------------------------------------------------------------
 
@@ -168,8 +178,8 @@ colour <- color
 #' @name stylers
 #' @export
 style <- function(x) {
-  x <- tolower(check_is_string(x))
   switch(
+    tolower(check_is_string(x)),
     bold = cli::style_bold,
     dimmed = ,
     dim = cli::style_dim,
@@ -177,7 +187,7 @@ style <- function(x) {
     blurred = cli::style_blurred,
     italicized = ,
     italicize = ,
-    italics ,
+    italics = ,
     italic = cli::style_italic,
     hide = ,
     hidden = cli::style_hidden,
