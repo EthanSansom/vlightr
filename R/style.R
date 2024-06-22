@@ -8,7 +8,9 @@
 #'
 #' @param x `[character(1)]`
 #'
-#' For `bg()` and `color()`, a recognized
+#' For `bg()` and `color()`, a recognized R color name (see `grDevices::colors()`),
+#' a `cli` package color (e.g. `"yellow"`, `"br_blue"`), or a 6- or 8-digit
+#' hexadecimal color string (e.g. `"⁠#ff0000"`).
 #'
 #' @param left,right `[character(1)]`
 #'

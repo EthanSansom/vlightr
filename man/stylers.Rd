@@ -6,10 +6,8 @@
 \alias{background}
 \alias{color}
 \alias{colour}
-\alias{make_formatter}
 \alias{style}
 \alias{wrap}
-\alias{emph}
 \title{Generate a formatter function to style text}
 \usage{
 bg(x)
@@ -20,18 +18,16 @@ color(x)
 
 colour(x)
 
-make_formatter(x)
-
 style(x)
 
 wrap(left = "[", right = "]")
-
-emph(wrap = TRUE, bg = TRUE, bold = TRUE)
 }
 \arguments{
 \item{x}{\verb{[character(1)]}
 
-For \code{bg()} and \code{color()}.}
+For \code{bg()} and \code{color()}, a recognized R color name (see \code{grDevices::colors()}),
+a \code{cli} package color (e.g. \code{"yellow"}, \code{"br_blue"}), or a 6- or 8-digit
+hexadecimal color string (e.g. \code{"⁠#ff0000"}).}
 
 \item{left, right}{\verb{[character(1)]}
 

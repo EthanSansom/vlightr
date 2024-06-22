@@ -6,13 +6,13 @@
 \usage{
 update_highlight(
   x,
-  conditions = NULL,
-  formatters = NULL,
-  description = NULL,
-  precedence = NULL,
-  format_once = NULL,
-  init_formatter = NULL,
-  last_formatter = NULL
+  conditions,
+  formatters,
+  description,
+  precedence,
+  format_once,
+  init_formatter,
+  last_formatter
 )
 }
 \arguments{
@@ -60,8 +60,9 @@ By default, the formatters are a list of \code{cli::bg_br_yellow}, \code{cli::bg
 repeated to the length of \code{conditions}.
 
 If the option \code{vlightr.colorful_default_formatters} is set via \code{options()} to
-anything other than \code{TRUE}, then \code{formatters} is set to roughly:
-\verb{lapply(1:length(conditions), \\(idx) paste0("[ ", x, " ][", idx, "]")}}
+anything other than \code{TRUE}, then the default \code{formatters} will append numbered
+annotations \code{"[1]"}, \code{"[2]"}, etc. to conditionally formatted elements, instead
+of using \verb{cli::bg_*} functions.}
 
 \item{description}{\verb{[character / NULL]}
 
@@ -121,8 +122,8 @@ existing \code{formatters} attribute of \code{x}.
 dummies <- c(1L, 0L, NA, 0L, 1L)
 dummies_hl <- highlight_case(
   x = dummies,
-  .x == 0 ~ paste0(.x, "[No]"),
-  .x == 1 ~ paste0(.x, "[Yes]"),
+  .x == 0 ~ paste(.x, "[No]"),
+  .x == 1 ~ paste(.x, "[Yes]"),
   TRUE ~ "Don't Know"
 )
 print(dummies_hl)
@@ -132,15 +133,16 @@ describe_highlight(dummies_hl)
 dummies_hl <- update_highlight(
   x = dummies_hl,
   description = c("Set 0 to No", "Set 1 to Yes", " Otherwise, Don't Know"),
-  last_formatter = background("yellow")
+  last_formatter = background("bright_yellow")
 )
 print(dummies_hl)
 describe_highlight(dummies_hl)
 
-# Change the `formatters`
+# Change the `formatters` and remove the `init_formatter`
 update_highlight(
   x = dummies_hl,
-  formatters = list(~ "No", ~ "Yes", ~ color("red"))
+  formatters = list(~ "No", ~ "Yes", color("red")),
+  last_formatter = NULL
 )
 }
 \seealso{

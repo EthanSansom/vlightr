@@ -6,7 +6,7 @@ vlightr
 <!-- badges: end -->
 
 vlightr is a package for conditionally formatting vectors. You can
-`highlight()` a vector to style, colour, or otherwise re-format it’s
+`highlight()` a vector to style, color, or otherwise re-format it’s
 elements when the vector is printed or formatted. Highlights are:
 
 - **Persistent**, meaning highlighted vectors can be manipulated (with
@@ -153,7 +153,7 @@ dummies <- vlightr::highlight(
     ~ .x == 0
   ),
   formatters = list(
-    vlightr::colour("red"), 
+    vlightr::color("red"),
     ~ paste(.x, "[Yes]"),
     ~ paste(.x, "[No]")
   )
@@ -166,7 +166,7 @@ dummies
 <img src="man/figures/README-/multiple-formats.svg" width="100%" />
 </picture>
 
-`highlight_case()` provides a `dplyr::case_when` inspired syntax for
+`highlight_case()` provides a `dplyr::case_when()` inspired syntax for
 defining multiple conditional formats.
 
 ``` r
@@ -189,7 +189,7 @@ vlightr::highlight_case(
 
 ### Define Highlighter Functions
 
-Re-use the formatting of any highlighted vector by converting in into a
+Re-use the formatting of any highlighted vector by converting it into a
 highlighter.
 
 ``` r

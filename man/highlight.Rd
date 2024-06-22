@@ -106,8 +106,9 @@ By default, the formatters are a list of \code{cli::bg_br_yellow}, \code{cli::bg
 repeated to the length of \code{conditions}.
 
 If the option \code{vlightr.colorful_default_formatters} is set via \code{options()} to
-anything other than \code{TRUE}, then \code{formatters} is set to roughly:
-\verb{lapply(1:length(conditions), \\(idx) paste0("[ ", x, " ][", idx, "]")}}
+anything other than \code{TRUE}, then the default \code{formatters} will append numbered
+annotations \code{"[1]"}, \code{"[2]"}, etc. to conditionally formatted elements, instead
+of using \verb{cli::bg_*} functions.}
 
 \item{description, .description}{\verb{[character / NULL]}
 
@@ -187,17 +188,15 @@ A highlighted vector (class \code{vlightr_highlight}) containing the same data a
 }
 \description{
 \code{highlight()}, \code{hl()}, and \code{highlight_case()} create a
-\code{vlighter_highlight} vector with a conditional \code{\link[=format]{format()}} method.
+vector with a conditional \code{\link[=format]{format()}} method.
 
-\code{vlighter_highlight} is a generic vector superclass which maintains
-the underlying data of it's subclass while changing how the subclass is
-formatted and printed. In other words, the vector \code{highlight(1:5)} can (with
-limited legwork) be treated exactly the same as the integer vector \code{1:5},
-but has a different \code{format()} and \code{print()} method.
+The highlighted vector \code{highlight(1:5)} can (with limited legwork) be
+treated exactly the same as the integer vector \code{1:5}, but has a different
+\code{format()} and \code{print()} method.
 
 \code{highlight_case()} provides an alternative \code{\link[dplyr:case_when]{dplyr::case_when()}} style syntax
-to \code{highlight()}, but is otherwise similar. Arguments (other than \code{x}) to
-\code{highlight_case()} are prefixed with a dot (\code{.}).
+to \code{highlight()}. Arguments (other than \code{x}) to \code{highlight_case()} are prefixed
+with a dot.
 
 \code{hl()} and \code{highlight()} are synonyms. \code{hl_case()} and \code{highlight_case()} are
 synonyms.
@@ -262,6 +261,11 @@ print(dollar)
 # Default `formatters`
 highlight(1:6, conditions = ~ .x \%\% 2 == 0)
 highlight(-2:2, conditions = list(~ .x > 0, ~ .x < 0))
+
+# Change the default `formatters` using `options()`
+opts <- options(vlightr.colorful_default_formatters = FALSE)
+highlight(-2:2, conditions = list(~ .x > 0, ~ .x < 0))
+options(opts)
 }
 \seealso{
 \code{\link[=un_highlight]{un_highlight()}} for converting a vector \code{highlight(x)} back to \code{x}.

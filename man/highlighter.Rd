@@ -65,8 +65,9 @@ By default, the formatters are a list of \code{cli::bg_br_yellow}, \code{cli::bg
 repeated to the length of \code{conditions}.
 
 If the option \code{vlightr.colorful_default_formatters} is set via \code{options()} to
-anything other than \code{TRUE}, then \code{formatters} is set to roughly:
-\verb{lapply(1:length(conditions), \\(idx) paste0("[ ", x, " ][", idx, "]")}}
+anything other than \code{TRUE}, then the default \code{formatters} will append numbered
+annotations \code{"[1]"}, \code{"[2]"}, etc. to conditionally formatted elements, instead
+of using \verb{cli::bg_*} functions.}
 
 \item{description, .description}{\verb{[character / NULL]}
 
@@ -151,7 +152,7 @@ following are equivalent:
 
 The output function has the same arguments as \code{highlight()}. If arguments
 \code{conditions}, \code{formatters}, \code{description}, or \code{precedence} are supplied to
-a highlighter function, then the user arguments are appended to the pre-filled
+a highlighter function, then the supplied arguments are appended to the pre-filled
 arguments prior to highlighting.
 
 If arguments \code{format_once}, \code{init_formatter}, or \code{last_formatter} are supplied
@@ -164,12 +165,12 @@ dummy_hl <- highlight_case(
  x = dummy,
  .x == 0 ~ paste0(.x, "[No]"),
  .x == 1 ~ paste0(.x, "[Yes]"),
- is.na ~ color("red")
+ is.na ~ cli::col_red
 )
 dummy_hlghtr <- highlighter_case(
  .x == 0 ~ paste0(.x, "[No]"),
  .x == 1 ~ paste0(.x, "[Yes]"),
- is.na ~ color("red")
+ is.na ~ cli::col_red
 )
 print(dummy_hl)
 print(dummy_hlghtr(x = x))

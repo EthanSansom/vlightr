@@ -252,11 +252,9 @@
 #' highlight(-2:2, conditions = list(~ .x > 0, ~ .x < 0))
 #'
 #' # Change the default `formatters` using `options()`
-#' if (FALSE) {
-#'   options(vlightr.colorful_default_formatters = FALSE)
-#'   highlight(-2:2, conditions = list(~ .x > 0, ~ .x < 0))
-#'   options(vlightr.colorful_default_formatters = TRUE)
-#' }
+#' opts <- options(vlightr.colorful_default_formatters = FALSE)
+#' highlight(-2:2, conditions = list(~ .x > 0, ~ .x < 0))
+#' options(opts)
 #' @export
 highlight <- function(
     x = logical(),

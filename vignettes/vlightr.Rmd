@@ -33,13 +33,13 @@ above_mean <- highlight(1:10, ~ .x > mean(.x), ~ paste0("[", .x, "]"))
 print(above_mean)
 ```
 
-Including observations in a dataframe or tibble.
+Including observations in a tibble.
 
 ```{r, collapse=TRUE}
 tibble::tibble(x = above_mean[1:5])
 ```
 
-Highlights are generic, meaning that many vector's you'll encounter in
+Highlights are generic, meaning that many vectors you'll encounter in
 the wild can be highlighted. For example, here's a lubridate interval
 vector with a festive format method.
 
@@ -127,8 +127,8 @@ set `format_once = TRUE`.
 update_highlight(even_or_negative, format_once = TRUE)
 ```
 
-`describe_highlight()` is useful to understand how a highlight is
-formatted.
+If it's unclear how a highlighted vector is being formatted, use `describe_highlight()`
+to get a brief description of a highlight's conditional formatting.
 
 ```{r}
 describe_highlight(even_or_negative)
@@ -163,10 +163,10 @@ as their underlying vector type. `hl()` is a synonym for `highlight()`,
 which is useful for quick inline highlighting.
 
 ```{r}
-# <highlight<int>> and <highlight<int>> are compatible
+# <highlight<integer>> and <highlight<integer>> are compatible
 mean_or_above[[5]] <- hl(100L)
 
-# <highlight<int>> and <highlight<chr>> are not
+# <highlight<integer>> and <highlight<character>> are not
 try(mean_or_above[[5]] <- hl("100!"))
 ```
 
@@ -218,8 +218,7 @@ Together, `highlight()`, `un_highlight()`, and `re_highlight()` provide
 the core functionality of `vlightr`.
 
 1.  `highlight()` (synonym `hl()`) highlights a vector.
-2.  `un_highlight()` (synonym `ul()`) removes a vector's highlighting
-    (expose it's underlying data).
+2.  `un_highlight()` (synonym `ul()`) removes a vector's highlighting to expose it's underlying data.
 3.  `re_highlight()` (synonym `rl()`) applies the format of an existing
     highlighted vector to another vector.
 
@@ -327,12 +326,12 @@ try(c(int_hl, hl(0.5)))
 ```
 
 The `precedence` of highlighted vectors is maintained when they are
-combined. For example, you can reduce highlighted vector's `precedence`
+combined. For example, you can set a highlighted vector's `precedence`
 to prioritize it's format.
 
 ```{r}
-even_is_red <- hl(1:3, ~ .x %% 2 == 0, cli::col_red, precedence = 1)
-even_is_green <- hl(4:6, ~ .x %% 2 == 0, cli::col_green, precedence = 0)
+even_is_red <- hl(1:3, ~ .x %% 2 == 0, cli::col_red, precedence = 2)
+even_is_green <- hl(4:6, ~ .x %% 2 == 0, cli::col_green, precedence = 1)
 c(even_is_red, even_is_green)
 ```
 
@@ -403,11 +402,6 @@ dollars <- highlighter_case(
 dollars(c(-10, 0.12, 130.0234, NA))
 ```
 
-```{r}
-no_nas <- highlighter_case(is.na(.x) ~ "NO PROBLEM")
-no_nas(c(TRUE, FALSE, NA))
-```
-
 ### Styling
 
 Highlights can be formatted using ANSI escape sequences, such as those
@@ -427,13 +421,13 @@ to use as formatters.
 -   `bg()` and `background()` return a `cli::bg_*` function which colors
     the text's background
 
--   `style()` returns a `cli::style_*` function which bold, underline,
-    or italicize text among other things
+-   `style()` returns a `cli::style_*` function styles text (e.g. underlines,
+    italicizes, etc.)
 
 For example, the same `NA` highlight as above can be achieved like so:
 
 ```{r}
-highlight(c(1, 0, NA), is.na, colour("red"))
+highlight(c(1, 0, NA), is.na, color("red"))
 ```
 
 See `cli::style_bold()` and friends for details on ANSI colored and
@@ -454,9 +448,9 @@ whether an object `x` can be highlighted:
 
 -   `x` is otherwise a vector, as defined by `vctrs::obj_is_vector()`
 
-The `highlight()` function (and friends `hl()`, `highlight_case()`) provide some
-extra arguments which are useful for refining how user-generated vectors are
-highlighted.
+The `highlight()` function (and friends `hl()`, `highlight_case()`, `hl_case()`) 
+provide some extra arguments which are useful for refining how user-generated 
+vectors are highlighted.
 
 Let's highlight a `lubridate::interval` vector named `long_interval` and refine 
 it's format method using these extra arguments.
@@ -478,8 +472,8 @@ return a formatted vector as it's result.
 
 Suppose we don't want to see the hours-minutes-seconds component of the dates in
 our `long_interval`. We can define an initial formatter `format_interval` to do
-just that. While we're at it, we'll replace the repeated timezone with a single
-timezone placed after each element.
+just that. While we're at it, we can remove the first timezone (`"UTC"`) from each
+element of the formatted interval
 
 ```{r}
 format_interval <- function(x) {
@@ -487,10 +481,10 @@ format_interval <- function(x) {
   start <- as.Date(int_start(x))
   end <- as.Date(int_end(x))
   
-  # Format the output like "start--end tzone"
+  # Format the output as "start--end tzone"
   out <- paste0(start, "--", end, " ", attr(x, "tzone"))
   
-  # Remember to preserve NA values in the formatted output
+  # Remember to preserve NA values from `x`
   out[is.na(x)] <- NA_character_
   out
 }
@@ -528,8 +522,8 @@ format_truncated <- function(x, char_limit = 40) {
 format_truncated(c("this", "is", "a", "huuuuuuuuuge", "character"), 7)
 ```
 
-We'll package the `init_formatter` and `last_formatter` together in a highlighter,
-so we can use them whenever we want to highlight an interval vector.
+After packaging our custom `init_formatter` and `last_formatter` together in a 
+highlighter, we can reuse them wherever we highlight an interval vector.
 
 ```{r}
 highlight_interval <- highlighter(

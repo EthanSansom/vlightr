@@ -7,7 +7,7 @@
 as_highlighter(x)
 }
 \arguments{
-\item{x}{\link{vlightr_highlight}
+\item{x}{\verb{[vlightr_highlight]}
 
 A highlighted vector to convert to a highlighter (class \code{vlightr_highlighter})
 function. See \code{\link[=highlighter]{highlighter()}} for details.}

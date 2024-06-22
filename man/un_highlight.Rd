@@ -31,5 +31,5 @@ print(un_highlight(x))
 
 # Allow a highlighted vector to be used in functions
 try(paste(x))
-paste(un_highlight(x))
+paste(ul(x))
 }
