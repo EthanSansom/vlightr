@@ -32,6 +32,7 @@ devtools::install_github("EthanSansom/vlightr")
 ``` r
 library(vlightr)
 library(lubridate, warn.conflicts = FALSE)
+library(ivs)
 ```
 
 Quickly customize how a vector is printed.
@@ -40,7 +41,6 @@ Quickly customize how a vector is printed.
 dates <- lubridate::ymd("20240619") + lubridate::weeks(-3:2)
 
 format_roygbiv1 <- function(x) {
-  # vroygbi <- c("violet", "red", "orange", "br_yellow", "green", "blue", "purple")
   vroygbi <- c("violet", "red", "orange", "gold", "green", "blue", "purple")
   crayons <- lapply(vroygbi, vlightr::color)
   letters <- strsplit(as.character(x), "")[[1]]
@@ -208,15 +208,16 @@ Highlights are generic, meaning that S3 and S4 vector classes from other
 packages are highlight-able.
 
 ``` r
-library(lubridate, warn.conflicts = FALSE)
-
-today <- ymd("2020-01-01")
-meeting_times <- interval(
-  today + hours(c(9, 11, 16)), 
-  today + hours(c(10, 13, 17))
+today <- lubridate::ymd("2020-01-01")
+meeting_times <- lubridate::interval(
+  today + lubridate::hours(c(9, 11, 16)), 
+  today + lubridate::hours(c(10, 13, 17))
 )
-lunch_break <- interval(today + hours(12), today + hours(13))
-is_during_lunch <- function(x) int_overlaps(x, lunch_break)
+lunch_break <- lubridate::interval(
+  today + lubridate::hours(12), 
+  today + lubridate::hours(13)
+)
+is_during_lunch <- function(x) lubridate::int_overlaps(x, lunch_break)
 
 vlightr::highlight(meeting_times, is_during_lunch, cli::col_magenta)
 ```
@@ -236,34 +237,35 @@ As a testament to the genericity of the `ivs::iv`, here is an
 ill-advised but perfectly legal interval vector.
 
 ``` r
-library(ivs)
-
-starts <- highlight(-3:2, ~ .x %% 2 == 0, ~ paste(.x, "[Even]"))
-ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
+starts <- vlightr::highlight(-3:2, ~ .x %% 2 == 0, ~ paste(.x, "[Even]"))
+ends <- vlightr::highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
 # A totally legitimate `iv`
 ivs::iv(starts, ends)
-#> <iv<highlight<double>>[6]>
-#> [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       
-#> [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])
 ```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo1-dark.svg">
+<img src="man/figures/README-/ivs-inspo1.svg" width="100%" /> </picture>
 
 ``` r
 # We can even manipulate it
 ivs::iv_groups(ivs::iv(starts, ends))
-#> <iv<highlight<double>>[1]>
-#> [1] [-3, +8 [Even])
 ```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo2-dark.svg">
+<img src="man/figures/README-/ivs-inspo2.svg" width="100%" /> </picture>
 
 ``` r
 # Or highlight it...
-highlight(
+vlightr::highlight(
   ivs::iv(starts, ends), 
-  ~ (ivs::iv_end(.x) - ivs::iv_start(.x)) > hl(1),
-  ~ paste("{", .x, "}")
+  ~ (ivs::iv_end(.x) - ivs::iv_start(.x)) > vlightr::hl(1),
+  bg("hotpink")
 )
-#> <highlight<iv<highlight<double>>>[6]>
-#> [1] [-3, -2 [Even])            [-2 [Even], -1)           
-#> [3] { [-1, +2 [Even]) }        { [0 [Even], +5) }        
-#> [5] { [+1, +7) }               { [+2 [Even], +8 [Even]) }
 ```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo3-dark.svg">
+<img src="man/figures/README-/ivs-inspo3.svg" width="100%" /> </picture>
