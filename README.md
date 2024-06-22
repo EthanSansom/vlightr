@@ -262,7 +262,7 @@ ivs::iv_groups(ivs::iv(starts, ends))
 vlightr::highlight(
   ivs::iv(starts, ends), 
   ~ (ivs::iv_end(.x) - ivs::iv_start(.x)) > vlightr::hl(1),
-  bg("hotpink")
+  color("goldenrod")
 )
 ```
 
