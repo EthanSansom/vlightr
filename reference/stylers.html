@@ -65,20 +65,18 @@ of <code><a href="highlight.html">highlight()</a></code>, <code><a href="highlig
 <span></span>
 <span><span class="fu">colour</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">make_formatter</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu">style</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">wrap</span><span class="op">(</span>left <span class="op">=</span> <span class="st">"["</span>, right <span class="op">=</span> <span class="st">"]"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">emph</span><span class="op">(</span>wrap <span class="op">=</span> <span class="cn">TRUE</span>, bg <span class="op">=</span> <span class="cn">TRUE</span>, bold <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">wrap</span><span class="op">(</span>left <span class="op">=</span> <span class="st">"["</span>, right <span class="op">=</span> <span class="st">"]"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>x</dt>
 <dd><p><code>[character(1)]</code></p>
-<p>For <code>bg()</code> and <code>color()</code>.</p></dd>
+<p>For <code>bg()</code> and <code>color()</code>, a recognized R color name (see <code><a href="https://rdrr.io/r/grDevices/colors.html" class="external-link">grDevices::colors()</a></code>),
+a <code>cli</code> package color (e.g. <code>"yellow"</code>, <code>"br_blue"</code>), or a 6- or 8-digit
+hexadecimal color string (e.g. <code>"⁠#ff0000"</code>).</p></dd>
 
 
 <dt>left, right</dt>

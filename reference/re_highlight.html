@@ -95,14 +95,11 @@ formatting is combined with that of the highlights supplied to <code>...</code>.
 <code>description</code>, <code>precedence</code>, <code>format_once</code>, <code>init_formatter</code>, and
 <code>last_formatter</code> of each <code>...</code> argument are appended to that of <code>x</code>, if <code>x</code>
 is a highlighted vector, and are supplied to <code>highlight(x, ...)</code> otherwise.</p>
-<p>The <code>format_once</code>, <code>init_formatter</code>, and <code>last_formatter</code> attributes are
-scalar, meaning they cannot be appended to.</p>
-<p>The <code>format_once</code> attribute of the output vector is set to <code>TRUE</code> if any of
-<code>x</code> or <code>...</code> have <code>format_once</code> is <code>TRUE</code>. Otherwise, <code>format_once</code> is set to
-<code>FALSE</code>.</p>
-<p><code>init_formatter</code> and <code>last_formatter</code> are taken from <code>x</code>, if they are defined
-(i.e. not <code>NULL</code>) for <code>x</code>, and are otherwise taken from the first argument in
-<code>...</code> with a defined <code>init_formatter</code> (<code>last_formatter</code>) respectively.</p></dd>
+<p>The <code>format_once</code> attribute of the output vector is set to <code>TRUE</code> if <code>format_once</code>
+is <code>TRUE</code> for any of <code>x</code> or <code>...</code>. Otherwise, <code>format_once</code> is set to <code>FALSE</code>.</p>
+<p>The <code>init_formatter</code> (<code>last_formatter</code>) is taken from <code>x</code>, if it is defined
+(i.e. not <code>NULL</code>), and is otherwise taken from the first argument in
+<code>...</code> for which an <code>init_formatter</code> (<code>last_formatter</code>) is defined.</p></dd>
 
 </dl></div>
 
@@ -113,8 +110,8 @@ scalar, meaning they cannot be appended to.</p>
 <span class="r-in"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="st">"David|Aretha|Fats|Marvin|Lauryn"</span></span></span>
 <span class="r-in"><span><span class="va">praise_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="highlight.html">highlight</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Marvin"</span>, <span class="st">"House"</span>, <span class="st">"Fats"</span>, <span class="st">"Soup"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="va">names</span>, <span class="va">.x</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep_len</a></span><span class="op">(</span><span class="va">praise</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  conditions <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="va">names</span>, <span class="va">.x</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  formatters <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep_len</a></span><span class="op">(</span><span class="va">praise</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">praise_names</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;character&gt;[4]&gt;</span>
@@ -154,27 +151,30 @@ scalar, meaning they cannot be appended to.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;integer&gt;[5]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] &lt;1&gt;   (2)   3     [(4)] [5]  </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Restore the conditional formatting of multiple highlights</span></span></span>
+<span class="r-in"><span><span class="co">## Restore the conditional formatting of multiple highlights</span></span></span>
 <span class="r-in"><span><span class="va">positive_adjectives</span> <span class="op">&lt;-</span> <span class="st">"(amazing|great|fantastic)"</span></span></span>
 <span class="r-in"><span><span class="va">positive_phrases</span> <span class="op">&lt;-</span> <span class="fu"><a href="highlight.html">highlight</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"that's amazing"</span>, <span class="st">"alright"</span>, <span class="st">"you're fantastic"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="va">positive_adjectives</span>, <span class="va">.x</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="va">toupper</span></span></span>
+<span class="r-in"><span>  conditions <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="va">positive_adjectives</span>, <span class="va">.x</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  formatters <span class="op">=</span> <span class="va">toupper</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">doubts</span> <span class="op">&lt;-</span> <span class="st">"(but|maybe)"</span></span></span>
 <span class="r-in"><span><span class="va">doubtful_phrases</span> <span class="op">&lt;-</span> <span class="fu"><a href="highlight.html">highlight</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"but I can't go"</span>, <span class="st">"I'll be there"</span>, <span class="st">"maybe too fantastic"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="va">doubts</span>, <span class="va">.x</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"..."</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  conditions <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="va">doubts</span>, <span class="va">.x</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  formatters <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"..."</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Highlights separately</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">positive_phrases</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;character&gt;[3]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "THAT'S AMAZING"   "alright"          "YOU'RE FANTASTIC"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">doubtful_phrases</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;character&gt;[3]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "but I can't go..."      "I'll be there"          "maybe too fantastic..."</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Highlights combined</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="un_highlight.html">ul</a></span><span class="op">(</span><span class="va">positive_phrases</span><span class="op">)</span>, <span class="st">", "</span>, <span class="fu"><a href="un_highlight.html">ul</a></span><span class="op">(</span><span class="va">doubtful_phrases</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">re_highlight</span><span class="op">(</span><span class="va">positive_phrases</span>, <span class="va">doubtful_phrases</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;character&gt;[3]&gt;</span>

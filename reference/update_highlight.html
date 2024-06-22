@@ -71,13 +71,13 @@ existing <code>formatters</code> attribute of <code>x</code>.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">update_highlight</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  conditions <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  formatters <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  description <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  precedence <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  format_once <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  init_formatter <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  last_formatter <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="va">conditions</span>,</span>
+<span>  <span class="va">formatters</span>,</span>
+<span>  <span class="va">description</span>,</span>
+<span>  <span class="va">precedence</span>,</span>
+<span>  <span class="va">format_once</span>,</span>
+<span>  <span class="va">init_formatter</span>,</span>
+<span>  <span class="va">last_formatter</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -117,8 +117,9 @@ By default, the formatters are a list of <code><a href="https://cli.r-lib.org/re
 <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::bg_br_red</a></code>, <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::bg_br_cyan</a></code>, <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::bg_br_magenta</a></code>, and <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::bg_br_blue</a></code>,
 repeated to the length of <code>conditions</code>.</p>
 <p>If the option <code>vlightr.colorful_default_formatters</code> is set via <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code> to
-anything other than <code>TRUE</code>, then <code>formatters</code> is set to roughly:
-<code>lapply(1:length(conditions), \(idx) paste0("[ ", x, " ][", idx, "]")</code></p></dd>
+anything other than <code>TRUE</code>, then the default <code>formatters</code> will append numbered
+annotations <code>"[1]"</code>, <code>"[2]"</code>, etc. to conditionally formatted elements, instead
+of using <code>cli::bg_*</code> functions.</p></dd>
 
 
 <dt>description</dt>
@@ -176,13 +177,13 @@ is returned as is after formatting.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dummies</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">0L</span>, <span class="cn">NA</span>, <span class="fl">0L</span>, <span class="fl">1L</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dummies_hl</span> <span class="op">&lt;-</span> <span class="fu"><a href="highlight.html">highlight_case</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  x <span class="op">=</span> <span class="va">dummies</span>,</span></span>
-<span class="r-in"><span>  <span class="va">.x</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[No]"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="va">.x</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[Yes]"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="va">.x</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[No]"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="va">.x</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">.x</span>, <span class="st">"[Yes]"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  <span class="cn">TRUE</span> <span class="op">~</span> <span class="st">"Don't Know"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">dummies_hl</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;integer&gt;[5]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1[Yes]     0[No]      Don't Know 0[No]      1[Yes]    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 [Yes]    0 [No]     Don't Know 0 [No]     1 [Yes]   </span>
 <span class="r-in"><span><span class="fu">describe_highlight</span><span class="op">(</span><span class="va">dummies_hl</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> A conditionally formatted <span style="color: #0000BB;">&lt;integer&gt;</span> vector with 3 conditional formats:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 1. Conditional Format 1</span>
@@ -190,19 +191,19 @@ is returned as is after formatting.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 3. Conditional Format 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Element formatted using:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • 1:  0 -&gt; 0[No]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • 2:  1 -&gt; 1[Yes]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 1:  0 -&gt; 0 [No]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 2:  1 -&gt; 1 [Yes]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • 3: NA -&gt; Don't Know</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Add a `description` and `last_formatter`</span></span></span>
 <span class="r-in"><span><span class="va">dummies_hl</span> <span class="op">&lt;-</span> <span class="fu">update_highlight</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  x <span class="op">=</span> <span class="va">dummies_hl</span>,</span></span>
 <span class="r-in"><span>  description <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Set 0 to No"</span>, <span class="st">"Set 1 to Yes"</span>, <span class="st">" Otherwise, Don't Know"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  last_formatter <span class="op">=</span> <span class="fu"><a href="stylers.html">background</a></span><span class="op">(</span><span class="st">"yellow"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  last_formatter <span class="op">=</span> <span class="fu"><a href="stylers.html">background</a></span><span class="op">(</span><span class="st">"bright_yellow"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">dummies_hl</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;integer&gt;[5]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] <span style="background-color: #BBBB00;">1[Yes]</span>     <span style="background-color: #BBBB00;">0[No]</span>      <span style="background-color: #BBBB00;">Don't Know</span> <span style="background-color: #BBBB00;">0[No]</span>      <span style="background-color: #BBBB00;">1[Yes]</span>    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] <span style="background-color: #FFFF55;">1 [Yes]</span>    <span style="background-color: #FFFF55;">0 [No]</span>     <span style="background-color: #FFFF55;">Don't Know</span> <span style="background-color: #FFFF55;">0 [No]</span>     <span style="background-color: #FFFF55;">1 [Yes]</span>   </span>
 <span class="r-in"><span><span class="fu">describe_highlight</span><span class="op">(</span><span class="va">dummies_hl</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> A conditionally formatted <span style="color: #0000BB;">&lt;integer&gt;</span> vector with 3 conditional formats:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 1. Set 0 to No</span>
@@ -210,22 +211,18 @@ is returned as is after formatting.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 3.  Otherwise, Don't Know</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Element formatted using:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • 1:  0 -&gt; <span style="background-color: #BBBB00;">0[No]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • 2:  1 -&gt; <span style="background-color: #BBBB00;">1[Yes]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • 3: NA -&gt; <span style="background-color: #BBBB00;">Don't Know</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 1:  0 -&gt; <span style="background-color: #FFFF55;">0 [No]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 2:  1 -&gt; <span style="background-color: #FFFF55;">1 [Yes]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 3: NA -&gt; <span style="background-color: #FFFF55;">Don't Know</span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Change the `formatters`</span></span></span>
+<span class="r-in"><span><span class="co"># Change the `formatters` and remove the `init_formatter`</span></span></span>
 <span class="r-in"><span><span class="fu">update_highlight</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  x <span class="op">=</span> <span class="va">dummies_hl</span>,</span></span>
-<span class="r-in"><span>  formatters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">~</span> <span class="st">"No"</span>, <span class="op">~</span> <span class="st">"Yes"</span>, <span class="op">~</span> <span class="fu"><a href="stylers.html">color</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  formatters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">~</span> <span class="st">"No"</span>, <span class="op">~</span> <span class="st">"Yes"</span>, <span class="fu"><a href="stylers.html">color</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  last_formatter <span class="op">=</span> <span class="cn">NULL</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in highlight(x = get_data(x), conditions = conditions %||% get_conditions(x),     formatters = formatters %||% get_formatters(x), description = description %||%         get_description(x), precedence = precedence %||% get_precedence(x),     format_once = format_once %||% get_format_once(x), init_formatter = init_formatter %||%         get_init_formatter(x), last_formatter = last_formatter %||%         get_last_formatter(x)):</span> Attempted to create a malformed <span style="color: #0000BB;">&lt;vlightr_highlight&gt;</span> vector of type</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;integer&gt;&gt;.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Can't evaluate <span style="color: #0000BB;">&lt;vlightr_highlight&gt;</span> vector's `format()` method.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `format()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Formatter `attr(,"formatters")[[3]]` must produce a <span style="color: #0000BB;">&lt;character&gt;</span> vector</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   of length 1 or `length(get_data(x))`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Produced a <span style="color: #0000BB;">&lt;cli_ansi_style/ansi_style&gt;</span> object.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;integer&gt;[5]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] Yes No  <span style="color: #BB0000;">NA</span>  No  Yes</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

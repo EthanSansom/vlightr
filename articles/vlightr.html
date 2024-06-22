@@ -86,7 +86,7 @@ care about.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">above_mean</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;integer&gt;[10]&gt;</span></span>
 <span><span class="co">#&gt;  [1] 1    2    3    4    5    [6]  [7]  [8]  [9]  [10]</span></span></code></pre></div>
-<p>Including observations in a dataframe or tibble.</p>
+<p>Including observations in a tibble.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">above_mean</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 1</span></span></span>
@@ -97,8 +97,8 @@ care about.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>            3</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>          [4]</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>          [5]</span></span></code></pre></div>
-<p>Highlights are generic, meaning that many vector’s you’ll encounter
-in the wild can be highlighted. For example, here’s a lubridate interval
+<p>Highlights are generic, meaning that many vectors you’ll encounter in
+the wild can be highlighted. For example, here’s a lubridate interval
 vector with a festive format method.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ints</span> <span class="op">&lt;-</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/interval.html" class="external-link">interval</a></span><span class="op">(</span></span>
@@ -183,8 +183,9 @@ according to the first condition met, set
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_highlight.html">update_highlight</a></span><span class="op">(</span><span class="va">even_or_negative</span>, format_once <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;integer&gt;[8]&gt;</span></span>
 <span><span class="co">#&gt; [1] (-4) (-3) (-2) (-1) [0]  1    [2]  3</span></span></code></pre></div>
-<p><code>describe_highlight()</code> is useful to understand how a
-highlight is formatted.</p>
+<p>If it’s unclear how a highlighted vector is being formatted, use
+<code>describe_highlight()</code> to get a brief description of a
+highlight’s conditional formatting.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">describe_highlight</span><span class="op">(</span><span class="va">even_or_negative</span><span class="op">)</span></span>
 <span><span class="co">#&gt; A conditionally formatted <span style="color: #0000BB;">&lt;integer&gt;</span> vector with 2 conditional formats:</span></span>
@@ -230,10 +231,10 @@ as their underlying vector type. <code><a href="../reference/highlight.html">hl(
 <code><a href="../reference/highlight.html">highlight()</a></code>, which is useful for quick inline
 highlighting.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># &lt;highlight&lt;int&gt;&gt; and &lt;highlight&lt;int&gt;&gt; are compatible</span></span>
+<code class="sourceCode R"><span><span class="co"># &lt;highlight&lt;integer&gt;&gt; and &lt;highlight&lt;integer&gt;&gt; are compatible</span></span>
 <span><span class="va">mean_or_above</span><span class="op">[[</span><span class="fl">5</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">100L</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># &lt;highlight&lt;int&gt;&gt; and &lt;highlight&lt;chr&gt;&gt; are not</span></span>
+<span><span class="co"># &lt;highlight&lt;integer&gt;&gt; and &lt;highlight&lt;character&gt;&gt; are not</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="va">mean_or_above</span><span class="op">[[</span><span class="fl">5</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">hl</a></span><span class="op">(</span><span class="st">"100!"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error in vec_cast.vlightr_highlight.vlightr_highlight(x = x, to = to,  : </span></span>
 <span><span class="co">#&gt;   Can't convert &lt;highlight&lt;character&gt;&gt; to &lt;highlight&lt;integer&gt;&gt;.</span></span></code></pre></div>
@@ -300,7 +301,7 @@ conditional formatting removed by <code><a href="../reference/un_highlight.html"
 vector.</li>
 <li>
 <code><a href="../reference/un_highlight.html">un_highlight()</a></code> (synonym <code><a href="../reference/un_highlight.html">ul()</a></code>) removes a
-vector’s highlighting (expose it’s underlying data).</li>
+vector’s highlighting to expose it’s underlying data.</li>
 <li>
 <code><a href="../reference/re_highlight.html">re_highlight()</a></code> (synonym <code><a href="../reference/re_highlight.html">rl()</a></code>) applies the
 format of an existing highlighted vector to another vector.</li>
@@ -422,11 +423,11 @@ any of <code>conditions</code> or <code>formatters</code> to fail.</p>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Caused by error in `attr(,"formatters")[[1]]`:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Integers only!</span></span></code></pre></div>
 <p>The <code>precedence</code> of highlighted vectors is maintained when
-they are combined. For example, you can reduce highlighted vector’s
+they are combined. For example, you can set a highlighted vector’s
 <code>precedence</code> to prioritize it’s format.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">even_is_red</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">2</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_red</a></span>, precedence <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">even_is_green</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">4</span><span class="op">:</span><span class="fl">6</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">2</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_green</a></span>, precedence <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">even_is_red</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">2</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_red</a></span>, precedence <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">even_is_green</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">hl</a></span><span class="op">(</span><span class="fl">4</span><span class="op">:</span><span class="fl">6</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">2</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_green</a></span>, precedence <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">even_is_red</span>, <span class="va">even_is_green</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;integer&gt;[6]&gt;</span></span>
 <span><span class="co">#&gt; [1] 1 <span style="color: #00BB00;">2</span> 3 <span style="color: #00BB00;">4</span> 5 <span style="color: #00BB00;">6</span></span></span></code></pre></div>
@@ -500,11 +501,6 @@ functions take the same arguments as <code><a href="../reference/highlight.html"
 <span><span class="fu">dollars</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">10</span>, <span class="fl">0.12</span>, <span class="fl">130.0234</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;double&gt;[4]&gt;</span></span>
 <span><span class="co">#&gt; [1] $10.00   -$0.12   -$130.02 NA</span></span></code></pre></div>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">no_nas</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlighter.html">highlighter_case</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NO PROBLEM"</span><span class="op">)</span></span>
-<span><span class="fu">no_nas</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;highlight&lt;logical&gt;[3]&gt;</span></span>
-<span><span class="co">#&gt; [1] TRUE       FALSE      NO PROBLEM</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="styling">Styling<a class="anchor" aria-label="anchor" href="#styling"></a>
@@ -512,7 +508,7 @@ functions take the same arguments as <code><a href="../reference/highlight.html"
 <p>Highlights can be formatted using ANSI escape sequences, such as
 those used to color text in the cli package. The code below colors the
 formatted <code>NA</code> values red.</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/highlight.html">highlight</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>, <span class="va">is.na</span>, <span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_red</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;double&gt;[3]&gt;</span></span>
 <span><span class="co">#&gt; [1] 1  0  <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
@@ -525,12 +521,12 @@ functions to use as formatters.</p>
 <code>cli::bg_*</code> function which colors the text’s
 background</p></li>
 <li><p><code><a href="../reference/stylers.html">style()</a></code> returns a <code>cli::style_*</code> function
-which bold, underline, or italicize text among other things</p></li>
+styles text (e.g. underlines, italicizes, etc.)</p></li>
 </ul>
 <p>For example, the same <code>NA</code> highlight as above can be
 achieved like so:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/highlight.html">highlight</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>, <span class="va">is.na</span>, <span class="fu"><a href="../reference/stylers.html">colour</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/highlight.html">highlight</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span>, <span class="va">is.na</span>, <span class="fu"><a href="../reference/stylers.html">color</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;highlight&lt;double&gt;[3]&gt;</span></span>
 <span><span class="co">#&gt; [1] 1  0  <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
 <p>See <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::style_bold()</a></code> and friends for details on ANSI
@@ -553,12 +549,13 @@ subclass)</p></li>
 <code><a href="https://vctrs.r-lib.org/reference/vector-checks.html" class="external-link">vctrs::obj_is_vector()</a></code></p></li>
 </ul>
 <p>The <code><a href="../reference/highlight.html">highlight()</a></code> function (and friends <code><a href="../reference/highlight.html">hl()</a></code>,
-<code><a href="../reference/highlight.html">highlight_case()</a></code>) provide some extra arguments which are
-useful for refining how user-generated vectors are highlighted.</p>
+<code><a href="../reference/highlight.html">highlight_case()</a></code>, <code><a href="../reference/highlight.html">hl_case()</a></code>) provide some
+extra arguments which are useful for refining how user-generated vectors
+are highlighted.</p>
 <p>Let’s highlight a <code><a href="https://lubridate.tidyverse.org/reference/interval.html" class="external-link">lubridate::interval</a></code> vector named
 <code>long_interval</code> and refine it’s format method using these
 extra arguments.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">long_interval</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/interval.html" class="external-link">interval</a></span><span class="op">(</span></span>
 <span>  start <span class="op">=</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd_hms.html" class="external-link">ymd_hms</a></span><span class="op">(</span><span class="st">"19910101120000"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/duration.html" class="external-link">dyears</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>  end <span class="op">=</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd_hms.html" class="external-link">ymd_hms</a></span><span class="op">(</span><span class="st">"20240101120000"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/duration.html" class="external-link">dseconds</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">7</span>, <span class="fl">12</span><span class="op">)</span><span class="op">)</span>, </span>
@@ -578,18 +575,18 @@ should return a formatted vector as it’s result.</p>
 <p>Suppose we don’t want to see the hours-minutes-seconds component of
 the dates in our <code>long_interval</code>. We can define an initial
 formatter <code>format_interval</code> to do just that. While we’re at
-it, we’ll replace the repeated timezone with a single timezone placed
-after each element.</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+it, we can remove the first timezone (<code>"UTC"</code>) from each
+element of the formatted interval</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">format_interval</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Remove the h-m-s component of the interval's start and end</span></span>
 <span>  <span class="va">start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/interval.html" class="external-link">int_start</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">end</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/interval.html" class="external-link">int_end</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="co"># Format the output like "start--end tzone"</span></span>
+<span>  <span class="co"># Format the output as "start--end tzone"</span></span>
 <span>  <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">start</span>, <span class="st">"--"</span>, <span class="va">end</span>, <span class="st">" "</span>, <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"tzone"</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
-<span>  <span class="co"># Remember to preserve NA values in the formatted output</span></span>
+<span>  <span class="co"># Remember to preserve NA values from `x`</span></span>
 <span>  <span class="va">out</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA_character_</span></span>
 <span>  <span class="va">out</span></span>
 <span><span class="op">}</span></span>
@@ -602,7 +599,7 @@ after each element.</p>
 end of a highlighted vector’s <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> method, after it has
 been conditionally formatted. This is useful for limiting the text width
 of a formatted highlight.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Truncate elements of a character vector such that `all(nchar(x) &lt;= char_limit)`</span></span>
 <span><span class="va">format_truncated</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">char_limit</span> <span class="op">=</span> <span class="fl">40</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Check which strings in `x` exceed the `char_limit`</span></span>
@@ -627,10 +624,10 @@ of a formatted highlight.</p>
 <span><span class="co"># Test the formatter</span></span>
 <span><span class="fu">format_truncated</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"this"</span>, <span class="st">"is"</span>, <span class="st">"a"</span>, <span class="st">"huuuuuuuuuge"</span>, <span class="st">"character"</span><span class="op">)</span>, <span class="fl">7</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "this"    "is"      "a"       "hu...ge" "ch...er"</span></span></code></pre></div>
-<p>We’ll package the <code>init_formatter</code> and
-<code>last_formatter</code> together in a highlighter, so we can use
-them whenever we want to highlight an interval vector.</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<p>After packaging our custom <code>init_formatter</code> and
+<code>last_formatter</code> together in a highlighter, we can reuse them
+wherever we highlight an interval vector.</p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">highlight_interval</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlighter.html">highlighter</a></span><span class="op">(</span></span>
 <span>  init_formatter <span class="op">=</span> <span class="va">format_interval</span>,</span>
 <span>  last_formatter <span class="op">=</span> <span class="va">format_truncated</span></span>
@@ -656,7 +653,7 @@ assume that <code>x</code> is some highlight-able vector and
 <code>conditions</code>, <code>formatters</code>,
 <code>precedence</code>, <code>init_formatter</code>, and
 <code>last_formatter</code> are all valid arguments.</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_hl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">highlight</a></span><span class="op">(</span></span>
 <span> x <span class="op">=</span> <span class="va">x</span>,</span>
 <span> conditions <span class="op">=</span> <span class="va">conditions</span>,</span>
@@ -667,7 +664,7 @@ assume that <code>x</code> is some highlight-able vector and
 <span><span class="op">)</span></span></code></pre></div>
 <p>When <code>format(x_hl)</code> is called (e.g. within
 <code>print(x_hl)</code>) the following pseudo-code is executed.</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Apply an initial format to `x`, converting `x` into a character vector.</span></span>
 <span><span class="va">formatted</span> <span class="op">&lt;-</span> <span class="fu">init_formatter</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span></span>
