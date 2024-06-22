@@ -8,7 +8,7 @@
 #'
 #' @param x `[character(1)]`
 #'
-#' For `bg()` and `color()`.
+#' For `bg()` and `color()`, a recognized
 #'
 #' @param left,right `[character(1)]`
 #'
@@ -163,23 +163,6 @@ colour <- color
 
 # misc -------------------------------------------------------------------------
 
-# TODO Implement:
-# `x` is a string with instructions on how to make a styled vector.
-# `make_formatter` is a highlighter generator like checkmate `qassert`.
-# "{_/*[col][bg_col]}"
-# - initial symbols are emphasis `_` -> underling, `/` -> italics, `*` -> bold, `-` -> strike-through
-# - first [] is color (leave blank for no color) and second [] is background
-# "prefix{...}suffix"
-# - if [] or []
-# - test outside of the opening bracket is pasted around the text
-# - "<{}>" -> paste0("<", x, ">"), "<{[blue]}> -> cli::cli_col_blue(paste0("<", x, ">"))
-
-#' @name stylers
-#' @export
-make_formatter <- function(x) {
-
-}
-
 #' @name stylers
 #' @export
 style <- function(x) {
@@ -216,21 +199,6 @@ wrap <- function(left = "[", right = "]") {
   left <- check_is_string(left)
   right <- check_is_string(right)
   return(function(x) paste0(left, x, right))
-}
-
-# Wrap in "[]", bold, and highlight (provide emphasis even if no color is available)
-#' @name stylers
-#' @export
-emph <- function(wrap = TRUE, bg = TRUE, bold = TRUE) {
-  call <- rlang::sym("x")
-  if (check_is_bool(wrap)) call <- rlang::call2("paste0", "[", call, "]", .ns = "base")
-  if (check_is_bool(bold)) call <- rlang::call2("style_bold", call, .ns = "cli")
-  if (check_is_bool(bg)) call <- rlang::call2("bg_br_yellow", call, .ns = "cli")
-  rlang::new_function(
-    args = rlang::pairlist2(x = ),
-    body = call,
-    env = rlang::caller_env()
-  )
 }
 
 # helpers ----------------------------------------------------------------------
