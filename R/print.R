@@ -1,5 +1,3 @@
-
-
 #' @export
 print.vlightr_highlight <- function(
     x,
@@ -33,41 +31,6 @@ print.vlightr_highlight <- function(
   invisible(x)
 }
 
-
-# TODO: Fix initial white space!! See below for kind of weird printing. Maybe fix
-# spacing as well. Not sure what's going on... OHH. Maybe make left justified for
-# none-characters. I think that's the problem.
-#
-# library(lubridate)
-# work_week_starts <- ymd("2020-01-05") + days(c(0, 8, 16))
-# work_weeks <- interval(work_week_starts, work_week_starts + days(5:7))
-# work_weeks_hl <- highlight_case(
-#   work_weeks,
-#   weekdays(int_start(.x)) == "Monday" ~ \(x) paste(x, "[Bad Start]"),
-#   .x / days(1) > 5 ~ \(x) paste(x, "[Tough Week]"),
-#   .format_once = FALSE
-# )
-# format(work_weeks_hl)
-# print(work_weeks_hl)
-#
-# SEE ALSO
-#
-# x_multi <- highlight(
-#   c(13, 1, 4, 6),
-#   conditions = list(
-#     ~ .x %% 2 == 0,
-#     ~ .x %% 2 != 0,
-#     ~ .x > 10
-#   ),
-#   formatters = list(
-#     ~ paste(.x, "is even"),
-#     ~ paste(.x, "is odd"),
-#     ~ paste(.x, "is big and")
-#   ),
-#   last_formatter = wrap("[", "]")
-# )
-# print(x_multi)
-
 print_ansi <- function(
     x,
     width = cli::console_width(),
@@ -98,9 +61,8 @@ print_ansi <- function(
   # TODO: `encodeString` escapes the backslashes in ANSI escape sequences. Find
   #       a way to get around this.
   if (encode_string) x <- paste0('"', x, '"')
-  # `nchar(NA)` is NA, so treating NA values as the string "NA" instead. This overwrites
-  # bare NA values as formatted NA's (ex. `cli::col_red(NA)`, `paste0("<", NA, ">")`)
-  # are not themselves NA.
+  # `nchar(NA)` is NA, so treating NA values as the string "NA" instead. Otherwise,
+  # NA values are formatted incorrectly.
   x[is.na(x)] <- "NA"
   element_width <- max(cli::ansi_nchar(x))
   prefix_width <- nchar(length(x)) + 2
