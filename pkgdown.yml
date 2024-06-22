@@ -3,7 +3,7 @@ pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
   vlightr: vlightr.html
-last_built: 2024-06-21T21:46Z
+last_built: 2024-06-22T01:50Z
 urls:
   reference: https://ethansansom.github.io/vlightr/reference
   article: https://ethansansom.github.io/vlightr/articles
