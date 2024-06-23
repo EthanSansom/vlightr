@@ -46,8 +46,7 @@ format_roygbiv1 <- function(x) {
   letters <- strsplit(as.character(x), "")[[1]]
   letters |>
     mapply(seq_along(letters), FUN = \(x, i) crayons[[i %% 7 + 1]](x)) |>
-    paste(collapse = "") |>
-    cli::bg_black()
+    paste(collapse = "")
 }
 format_roygbiv <- function(x) sapply(x, format_roygbiv1)
 
