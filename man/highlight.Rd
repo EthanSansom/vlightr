@@ -187,10 +187,8 @@ A highlighted vector (class \code{vlightr_highlight}) containing the same data a
 \code{x}.
 }
 \description{
-\code{highlight()}, \code{hl()}, and \code{highlight_case()} create a
-vector with a conditional \code{\link[=format]{format()}} method.
-
-The highlighted vector \code{highlight(1:5)} can (with limited legwork) be
+\code{highlight()} creates a vector with a conditional \code{\link[=format]{format()}}
+method. The highlighted vector \code{highlight(1:5)} can (with limited legwork) be
 treated exactly the same as the integer vector \code{1:5}, but has a different
 \code{format()} and \code{print()} method.
 
@@ -198,8 +196,42 @@ treated exactly the same as the integer vector \code{1:5}, but has a different
 to \code{highlight()}. Arguments (other than \code{x}) to \code{highlight_case()} are prefixed
 with a dot.
 
-\code{hl()} and \code{highlight()} are synonyms. \code{hl_case()} and \code{highlight_case()} are
-synonyms.
+\code{hl()} and \code{highlight()} are synonyms, as are \code{hl_case()} and
+\code{highlight_case()}.
+}
+\details{
+The \code{highlighter_case()} formula syntax is not compatible with
+\code{dplyr::across()} in-lined formulas. In particular, in the call below:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ across(
+   y,
+   ~highlight_case(.x, is.na(.x) ~ paste0('<', .x, '>'))
+ )
+}\if{html}{\out{</div>}}
+
+The expression \code{is.na(.x) ~ paste0('<', .x, '>')} will be replaced with
+\code{is.na(y) ~ paste0('<', y, '>')} by \code{across()}. Because vlightr expects
+the case formula to be in terms of \code{.x} (and not \code{y}), this creates an invalid
+condition and formatter function within the highlighted vector (column) \code{y}.
+
+To avoid this behavior, either use functions (e.g. \verb{\\(x) is.na(x)}) within
+the \code{highlight_case()} formula, or use a lambda function instead of a formula
+within \code{across()}, like so:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ across(
+   y,
+   \\(col) highlight_case(col, is.na(.x) ~ paste0('<', .x, '>'))
+ )
+}\if{html}{\out{</div>}}
+
+Note that this is not an issue within other \code{dplyr} verbs, such as
+\code{dplyr::summarize()} or \code{dplyr::mutate()}. The following will work as
+expected:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ mutate(
+   y = highlight_case(y, is.na(.x) ~ paste0('<', .x, '>'))
+ )
+}\if{html}{\out{</div>}}
 }
 \examples{
 # Color NA values red

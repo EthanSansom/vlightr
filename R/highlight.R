@@ -19,29 +19,96 @@
 # TODO: Short Term:
 # - go through all the error functions and pick how you want to describe things
 #   - is the argument `x` and name `x_name`, `arg`, `arg_name`?
-#   - start putting together some naming/style conventions (element -> elt, index -> i, etc.)
 # - make sure that you run every example, to confirm there are no hidden errors
-# - add an `hl_case` shorthand as well
-#
-# - add a `templight`, `templight_case`, `tl_case`, and `tl` function
-#   - these create a temporary highlight (no persistence) which takes as input
-#     a logical vector the length of `x`
-#   - this allows you to quickly add highlights to a column in a dataframe based
-#     on ANOTHER column's value (i.e `templight(income, employed == 0)`)
 
 # TODO Urgent:
 # - fix bug in `highlight_case` where `~ .x` lambda is mistaken as the column value in
 #   `dplyr::across`. Have to evaluate in the right location...
 # - make a reprex for the `knitr::chunk_opts` "collapse" option being ignored when
 
+# TODO Urgent:
+# Make an article Using `vlightr` with `dplyr`.
+# - show some usage of regular highlights within a tibble
+# - show the problems that occur in a data.frame
+#   - show example `data.frame(x = cli::col_red(1:3))` for why ANSI colors don't work
+# - mention the functions in `conditions.R`
+# - explain the `templight` family of functions
+#
+# Describe the bug when using a highlighter function within `dplyr::across`.
+#
+# Generally, I think that the `condition(.x) ~ formatter(.x)` formula syntax used
+# in the `*_case()` vlightr functions is the most convenient way to create complex
+# conditional formats. Unfortunately, when used within `dplyr::across()` this does
+# introduce a confusing bug.
+#
+#> library(dplyr)
+#>
+#> # We want to wrap `employed` in "<>", when we're uncertain of `work_hours`
+#> tibble(work_hours = c(20, 10, NA), employed = c(1, 0, 1)) %>%
+#>  mutate(
+#>    across(
+#>      employed,
+#>      ~templight_case(.x, is.na(work_hours) ~ paste0('<', .x, '>))
+#>    )
+#>  )
+#
+# This almost works, but unfortunately, because of how two-sided formulas are
+# evaluated in this context, the expression `is.na(work_hours) ~ paste0('<', .x, '>)`
+# is evaluated as `is.na(work_hours) ~ paste0('<', employed, '>)`.
+#
+# While the left-hand-side condition is what we'd expect, the right-hand-side
+# formatter raises some issues. After the RHS lambda expression
+# `paste0('<', employed, '>)` is converted into a formatter function, we get a
+# result that looks like this: `function(.x) paste0('<', employed, '>)`. The
+# formatter will always be a function in terms of the vector `employed`, when we
+# want it to be in terms of the function argument `.x`. This is what caused the
+# incompatible size error in the earlier `across()` statement.
+#
+# Fortunately, we can re-write the `templight_case()` call in multiple ways to
+# solve the problem.
+#
+# The easiest option, in my opinion, is to change the use of `~` in `across()` to
+# an anonymous function using `\()`. This makes it much more clear when we're
+# referring to the object we want to highlight (i.e. `col = employed`) and when
+# we're referring to a placeholder object `.x` within a lambda expression.
+#
+#> tibble(work_hours = c(20, 10, NA), employed = c(1, 0, 1)) %>%
+#>  mutate(
+#>    across(
+#>      employed,
+#>      # Before: ~templight_case(.x, is.na(work_hours) ~ paste0('<', .x, '>))
+#>      \(col) templight_case(col, is.na(work_hours) ~ paste0('<', .x, '>))
+#>    )
+#>  )
+#
+# Other equivalent alternatives are:
+# - `~templight_case(.x, is.na(work_hours) ~ \(x) paste0('<', x, '>))`
+# - `~templight(x, is.na(work_hours), ~ paste0('<', .x, '>))`
+#
+# This is also an issue when using `highlight_case()` within `across()`.
+#> tibble(x_1 = 1:3, x_2 = 7:5) %>%
+#>  mutate(
+#>    across(
+#>      c(x_1, x_2),
+#>      ~highlight_case(.x, .x == min(.x) ~ paste(.x, "[Min]"))
+#>    )
+#>  )
+#
+# And can be solved in the same way.
+#> tibble(x_1 = 1:3, x_2 = 7:5) %>%
+#>  mutate(
+#>    across(
+#>      c(x_1, x_2),
+#>      \(col) highlight_case(col, .x == min(.x) ~ paste(.x, "[Min]"))
+#>    )
+#>  )
+
 # constructor ------------------------------------------------------------------
 
 #' Conditionally format a vector
 #'
-#' @description `highlight()`, `hl()`, and `highlight_case()` create a
-#' vector with a conditional [format()] method.
-#'
-#' The highlighted vector `highlight(1:5)` can (with limited legwork) be
+#' @description `highlight()` creates a vector with a conditional [format()]
+#' method. The highlighted vector `highlight(1:5)` can (with limited legwork) be
 #' treated exactly the same as the integer vector `1:5`, but has a different
 #' `format()` and `print()` method.
 #'
@@ -49,8 +116,46 @@
 #' to `highlight()`. Arguments (other than `x`) to `highlight_case()` are prefixed
 #' with a dot.
 #'
-#' `hl()` and `highlight()` are synonyms. `hl_case()` and `highlight_case()` are
-#' synonyms.
+#' `hl()` and `highlight()` are synonyms, as are `hl_case()` and
+#' `highlight_case()`.
+#'
+#' @details
+#'
+#' The `highlighter_case()` formula syntax is not compatible with
+#' `dplyr::across()` in-lined formulas. In particular, in the call below:
+#'
+#' ```
+#'  across(
+#'    y,
+#'    ~highlight_case(.x, is.na(.x) ~ paste0('<', .x, '>'))
+#'  )
+#' ```
+#'
+#' The expression `is.na(.x) ~ paste0('<', .x, '>')` will be replaced with
+#' `is.na(y) ~ paste0('<', y, '>')` by `across()`. Because vlightr expects
+#' the case formula to be in terms of `.x` (and not `y`), this creates an invalid
+#' condition and formatter function within the highlighted vector (column) `y`.
+#'
+#' To avoid this behavior, either use functions (e.g. `\(x) is.na(x)`) within
+#' the `highlight_case()` formula, or use a lambda function instead of a formula
+#' within `across()`, like so:
+#'
+#' ```
+#'  across(
+#'    y,
+#'    \(col) highlight_case(col, is.na(.x) ~ paste0('<', .x, '>'))
+#'  )
+#' ```
+#'
+#' Note that this is not an issue within other `dplyr` verbs, such as
+#' `dplyr::summarize()` or `dplyr::mutate()`. The following will work as
+#' expected:
+#'
+#' ```
+#'  mutate(
+#'    y = highlight_case(y, is.na(.x) ~ paste0('<', .x, '>'))
+#'  )
+#' ```
 #'
 #' @param x `[vector]`
 #'
@@ -173,7 +278,6 @@
 #'  `last_formatter` will receive a character vector the same length as
 #'  `x` as it's only argument. If `NULL`, the conditionally formatted `x`
 #'  is returned as is after formatting.
-#'
 #' @return
 #'
 #' A highlighted vector (class `vlightr_highlight`) containing the same data as
@@ -510,18 +614,13 @@ evalidate_case_fn <- function(
   ) {
 
   case_env <- rlang::f_env(case)
-  # TODO: Well, this fix didn't work...
-  #
-  # Remove any binding to the placeholder symbol `.x`, this prevents bugs when
-  # used within `dplyr::across(, ~ hl(.x, ...))` for example.
-  rlang::env_unbind(case_env, ".x", inherit = TRUE)
   case <- if (is_lhs) rlang::f_lhs(case) else rlang::f_rhs(case)
 
   # The case could be a namespaced function name (e.g. `rlang::is_bool`) or a
   # namespaced function call (e.g. `rlang::is_string(paste(.x))`).
   # - if name, then evalidated at the next `if ()` block
   # - if call, then converted to a lambda at end (e.g. `~ rlang::is_string(paste(.x))`)
-  is_namespaced_fn <- rlang::is_call(case, "::")
+  is_namespaced_fn <- rlang::is_call(case, "::") || rlang::is_call(case, ":::")
   if (is_namespaced_fn) {
     # `::` right-hand-side can be either a string or a symbol. If it's anything
     # else, assume it's a namespaced call instead of a namespaced function.
