@@ -11,18 +11,13 @@ editor_options:
 ---
 
 ```{r, include = FALSE}
-# TODO: Delete this if error is resolved
-#
-# Setting `VignetteEngine{rmarkdown::render}` instead of `VignetteEngine{knitr::rmarkdown}`
-# because `devtools::build_vignettes()` started failing after I updated `knitr`.
-# See: https://forum.posit.co/t/devtools-check-error-with-vignette-but-vignette-can-be-knitted-without-problem/55962/2
-
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 ```{r}
 library(vlightr)
 library(lubridate, warn.conflicts = FALSE)
+library(dplyr, warn.conflicts = FALSE)
 library(ivs)
 ```
 
@@ -37,8 +32,8 @@ print(above_mean)
 
 Including observations in a tibble.
 
-```{r, collapse=TRUE}
-tibble::tibble(x = above_mean[1:5])
+```{r}
+tibble(x = above_mean[1:5])
 ```
 
 Highlights are generic, meaning that many vectors you'll encounter in
@@ -63,7 +58,7 @@ highlight(ints, ~ ymd("2023-12-25") %within% .x, ~ sapply(.x, format_festive))
 
 ### Conditional Formatting
 
-For it's basic functionality, the `highlight()` function needs 3
+For it's basic functionality, the `highlight()` function uses 3
 arguments: `x`, `conditions`, and `formatters`.
 
 ```{r, eval = FALSE}
@@ -75,6 +70,14 @@ above_mean <- highlight(
   # Formatter(s), specify how chosen elements of `x` are formatted
   formatters = ~ paste0("[", .x, "]")
 )
+```
+
+Only arguments `x` and `conditions` are required. When no `formatters` are supplied,
+a default set is provided. This is useful for quick checks where the exact format
+isn't important.
+
+```{r}
+highlight(1:10, ~ .x %in% 3:5)
 ```
 
 Multiple `conditions` and `formatters` can be specified by supplying
@@ -434,6 +437,144 @@ highlight(c(1, 0, NA), is.na, color("red"))
 
 See `cli::style_bold()` and friends for details on ANSI colored and
 styled text.
+
+### Highlighting Columns
+
+Highlighted vectors can be used as columns in a `tibble()` and in a 
+`data.frame()` (with some caveats). We'll use the `starwars` dataset, which
+comes with dplyr, as an example.
+
+Let's start by highlighting the `species` of Star Wars characters which are Droids.
+
+```{r}
+starwars_hl <- starwars %>%
+  select(name, species, everything()) %>%
+  mutate(species = hl(species, ~ .x == "Droid", bg("bright_yellow")))
+
+starwars_hl %>% head()
+```
+
+This won't work in a `data.frame`, because the ANSI escape sequences used to
+style and color text aren't interpreted when a `data.frame` is printed.
+
+```{r}
+starwars_hl %>% as.data.frame() %>% head()
+```
+
+Formatters which return a character vector, instead of an ANSI string vector,
+work as you'd expect.
+
+```{r}
+starwars_hl %>%
+  mutate(species = update_highlight(species, formatters = wrap("[ ", " ]"))) %>%
+  head()
+```
+
+Taking the occasional care to use the highlight-pipe `%hl>%`, or `re_highlight()`
+and `un_highlight()`, highlighted columns can be manipulated like any other vector.
+
+```{r}
+starwars_hl %>%
+  # Indicate whether a character is short or tall
+  mutate(
+    height = highlight_case(
+      height,
+      .x < quantile(.x, 0.25, na.rm = TRUE) ~ paste("[Short]", .x),
+      .x > quantile(.x, 0.75, na.rm = TRUE) ~ paste("[Tall]", .x),
+      .init_formatter = ~format(round(.x, 0))
+    )
+  ) %>%
+  # Get the mean height and count of characters by species
+  group_by(species) %>%
+  summarize(
+    count = n(),
+    height = height %hl>% mean(na.rm = TRUE)
+  ) %>%
+  arrange(desc(count))
+```
+
+What if, instead of highlighting the `species` column when a character is a Droid,
+we highlighted an entire row?
+
+```{r}
+try(
+  starwars %>%
+    mutate(
+      across(
+        .cols = where(is_highlightable), 
+        .fns = \(col) highlight(col, ~ species == "Droid", bg("bright_yellow"))
+      )
+    ) %>%
+    format()
+)
+```
+
+Using `highlight()`, we run into a problem. The `conditions` argument of 
+`highlight()` must be a function to test the highlighted vector itself
+(e.g. the current `col`) and not to test another vector (e.g. the `species` 
+column). When the tibble is formatted, each highlighted vector attempts to
+evaluate a call to the condition function `function(.x) species == "Droid"`,
+but are unable to find the `species` column - causing the error above.
+
+For this, we instead use `templight()` and `templight_case()`. These
+functions behave exactly the same as `highlight()` and `highlight_case()`, but
+take a logical vector (or list thereof) as the `conditions` argument.
+
+```{r}
+starwars_hl <- starwars %>%
+  select(name, species, everything()) %>%
+  mutate(
+    across(
+      .cols = where(is_highlightable), 
+      .fns = \(col) templight(col, species == "Droid", bg("bright_yellow"))
+    )
+  )
+
+starwars_hl %>% head()
+```
+
+`templight()` stands for "temporary highlight" because the conditional 
+formatting created by `templight()` is only temporarily correct. Because of 
+this, these functions should are mostly useful for highlighting columns 
+immediately before a tibble is printed.
+
+Consider what happens to the temporarily highlighted columns when we arrange
+the dataset by character height.
+
+```{r}
+starwars_hl %>% arrange(desc(height)) %>% head()
+```
+
+The second and third rows are still highlighted, despite characters Tarfful and
+Lama Su not being droids. This is because the `conditions` of a vector 
+highlighted using `templight()` do not change when the highlighted vector 
+is changed.
+
+Nonetheless, `templight()` and `templight_case()` can be useful for calling
+attention to important observations without filtering out all other rows in a
+dataset. This is especially useful when exploring data interactively with 
+co-workers or peers (the reason that the first version of vlightr was written).
+
+```{r}
+# Character's key to explaining Luke's troubled relationship with his father
+starwars_hl %>% 
+  filter(homeworld == hl("Tatooine")) %>%
+  mutate(
+    name = un_highlight(name),
+    across(
+      .cols = where(is_highlightable),
+      .fns = \(col) templight_case(
+        col,
+        name == "Darth Vader" ~ bg("bright_red")(.x),
+        name == "Luke Skywalker" ~ bg("bright_green")(.x),
+        name == "Anakin Skywalker" ~ bg("bright_blue")(.x)
+      )
+    )
+  ) %>%
+  select(1:4)
+```
+
+See `vignette("highlighting-and-dplyr")` for more details.
 
 ### Highlighting Vectors in the Wild
 
