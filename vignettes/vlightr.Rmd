@@ -4,13 +4,15 @@ output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{vlightr}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{rmarkdown::render}
+  %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   markdown: 
     wrap: 72
 ---
 
 ```{r, include = FALSE}
+# TODO: Delete this if error is resolved
+#
 # Setting `VignetteEngine{rmarkdown::render}` instead of `VignetteEngine{knitr::rmarkdown}`
 # because `devtools::build_vignettes()` started failing after I updated `knitr`.
 # See: https://forum.posit.co/t/devtools-check-error-with-vignette-but-vignette-can-be-knitted-without-problem/55962/2
