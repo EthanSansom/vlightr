@@ -1,0 +1,128 @@
+---
+title: "Highlighting and dplyr"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+This vignette describes some functions which are designed for working
+with highlighted vectors as columns in a `data.frame` or `tibble`, and
+more specifically for manipulating highlights using `dplyr` functions.
+
+```{r load}
+library(vlightr)
+library(dplyr)
+```
+
+```{r constants, include = FALSE}
+n_droids <- sum(starwars$species == "Droid")
+n_rows <- nrow(starwars)
+```
+
+## Using dplyr::across(), a word of warning
+
+This section documents a confusing error which can arise from using
+`highlight_case()` within `dplyr::across()` under a specific
+circumstance.
+
+If you're here because you encountered such an error, the short story is
+that the `across()` formula syntax `.fns = ~f(.x)` is incompatible with
+`highlight_case()` and friends.
+
+Consider the case where we want to colour all `NA` values in the
+`starwars` tibble orange when it is printed. The example below shows the
+what works and what will cause an error. The rest of this section goes
+into detail about what is causing the problem.
+
+```{r, eval = FALSE}
+starwars %>%
+  mutate(
+    across(
+      # Using `\(col)` or `function(col)` will work
+      .cols = everthing(),
+      .fns = \(col) highlight_case(col, is.na(.x) ~ color("orange")(.x)))
+    
+      # Using `~` will raise an error
+      # .fns = ~ highlight_case(.x, is.na(.x) ~ color("orange")(.x)))
+    )
+  )
+```
+
+Generally, I've found that the `condition(.x) ~ formatter(.x)` formula
+syntax used in the `*_case()` vlightr functions is the most convenient
+way to create complex conditional formats. The symbol `.x` is used as an
+argument within lambdas in several popular packages (namely purrr and
+dplyr), so I (and I imagine others) are used to seeing `.x` used as a
+placeholder argument.
+
+Unfortunately, `.x` being such a hot commodity does introduce one
+conflict between `dplyr::across()` and `highlight_case()` (as well as
+other `*_case()` functions).
+
+Consider the example for earlier, where we want to highlight the row of
+any Star Wars character which is a Droid. With a small change to the
+`across()` call, we'll introduce an error.
+
+```{r}
+try(
+  starwars %>%
+  mutate(
+    across(
+      where(is_highlightable),
+      # Old: \(col) templight_case(col, species == "Droid" ~ bg("yellow")(.x))
+      ~templight_case(.x, species == "Droid" ~ cli::bg_br_yellow(.x))
+    )
+  )
+)
+```
+
+The first formatter `attr(,"formatters")[[1]]`, defined by
+`cli::bg_br_yellow(.x)`, returned a length `r n_rows` result (the number
+of rows in `starwars`) when it should have returned a length
+`r n_droids` result (the number of Droids listed in `starwars`), causing
+an error.
+
+This is because, when a formula lambda (e.g. `~templight_case(...)`) is
+used within `across()`, the placeholder symbol `.x` is replaced
+(usually) with the symbol of the current column.
+
+For instance, when `name`, the first column in `starwars`, is mutated by
+the call to `across()`, the expression
+`species == "Droid" ~ cli::bg_br_yellow(.x)` is substituted with the
+expression `species == "Droid" ~ cli::bg_br_yellow(name)`.
+
+When `templight_case()` converts the right-hand-side of this formula
+into a formatter function, it will look like
+`function(.x) cli::bg_br_yellow(name)`. This formatter will always be in
+terms of the column `name`, rather than in terms of the argument `.x`.
+
+So, when the column `name` is conditionally formatted, the formatter function
+receives the names of `r n_droids` Droids to highlight yellow, but outputs the
+vector `cli::bg_br_yellow(name)` instead, a length `r n_rows` of every character
+name in the `starwars` dataset. This is what causes the length error.
+
+We can remedy this error in a few differnt ways:
+
+```{r}
+starwars %>%
+  mutate(
+    across(
+      where(is_highlightable),
+      # This works:
+      \(x) templight_case(x, species == "Droid" ~ cli::bg_br_yellow(.x))
+      
+      # These also work:
+      # ~ templight_case(x, species == "Droid" ~ \(x) cli::bg_br_yellow(x))
+      # ~ templight(x, species == "Droid", ~ cli::bg_br_yellow(.x))
+    )
+  )
+```
