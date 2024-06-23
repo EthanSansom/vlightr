@@ -41,6 +41,12 @@
 <li class="nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/highlighting-and-dplyr.html">highlighting-and-dplyr</a>
+  </div>
+</li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
@@ -433,7 +439,7 @@ they are combined. For example, you can set a highlighted vector’s
 <span><span class="co">#&gt; [1] 1 <span style="color: #00BB00;">2</span> 3 <span style="color: #00BB00;">4</span> 5 <span style="color: #00BB00;">6</span></span></span></code></pre></div>
 <p>When defining more complex conditional formatting,
 <code><a href="../reference/highlight.html">highlight_case()</a></code> (inspired by
-<code>dplyr::case_when()</code>) can make the relationship between a
+<code><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">dplyr::case_when()</a></code>) can make the relationship between a
 condition and it’s corresponding format more clear.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">summary_hl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/highlight.html">highlight_case</a></span><span class="op">(</span></span>
@@ -449,7 +455,7 @@ condition and it’s corresponding format more clear.</p>
 <span><span class="co">#&gt; [1] (Min = 1)  [ Low 2 ]  (Mid = 3)  [ High 4 ] (Max = 5)</span></span></code></pre></div>
 <p>Unlike in <code><a href="../reference/highlight.html">highlight()</a></code>, the <code>.format_once</code>
 argument of <code><a href="../reference/highlight.html">highlight_case()</a></code> is <code>TRUE</code> by
-default. As in <code>dplyr::case_when()</code>, this means that each
+default. As in <code><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">dplyr::case_when()</a></code>, this means that each
 element of <code>x</code> is allowed to match exactly one condition (the
 first condition met).</p>
 </div>

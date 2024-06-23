@@ -2,8 +2,9 @@ pandoc: 3.1.11
 pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
+  highlighting-and-dplyr: highlighting-and-dplyr.html
   vlightr: vlightr.html
-last_built: 2024-06-22T15:35Z
+last_built: 2024-06-23T18:07Z
 urls:
   reference: https://ethansansom.github.io/vlightr/reference
   article: https://ethansansom.github.io/vlightr/articles

@@ -41,6 +41,12 @@
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/highlighting-and-dplyr.html">highlighting-and-dplyr</a>
+  </div>
+</li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
@@ -215,7 +221,7 @@
 #&gt; [1] 1 [Yes] 0 [No]  <span style="color: #DC322F;">NA</span>      1 [Yes] 0 [No]                                      
 </pre>
 </div>
-<p><code><a href="reference/highlight.html">highlight_case()</a></code> provides a <code>dplyr::case_when()</code> inspired syntax for defining multiple conditional formats.</p>
+<p><code><a href="reference/highlight.html">highlight_case()</a></code> provides a <code><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">dplyr::case_when()</a></code> inspired syntax for defining multiple conditional formats.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bad_words</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"darn"</span>, <span class="st">"gosh"</span><span class="op">)</span></span>
 <span><span class="va">affirmations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"good job"</span>, <span class="st">"way-to-go"</span><span class="op">)</span></span>
