@@ -3,8 +3,11 @@ title: "highlighting-and-dplyr"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{highlighting-and-dplyr}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r, include = FALSE}
@@ -17,16 +20,17 @@ knitr::opts_chunk$set(
 ## Introduction
 
 This vignette describes some functions which are designed for working
-with highlighted vectors as columns in a `data.frame` or `tibble`, and
-more specifically for manipulating highlights using `dplyr` functions.
+with highlighted vectors as columns in a `data.frame` or `tibble` and
+provides some examples of manipulating highlights using `dplyr`
+functions.
 
 ```{r load}
 library(vlightr)
-library(dplyr)
+library(dplyr, warn.conflicts = FALSE)
 ```
 
 ```{r constants, include = FALSE}
-n_droids <- sum(starwars$species == "Droid")
+n_droids <- sum(starwars$species == "Droid", na.rm = TRUE)
 n_rows <- nrow(starwars)
 ```
 
@@ -37,13 +41,13 @@ This section documents a confusing error which can arise from using
 circumstance.
 
 If you're here because you encountered such an error, the short story is
-that the `across()` formula syntax `.fns = ~f(.x)` is incompatible with
+that the `across()` formula syntax `.fns = ~ f(.x)` is incompatible with
 `highlight_case()` and friends.
 
-Consider the case where we want to colour all `NA` values in the
-`starwars` tibble orange when it is printed. The example below shows the
-what works and what will cause an error. The rest of this section goes
-into detail about what is causing the problem.
+Consider the case where we want to colour all `NA` orange in the printed
+`starwars` tibble. The example below shows the what works and what will
+cause an error. The rest of this section goes into detail about what is
+causing the problem.
 
 ```{r, eval = FALSE}
 starwars %>%
@@ -59,20 +63,16 @@ starwars %>%
   )
 ```
 
-Generally, I've found that the `condition(.x) ~ formatter(.x)` formula
-syntax used in the `*_case()` vlightr functions is the most convenient
-way to create complex conditional formats. The symbol `.x` is used as an
-argument within lambdas in several popular packages (namely purrr and
-dplyr), so I (and I imagine others) are used to seeing `.x` used as a
-placeholder argument.
+Packages across the tidyverse (most notably purrr) use the symbol `.x`
+to represent an argument to an anonymous (AKA lambda) function (e.g.
+`~ is.na(.x)`). Because of this, lambdas in vlightr use the same
+convention. Unfortunately, the symbol `.x` being such a hot commodity
+does introduce one conflict between `dplyr::across()` and
+`highlight_case()` (as well as vlightr's other `*_case()` functions).
 
-Unfortunately, `.x` being such a hot commodity does introduce one
-conflict between `dplyr::across()` and `highlight_case()` (as well as
-other `*_case()` functions).
-
-Consider the example for earlier, where we want to highlight the row of
-any Star Wars character which is a Droid. With a small change to the
-`across()` call, we'll introduce an error.
+Consider the earlier example, where we highlighted the row of any Star
+Wars character which is a Droid. With a small change to the `across()`
+call, we'll introduce an error.
 
 ```{r}
 try(
@@ -80,7 +80,7 @@ try(
   mutate(
     across(
       where(is_highlightable),
-      # Old: \(col) templight_case(col, species == "Droid" ~ bg("yellow")(.x))
+      # Before: \(col) templight_case(col, species == "Droid" ~ bg("yellow")(.x))
       ~templight_case(.x, species == "Droid" ~ cli::bg_br_yellow(.x))
     )
   )
@@ -93,9 +93,9 @@ of rows in `starwars`) when it should have returned a length
 `r n_droids` result (the number of Droids listed in `starwars`), causing
 an error.
 
-This is because, when a formula lambda (e.g. `~templight_case(...)`) is
-used within `across()`, the placeholder symbol `.x` is replaced
-(usually) with the symbol of the current column.
+This happens because, when a formula lambda (e.g.
+`~templight_case(...)`) is used within `across()`, the placeholder
+symbol `.x` is replaced (usually) with the name of the current column.
 
 For instance, when `name`, the first column in `starwars`, is mutated by
 the call to `across()`, the expression
@@ -107,12 +107,13 @@ into a formatter function, it will look like
 `function(.x) cli::bg_br_yellow(name)`. This formatter will always be in
 terms of the column `name`, rather than in terms of the argument `.x`.
 
-So, when the column `name` is conditionally formatted, the formatter function
-receives the names of `r n_droids` Droids to highlight yellow, but outputs the
-vector `cli::bg_br_yellow(name)` instead, a length `r n_rows` of every character
-name in the `starwars` dataset. This is what causes the length error.
+Consequently, when the column `name` is conditionally formatted, the
+formatter function receives the names of `r n_droids` Droids to
+highlight yellow, but outputs `cli::bg_br_yellow(name)` instead, a
+length `r n_rows` vector of every character name in the `starwars`
+dataset. This is what causes the length error.
 
-We can remedy this error in a few differnt ways:
+We can remedy this in a several ways:
 
 ```{r}
 starwars %>%
@@ -126,5 +127,6 @@ starwars %>%
       # ~ templight_case(x, species == "Droid" ~ \(x) cli::bg_br_yellow(x))
       # ~ templight(x, species == "Droid", ~ cli::bg_br_yellow(.x))
     )
-  )
+  ) %>%
+  select(1:4)
 ```
