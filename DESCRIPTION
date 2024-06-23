@@ -24,6 +24,7 @@ Imports:
     vctrs
 Suggests: 
     asciicast,
+    dplyr,
     ivs,
     knitr,
     lubridate,

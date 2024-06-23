@@ -1,8 +1,10 @@
 ---
-title: "Highlighting and dplyr"
-editor_options: 
-  markdown: 
-    wrap: 72
+title: "highlighting-and-dplyr"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{highlighting-and-dplyr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
