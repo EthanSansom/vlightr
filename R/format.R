@@ -1,3 +1,7 @@
+
+# TODO: I think `.x_name = rlang::caller_arg(x)` is vestigial at this point. See
+#       if it can be safely removed.
+#
 #' @export
 format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
 
@@ -15,12 +19,11 @@ format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
   if (is.null(init_formatter)) {
     formatted <- highlight_format(x_data)
   } else {
-    formatted <- evalidate_highlight_fn(
-      x = x_data,
-      fn = init_formatter,
-      x_name = .x_name,
-      fn_name = 'attr(,"init_formatter")',
-      fn_is = "formatter"
+    formatted <- evalidate_highlight_fun(
+      input = x_data,
+      fun = init_formatter,
+      fun_name = 'attr(,"init_formatter")',
+      fun_type = "formatter"
     )
   }
 
@@ -31,63 +34,64 @@ format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
   conditions <- get_conditions(x)
   formatters <- get_formatters(x)
   for (i in prededence) {
-    format_at <- evalidate_highlight_fn(
-      x = x_data,
-      fn = conditions[[i]],
-      x_name = .x_name,
-      fn_name = glue::glue('attr(,"conditions")[[{i}]]'),
-      fn_is = "condition"
+    format_at <- evalidate_highlight_fun(
+      input = x_data,
+      fun = conditions[[i]],
+      fun_name = glue::glue('attr(,"conditions")[[{i}]]'),
+      fun_type = "condition"
     )
     if (format_once) {
       format_at <- is_unformatted & format_at
       is_unformatted <- is_unformatted & !format_at
     }
     if (any(format_at)) {
-      formatted[format_at] <- evalidate_highlight_fn(
-        x = formatted[format_at],
-        fn = formatters[[i]],
-        x_name = .x_name,
-        fn_name = glue::glue('attr(,"formatters")[[{i}]]'),
-        fn_is = "formatter"
+      formatted[format_at] <- evalidate_highlight_fun(
+        input = formatted[format_at],
+        fun = formatters[[i]],
+        fun_name = glue::glue('attr(,"formatters")[[{i}]]'),
+        fun_type = "formatter"
       )
     }
   }
   if (is.null(last_formatter)) {
     return(formatted)
   }
-  evalidate_highlight_fn(
-    x = formatted,
-    fn = last_formatter,
-    x_name = .x_name,
-    fn_name = 'attr(,"last_formatter")',
-    fn_is = "formatter",
-    error_class = "vlightr_last_formatter_error"
+  evalidate_highlight_fun(
+    input = formatted,
+    fun = last_formatter,
+    fun_name = 'attr(,"last_formatter")',
+    fun_type = "formatter"
   )
 }
 
-# TODO: Work on the error call here, it can be hard to tell what's going on
-#       when the user supplied functions fail.
-evalidate_highlight_fn <- function(
-    x,
-    fn,
-    fn_name,
-    fn_is = c("condition", "formatter"),
-    fn_env = rlang::caller_env(),
-    x_name = rlang::caller_arg(x),
+# TODO: I still think this could have better errors
+# - might be worth while to create separate functions for "condition" and "formatter"
+# - add more specific error messages, with better context
+# - can we see whether or not we're within an across statement
+#
+# TODO:
+# - add an informative error for when you're within `dplyr::across()`, used a `*_case()`
+#   function, and hit a `formatter` length error
+evalidate_highlight_fun <- function(
+    input,
+    fun,
+    fun_name,
+    fun_type = c("condition", "formatter"),
+    fun_env = rlang::caller_env(),
     error_call = rlang::caller_env(),
     error_class = "vlightr_error"
-  ) {
+) {
 
-  fn_is <- rlang::arg_match(fn_is)
+  in_across <- in_across()
   result <- rlang::try_fetch(
-    eval(fn(x), envir = fn_env),
+    eval(fun(input), envir = fun_env),
     error = function(cnd) {
-      # `fn_name` won't be a valid call name most of the time, but will appear
-      # as something like "attr(,"conditions")[[1]]()", which will provide more
-      # context in the error chain.
-      cnd$call <- rlang::call2(fn_name)
+      cnd$call <- rlang::call2(fun_name)
       cli::cli_abort(
-        "{.cls vlightr_highlight} vector has a malformed {.code format()} method.",
+        c(
+          "Highlighted vector has a malformed {.fn format} method.",
+          if (in_across) across_error_hint()
+        ),
         parent = cnd,
         call = error_call,
         class = error_class
@@ -95,40 +99,66 @@ evalidate_highlight_fn <- function(
     }
   )
 
-  is_valid_class <- switch(
-    fn_is,
-    condition = is.logical,
-    formatter = is.character
-  )
-  if (is_valid_class(result) && length(result) %in% c(1, length(x))) {
-    if (fn_is == "condition") {
-      result <- !is.na(result) & result
-    }
-    return(vctrs::vec_recycle(result, length(x)))
+  is_condition <- rlang::arg_match(fun_type) == "condition"
+  target_class <- if (is_condition) "logical" else "character"
+  is_tgt_class <- if (is_condition) is.logical(result) else is.character(result)
+
+  input_length <- length(input)
+  if (is_tgt_class && length(result) %in% c(1, input_length)) {
+    if (is_condition) result[is.na(result)] <- FALSE
+    return(vctrs::vec_recycle(result, input_length))
   }
 
-  valid_class <- switch(fn_is, condition = "logical", formatter = "character")
-  header <- paste0(
-    "{upper1(fn_is)} `", fn_name, "` must produce a {.cls {valid_class}} ",
-    "vector of length 1 or `length({x_name})`."
-  )
-  type_bullet <- if (!is_valid_class(result)) {
-    "Produced {.obj_type_friendly {result}}."
-  }
-  len_bullets <- if (length(result) %notin% c(1, length(x))) {
-    c(
-      i = "Produced a length {length(result)} result.",
-      i = "{.arg {x_name}} has length {length(x)}."
+  if (!is_tgt_class) {
+    cli::cli_abort(
+      c(
+        paste(
+          "{upper1(fun_type)} function {.fn {fun_name}} must produce a",
+          "{target_class} vector, not {.obj_type_friendly {result}}."
+        ),
+        if (in_across) across_error_hint()
+      ),
+      call = error_call,
+      class = error_class
     )
   }
+
   cli::cli_abort(
     c(
-      header,
-      x = type_bullet,
-      len_bullets
+      paste(
+        "{upper1(fun_type)} {.fn {fun_name}} must produce an output of the same",
+        "length of it's input."
+      ),
+      i = "{.fn {fun_name}} recieved a length {input_length} input.",
+      i = "{.fn {fun_name}} produced a length {length(result)} output.",
+      if (in_across) across_error_hint()
     ),
-    class = error_class,
-    call = error_call
+    call = error_call,
+    class = error_class
+  )
+}
+
+# Hack for checking whether a function is being called from within `dplyr::across`.
+# This is only used to provide a hint when a `*_case()` function causes an error
+# because of using `.fns = ~` in `dplyr::across()`.
+in_across <- function() {
+  tryCatch(
+    {
+      dplyr::cur_column()
+      TRUE
+    },
+    error = function(cnd) FALSE
+  )
+}
+
+across_error_hint <- function() {
+  c(
+    i = "Did you highlight a vector using a formula (`.fns = ~...`) in {.fn dplyr::across}?",
+    `*` = "vlightr {.fn *_case} functions are incompatible with this syntax.",
+    " " = "# Good",
+    " " = 'dplyr::across(x, \\(col) highlight_case(col, is.na(.x) ~ color("red")(.x)))',
+    " " = "# Bad",
+    " " = 'dplyr::across(x, ~highlight_case(.x, is.na(.x) ~ color("red")(.x)))'
   )
 }
 
@@ -152,12 +182,11 @@ describe_highlight <- function(x) {
   is_unformatted <- rep(TRUE, length(x))
   formatted_using <- vector("list", length(x))
   for (i in seq_along(conditions)) {
-    format_at <- evalidate_highlight_fn(
-      x = x_data,
-      fn = conditions[[i]],
-      x_name = x_name,
-      fn_name = glue::glue('attr({x_name},"conditions")[[{i}]]'),
-      fn_is = "condition"
+    format_at <- evalidate_highlight_fun(
+      input = x_data,
+      fun = conditions[[i]],
+      fun_name = glue::glue('attr({x_name},"conditions")[[{i}]]'),
+      fun_type = "condition"
     )
     if (format_once) {
       format_at <- is_unformatted & format_at
@@ -202,6 +231,8 @@ describe_highlight <- function(x) {
   }
   return(invisible(x))
 }
+
+# highlight format -------------------------------------------------------------
 
 # TODO:
 # - change the `highlight_format.class` methods below as required
