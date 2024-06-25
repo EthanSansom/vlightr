@@ -14,15 +14,52 @@
 #'
 #' Whether elements of the output list are un-highlighted. Defaults to `TRUE`.
 #'
+#' @param no_cond `[character(1)]`
+#'
+#' The name given to the group of elements which meet no condition.
+#' Defaults to `NA`.
+#'
+#' @returns
+#'
+#' A list of vectors containing the values for each group of elements in `x`. The
+#' elements of the list are named using the description (`attr(x, "description"`)
+#' corresponding to the conditions met by the group.
+#'
+#' If `unlit = FALSE`, the vectors in the list are highlighted (with the same
+#' conditional formatting as `x`). Otherwise, they are un-highlighted.
+#'
 #' @examples
 #' x <- highlight(1:5)
 #'
 #' @family condition utilities
 #' @export
-condition_split <- function(x, unlit = TRUE) {
-
+condition_split <- function(x, unlit = TRUE, no_cond = NA_character_) {
+  # TODO: Just use `condition_id` here.
 }
 
+#' Identify elements of a highlighted vector which meet a condition(s)
+#'
+#' @description
+#'
+#' [condition_id()] identifies elements of a highlighted vector `x` by the
+#' conditions (`attr(x, "conditions")`) that each element meets. Each element's
+#' identifier is a comma separated string of descriptions
+#' (`attr(x, "description")`) of the conditions met by the element.
+#'
+#' @param x `[vlightr_highlight]`
+#'
+#' A highlighted vector to ID.
+#'
+#' @param no_id `[logical(1)]`
+#'
+#' The identifier assigned to elements for which no condition returns `TRUE`.
+#' Defaults to `NA`.
+#'
+#' @examples
+#' x <- highlight(1:5)
+#'
+#' @family condition utilities
+#' @export
 condition_id <- function(x, no_id = NA_character_) {
 
 }
@@ -50,7 +87,7 @@ condition_met <- function(
 
   # TODO: Use `evalidate_format_fn` here
   out <- conditions[[1]](x)
-  op <- if (meets == "any") `|` else `&`
+  op <- if (meets != "all") `|` else `&`
   for (condition in conditions[-1]) {
     out <- op(out, condition(x))
     out[is.na(out)] <- FALSE

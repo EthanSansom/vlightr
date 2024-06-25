@@ -4,7 +4,7 @@
 \alias{condition_split}
 \title{Split a highlighted vector by conditions}
 \usage{
-condition_split(x, unlit = TRUE)
+condition_split(x, unlit = TRUE, no_cond = NA_character_)
 }
 \arguments{
 \item{x}{\verb{[vlightr_highlight]}
@@ -14,6 +14,19 @@ A highlighted vector to split.}
 \item{unlit}{\verb{[logical(1)]}
 
 Whether elements of the output list are un-highlighted. Defaults to \code{TRUE}.}
+
+\item{no_cond}{\verb{[character(1)]}
+
+The name given to the group of elements which meet no condition.
+Defaults to \code{NA}.}
+}
+\value{
+A list of vectors containing the values for each group of elements in \code{x}. The
+elements of the list are named using the description (\verb{attr(x, "description"})
+corresponding to the conditions met by the group.
+
+If \code{unlit = FALSE}, the vectors in the list are highlighted (with the same
+conditional formatting as \code{x}). Otherwise, they are un-highlighted.
 }
 \description{
 \code{\link[=condition_split]{condition_split()}} divides a highlighted vector \code{x} into the groups defined
@@ -23,5 +36,9 @@ formatting are grouped together.
 \examples{
 x <- highlight(1:5)
 
+}
+\seealso{
+Other condition utilities: 
+\code{\link{condition_id}()}
 }
 \concept{condition utilities}

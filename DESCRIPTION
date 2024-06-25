@@ -18,13 +18,13 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports: 
     cli,
+    dplyr,
     glue,
     magrittr,
     rlang,
     vctrs
 Suggests: 
     asciicast,
-    dplyr,
     ivs,
     knitr,
     lubridate,

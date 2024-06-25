@@ -162,7 +162,7 @@ to a highlighter, then the supplied arguments override the pre-filled defaults.
 # Mimic an existing highlighted vector
 dummy <- c(1L, NA, 0L, 1L, NA)
 dummy_hl <- highlight_case(
- x = dummy,
+ dummy,
  .x == 0 ~ paste0(.x, "[No]"),
  .x == 1 ~ paste0(.x, "[Yes]"),
  is.na ~ cli::col_red
@@ -173,7 +173,7 @@ dummy_hlghtr <- highlighter_case(
  is.na ~ cli::col_red
 )
 print(dummy_hl)
-print(dummy_hlghtr(x = x))
+print(dummy_hlghtr(dummy))
 
 # Apply a higlighter to a new vector
 dummy_hlghtr(c(-2L, -1L, 0L, 1L, 2L, NA))
