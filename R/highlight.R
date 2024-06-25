@@ -1,6 +1,6 @@
-# TODO -------------------------------------------------------------------------
+# todo -------------------------------------------------------------------------
 
-# TODO: Long Term:
+# Long Term:
 # - allow the `init_formatter` and `last_formatter` to take a second argument `width`
 # - during `format.vlightr_highlight()`, the `console_width` is supplied
 # - during `pillar.vlightr_highlight()`, the column width is supplied
@@ -13,95 +13,27 @@
 #   `highlight_pillar` method, like `highlight_format`, which receives the highlighted
 #   vector `x` as input. That way, you can call `format(x)` as normal to conditionally
 #   format, or alter the formatting as you see fit.
-#
 # - make the `highlight_format` a generic, so users can define it for other classes (like `ivs_format`)
 
-# TODO: Short Term:
+# Short Term:
 # - go through all the error functions and pick how you want to describe things
 #   - is the argument `x` and name `x_name`, `arg`, `arg_name`?
 # - make sure that you run every example, to confirm there are no hidden errors
+# - finish the `conditions.R` script
+# - complete all function documentation
+# - add a once-per-session info message which is triggered by a use of
+#   `templight_case()` or `highlight_case()` within `dplyr::across()`, directing
+#   people to the word of warning section in the "Highlighting and dplyr" vignette.
 
-# TODO Urgent:
-# - fix bug in `highlight_case` where `~ .x` lambda is mistaken as the column value in
-#   `dplyr::across`. Have to evaluate in the right location...
-# - make a reprex for the `knitr::chunk_opts` "collapse" option being ignored when
-
-# TODO Urgent:
-# Make an article Using `vlightr` with `dplyr`.
-# - show some usage of regular highlights within a tibble
-# - show the problems that occur in a data.frame
-#   - show example `data.frame(x = cli::col_red(1:3))` for why ANSI colors don't work
-# - mention the functions in `conditions.R`
-# - explain the `templight` family of functions
+# Urgent:
+# Fix the `Highlighting Columns` section in `vlightr.Rmd` to use color AND wrap,
+# for non-website audiences.
 #
-# Describe the bug when using a highlighter function within `dplyr::across`.
-#
-# Generally, I think that the `condition(.x) ~ formatter(.x)` formula syntax used
-# in the `*_case()` vlightr functions is the most convenient way to create complex
-# conditional formats. Unfortunately, when used within `dplyr::across()` this does
-# introduce a confusing bug.
-#
-#> library(dplyr)
-#>
-#> # We want to wrap `employed` in "<>", when we're uncertain of `work_hours`
-#> tibble(work_hours = c(20, 10, NA), employed = c(1, 0, 1)) %>%
-#>  mutate(
-#>    across(
-#>      employed,
-#>      ~templight_case(.x, is.na(work_hours) ~ paste0('<', .x, '>))
-#>    )
-#>  )
-#
-# This almost works, but unfortunately, because of how two-sided formulas are
-# evaluated in this context, the expression `is.na(work_hours) ~ paste0('<', .x, '>)`
-# is evaluated as `is.na(work_hours) ~ paste0('<', employed, '>)`.
-#
-# While the left-hand-side condition is what we'd expect, the right-hand-side
-# formatter raises some issues. After the RHS lambda expression
-# `paste0('<', employed, '>)` is converted into a formatter function, we get a
-# result that looks like this: `function(.x) paste0('<', employed, '>)`. The
-# formatter will always be a function in terms of the vector `employed`, when we
-# want it to be in terms of the function argument `.x`. This is what caused the
-# incompatible size error in the earlier `across()` statement.
-#
-# Fortunately, we can re-write the `templight_case()` call in multiple ways to
-# solve the problem.
-#
-# The easiest option, in my opinion, is to change the use of `~` in `across()` to
-# an anonymous function using `\()`. This makes it much more clear when we're
-# referring to the object we want to highlight (i.e. `col = employed`) and when
-# we're referring to a placeholder object `.x` within a lambda expression.
-#
-#> tibble(work_hours = c(20, 10, NA), employed = c(1, 0, 1)) %>%
-#>  mutate(
-#>    across(
-#>      employed,
-#>      # Before: ~templight_case(.x, is.na(work_hours) ~ paste0('<', .x, '>))
-#>      \(col) templight_case(col, is.na(work_hours) ~ paste0('<', .x, '>))
-#>    )
-#>  )
-#
-# Other equivalent alternatives are:
-# - `~templight_case(.x, is.na(work_hours) ~ \(x) paste0('<', x, '>))`
-# - `~templight(x, is.na(work_hours), ~ paste0('<', .x, '>))`
-#
-# This is also an issue when using `highlight_case()` within `across()`.
-#> tibble(x_1 = 1:3, x_2 = 7:5) %>%
-#>  mutate(
-#>    across(
-#>      c(x_1, x_2),
-#>      ~highlight_case(.x, .x == min(.x) ~ paste(.x, "[Min]"))
-#>    )
-#>  )
-#
-# And can be solved in the same way.
-#> tibble(x_1 = 1:3, x_2 = 7:5) %>%
-#>  mutate(
-#>    across(
-#>      c(x_1, x_2),
-#>      \(col) highlight_case(col, .x == min(.x) ~ paste(.x, "[Min]"))
-#>    )
-#>  )
+# Use this function, also used in `highlighting-and-dplyr.Rmd`
+#> emph <- function(x, col = "bright_yellow", left = "[ ", right = " ]") {
+#>   background_fun <- background(col)
+#>   background_fun(paste0(left, x, right))
+#> }
 
 # constructor ------------------------------------------------------------------
 
@@ -371,6 +303,8 @@ highlight <- function(
     last_formatter = NULL
   ) {
 
+  # TODO: I think highlighting a highlight should add highlights to it, using
+  #       something like re-highlight.
   x_name <- rlang::caller_arg(x)
   x <- if (is_highlight(x)) get_data(x) else check_is_highlightable(x)
   conditions <- check_is_list_of_functionish(conditions)
@@ -496,22 +430,9 @@ templight <- function(
   conditions <- mapply(
     condition = conditions,
     condition_name = paste0("conditions[[", seq_along(conditions), "]]"),
-    FUN = \(condition, condition_name) {
-      condition <- check_is_vector(
-        arg = condition,
-        arg_name = condition_name,
-        cls = "logical",
-        len = length(x),
-        arg_must = "be a logical vector the same length as `x`"
-      )
-      condition[is.na(condition)] <- FALSE
-
-      # Can't just be `function(x) condition`, because it's likely that the
-      # formatted version of `x` will be shorter than `x` (e.g. if we're printing
-      # a tibble).
-      function(x) condition[seq_along(x)]
-    },
-    SIMPLIFY = FALSE
+    FUN = evalidate_temp_condition,
+    SIMPLIFY = FALSE,
+    MoreArgs = list(x_length = length(x))
   )
   highlight(
     x = x,
@@ -561,24 +482,11 @@ templight_case <- function(
 
   conditions <- mapply(
     condition = lapply(dots, rlang::f_lhs),
-    condition_name = paste0("rlang::f_lhs(..", seq_along(dots), ")"),
+    condition_name = paste0("..", seq_along(dots), " right hand side"),
     condition_env = lapply(dots, rlang::f_env),
-    FUN = \(condition, condition_name, condition_env) {
-      condition <- check_is_vector(
-        arg = eval(condition, condition_env),
-        arg_name = condition_name,
-        cls = "logical",
-        len = length(x),
-        arg_must = "be a logical vector the same length as `x`"
-      )
-      condition[is.na(condition)] <- FALSE
-
-      # Can't just be `function(x) condition`, because it's likely that the
-      # formatted version of `x` will be shorter than `x` (e.g. if we're printing
-      # a tibble).
-      function(x) condition[seq_along(x)]
-    },
-    SIMPLIFY = FALSE
+    FUN = evalidate_temp_condition,
+    SIMPLIFY = FALSE,
+    MoreArgs = list(x_length = length(x))
   )
 
   formatters <- .mapply(
@@ -602,6 +510,37 @@ templight_case <- function(
   )
 }
 
+evalidate_temp_condition <- function(
+    condition,
+    condition_name,
+    x_length,
+    condition_env = rlang::caller_env(),
+    error_call = rlang::caller_env(),
+    error_class = "vlightr_error"
+  ) {
+
+  condition <- eval(condition, condition_env)
+  if (is.logical(condition) && length(condition) == 1) {
+    condition[is.na(condition)] <- FALSE
+    condition <- vctrs::vec_recycle(condition, x_length)
+    return(function(x) condition[seq_along(x)])
+  }
+
+  condition <- check_is_vector(
+    arg = condition,
+    arg_name = condition_name,
+    cls = "logical",
+    len = x_length,
+    arg_must = "be a logical vector the same length as `x` or of length 1"
+  )
+  condition[is.na(condition)] <- FALSE
+
+  # Can't just be `function(x) condition`, because it's likely that the
+  # formatted version of `x` will be shorter than `x` (e.g. if we're printing
+  # a tibble).
+  function(x) condition[seq_along(x)]
+}
+
 #' @export
 tl_case <- templight_case
 
@@ -620,7 +559,7 @@ evalidate_case_fn <- function(
   # namespaced function call (e.g. `rlang::is_string(paste(.x))`).
   # - if name, then evalidated at the next `if ()` block
   # - if call, then converted to a lambda at end (e.g. `~ rlang::is_string(paste(.x))`)
-  is_namespaced_fn <- rlang::is_call(case, "::") || rlang::is_call(case, ":::")
+  is_namespaced_fn <- rlang::is_call(case, name = c("::", ":::"))
   if (is_namespaced_fn) {
     # `::` right-hand-side can be either a string or a symbol. If it's anything
     # else, assume it's a namespaced call instead of a namespaced function.
@@ -663,7 +602,7 @@ evalidate_case_fn <- function(
   }
 
   # Otherwise, put anything in a formula. This allows the last LHS case to be
-  # `TRUE ~ ...`, as in `dplyr::case_when()`, or a lambda body (ex. `.x > 0`).
+  # `TRUE ~ ...`, as in `dplyr::case_when()`, or a lambda body (e.g. `.x > 0`).
   rlang::new_formula(
     lhs = NULL,
     rhs = case,
@@ -709,12 +648,9 @@ validate_highlight <- function(
   rlang::try_fetch(
     format(arg, .x_name = arg_name),
     error = function(cnd) {
-      error_message <- error_message %||% c(
-        paste(
-          "Attempted to create a malformed {.cls vlightr_highlight} vector",
-          "of type <{vctrs::vec_ptype_full(arg)}>."
-        ),
-        x = "Can't evaluate {.cls vlightr_highlight} vector's `format()` method."
+      error_message <- error_message %||% paste(
+        "Attempted to create a <{vctrs::vec_ptype_full(arg)}> vector with a",
+        "malformed `format()` method."
       )
       cli::cli_abort(
         error_message,
@@ -742,7 +678,7 @@ default_formatters <- function(conditions) {
     idx <- seq_along(conditions)
     formatters <- lapply(
       sprintf(" ][%s]", formatC(idx, width = max(nchar(idx)), flag = "0")),
-      \(right) wrap("[ ", right)
+      \(right) wrap(left = "[ ", right = right)
     )
   }
   formatters
@@ -1372,7 +1308,7 @@ rl <- re_highlight
 #' # Mimic an existing highlighted vector
 #' dummy <- c(1L, NA, 0L, 1L, NA)
 #' dummy_hl <- highlight_case(
-#'  x = dummy,
+#'  dummy,
 #'  .x == 0 ~ paste0(.x, "[No]"),
 #'  .x == 1 ~ paste0(.x, "[Yes]"),
 #'  is.na ~ cli::col_red
@@ -1383,7 +1319,7 @@ rl <- re_highlight
 #'  is.na ~ cli::col_red
 #' )
 #' print(dummy_hl)
-#' print(dummy_hlghtr(x = x))
+#' print(dummy_hlghtr(dummy))
 #'
 #' # Apply a higlighter to a new vector
 #' dummy_hlghtr(c(-2L, -1L, 0L, 1L, 2L, NA))
