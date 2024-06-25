@@ -434,7 +434,7 @@ any of <code>conditions</code> or <code>formatters</code> to fail.</p>
 <span><span class="co">#&gt; Error in vec_cast() : </span></span>
 <span><span class="co">#&gt;   Conversion produced a malformed <span style="color: #0000BB;">&lt;vlightr_highlight&gt;</span> vector.</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Caused by error in `format()`:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> <span style="color: #0000BB;">&lt;vlightr_highlight&gt;</span> vector has a malformed `format()` method.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Highlighted vector has a malformed `format()` method.</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Caused by error in `attr(,"formatters")[[1]]`:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Integers only!</span></span></code></pre></div>
 <p>The <code>precedence</code> of highlighted vectors is maintained when
@@ -673,7 +673,7 @@ a character is a Droid, we highlighted an entire row?</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error in format(x) : </span></span>
-<span><span class="co">#&gt;   <span style="color: #0000BB;">&lt;vlightr_highlight&gt;</span> vector has a malformed `format()` method.</span></span>
+<span><span class="co">#&gt;   Highlighted vector has a malformed `format()` method.</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Caused by error in `attr(,"conditions")[[1]]`:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Obsolete data mask.</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Too late to resolve `species` after the end of `dplyr::mutate()`.</span></span>
@@ -717,9 +717,8 @@ argument.</p>
 <span><span class="co">#&gt; <span style="color: #949494;">#   starships &lt;list&gt;</span></span></span></code></pre></div>
 <p><code>templight()</code> stands for “temporary highlight” because the
 conditional formatting created by <code>templight()</code> is only
-temporarily correct. Because of this, these functions should are mostly
-useful for highlighting columns immediately before a tibble is
-printed.</p>
+temporarily correct. Because of this, it should only be used to
+highlight columns immediately before a tibble is printed.</p>
 <p>Consider what happens to the temporarily highlighted columns when we
 arrange the dataset by character height.</p>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
@@ -745,8 +744,8 @@ changed.</p>
 <code>templight_case()</code> can be useful for calling attention to
 important observations without filtering out all other rows in a
 dataset. This is especially useful when exploring data interactively
-with co-workers or peers (the reason that the first version of vlightr
-was written).</p>
+with co-workers or peers (and was the original inspiration for the
+vlightr package).</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Character's key to explaining Luke's troubled relationship with his father</span></span>
 <span><span class="va">starwars_hl</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>

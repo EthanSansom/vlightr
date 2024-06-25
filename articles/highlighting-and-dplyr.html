@@ -90,50 +90,72 @@ highlights using <code>dplyr</code> functions.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/EthanSansom/vlightr" class="external-link">vlightr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>Before we begin, let’s define a new formatter function
+<code>emph()</code> which adds a prefix <code>left</code> and a suffix
+<code>right</code> to the text <code>x</code> and colors the text
+background the color <code>col</code>. If you are reading this vignette
+in R (say within the RStudio Help pane) then you likely won’t be able to
+see the background color <code>col</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">emph</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">col</span> <span class="op">=</span> <span class="st">"bright_yellow"</span>, <span class="va">left</span> <span class="op">=</span> <span class="st">"[ "</span>, <span class="va">right</span> <span class="op">=</span> <span class="st">" ]"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">background_fun</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stylers.html">background</a></span><span class="op">(</span><span class="va">col</span><span class="op">)</span></span>
+<span>  <span class="fu">background_fun</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">left</span>, <span class="va">x</span>, <span class="va">right</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Test it out</span></span>
+<span><span class="fu">emph</span><span class="op">(</span><span class="st">"Hello"</span>, <span class="st">"bright_green"</span>, <span class="st">"&lt;"</span>, <span class="st">"&gt;"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;cli_ansi_string&gt;</span></span>
+<span><span class="co">#&gt; [1] <span style="background-color: #55FF55;">&lt;Hello&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="using-dplyracross-a-word-of-warning">Using dplyr::across(), a word of warning<a class="anchor" aria-label="anchor" href="#using-dplyracross-a-word-of-warning"></a>
 </h2>
 <p>This section documents a confusing error which can arise from using
-<code><a href="../reference/highlight.html">highlight_case()</a></code> within <code><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">dplyr::across()</a></code> under
-a specific circumstance.</p>
+<code><a href="../reference/highlight.html">highlight_case()</a></code> within <code><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">dplyr::across()</a></code>.</p>
 <p>If you’re here because you encountered such an error, the short story
 is that the <code><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across()</a></code> formula syntax
 <code>.fns = ~ f(.x)</code> is incompatible with
 <code><a href="../reference/highlight.html">highlight_case()</a></code> and friends.</p>
-<p>Consider the case where we want to colour all <code>NA</code> orange
-in the printed <code>starwars</code> tibble. The example below shows the
+<p>Consider the case where we want to color all <code>NA</code> values
+blue in the <code>starwars</code> tibble. The example below shows the
 what works and what will cause an error. The rest of this section goes
 into detail about what is causing the problem.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    <span class="fu">across</span>(</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>      <span class="co"># Using `\(col)` or `function(col)` will work</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>      <span class="at">.cols =</span> <span class="fu">everthing</span>(),</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>      <span class="at">.fns =</span> \(col) <span class="fu">highlight_case</span>(col, <span class="fu">is.na</span>(.x) <span class="sc">~</span> <span class="fu">color</span>(<span class="st">"orange"</span>)(.x)))</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    </span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>      <span class="co"># Using `~` will raise an error</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>      <span class="co"># .fns = ~ highlight_case(.x, is.na(.x) ~ color("orange")(.x)))</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>    )</span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="er">)</span></span></code></pre></div>
-<p>Packages across the tidyverse (most notably purrr) use the symbol
-<code>.x</code> to represent an argument to an anonymous (AKA lambda)
-function (e.g. <code>~ is.na(.x)</code>). Because of this, lambdas in
-vlightr use the same convention. Unfortunately, the symbol
-<code>.x</code> being such a hot commodity does introduce one conflict
-between <code><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">dplyr::across()</a></code> and <code><a href="../reference/highlight.html">highlight_case()</a></code>
-(as well as vlightr’s other <code>*_case()</code> functions).</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">starwars</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span></span>
+<span>      <span class="co"># Using `\()` or `function()` will work</span></span>
+<span>      .cols <span class="op">=</span> <span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html" class="external-link">where</a></span><span class="op">(</span><span class="va">is_highlightable</span><span class="op">)</span>,</span>
+<span>      .fns <span class="op">=</span> \<span class="op">(</span><span class="va">col</span><span class="op">)</span> <span class="fu"><a href="../reference/highlight.html">highlight_case</a></span><span class="op">(</span><span class="va">col</span>, <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="../reference/stylers.html">color</a></span><span class="op">(</span><span class="st">"blue"</span><span class="op">)</span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span>
+<span>    </span>
+<span>      <span class="co"># Using `~` will raise an error</span></span>
+<span>      <span class="co"># .fns = ~ highlight_case(.x, is.na(.x) ~ color("blue")(.x))</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="incorrect-output-length">Incorrect output length<a class="anchor" aria-label="anchor" href="#incorrect-output-length"></a>
+</h3>
+<p>vlightr follows the lead of packages across the tidyverse (most
+notably purrr), which use the symbol <code>.x</code> to represent an
+argument to an anonymous (AKA lambda) function,
+e.g. <code>~ mean(.x, na.rm = TRUE)</code> in place of
+<code>\(x) mean(x, na.rm = TRUE)</code>. While this can make vlightr
+lambdas more familiar to some R users, the symbol <code>.x</code> being
+such a hot commodity does introduce a conflict between
+<code><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">dplyr::across()</a></code> and <code><a href="../reference/highlight.html">highlight_case()</a></code> (as well
+as vlightr’s other <code>*_case()</code> functions).</p>
 <p>Consider the earlier example, where we highlighted the row of any
 Star Wars character which is a Droid. With a small change to the
-<code><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across()</a></code> call, we’ll introduce an error.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across()</a></code> call, we are faced with a lengthy chained error
+message.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span></span>
 <span>  <span class="va">starwars</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span></span>
 <span>      <span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html" class="external-link">where</a></span><span class="op">(</span><span class="va">is_highlightable</span><span class="op">)</span>,</span>
-<span>      <span class="co"># Before: \(col) templight_case(col, species == "Droid" ~ bg("yellow")(.x))</span></span>
-<span>      <span class="op">~</span><span class="fu">templight_case</span><span class="op">(</span><span class="va">.x</span>, <span class="va">species</span> <span class="op">==</span> <span class="st">"Droid"</span> <span class="op">~</span> <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">bg_br_yellow</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="co"># Before: \(col) templight_case(col, species == "Droid" ~ emph(.x))</span></span>
+<span>      <span class="op">~</span><span class="fu">templight_case</span><span class="op">(</span><span class="va">.x</span>, <span class="va">species</span> <span class="op">==</span> <span class="st">"Droid"</span> <span class="op">~</span> <span class="fu">emph</span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -142,67 +164,131 @@ Star Wars character which is a Droid. With a small change to the
 <span><span class="co">#&gt; <span style="font-weight: bold;">Caused by error in `across()`:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Can't compute column `name`.</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Caused by error in `highlight()`:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Attempted to create a malformed <span style="color: #0000BB;">&lt;vlightr_highlight&gt;</span> vector of type</span></span>
-<span><span class="co">#&gt;   &lt;highlight&lt;character&gt;&gt;.</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Can't evaluate <span style="color: #0000BB;">&lt;vlightr_highlight&gt;</span> vector's `format()` method.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Attempted to create a &lt;highlight&lt;character&gt;&gt; vector with a malformed</span></span>
+<span><span class="co">#&gt;   `format()` method.</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Caused by error in `format()`:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Formatter `attr(,"formatters")[[1]]` must produce a <span style="color: #0000BB;">&lt;character&gt;</span> vector</span></span>
-<span><span class="co">#&gt;   of length 1 or `length(x)`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Produced a length 87 result.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> `x` has length 6.</span></span></code></pre></div>
-<p>The first formatter <code>attr(,"formatters")[[1]]</code>, defined by
-<code>cli::bg_br_yellow(.x)</code>, returned a length 87 result (the
-number of rows in <code>starwars</code>) when it should have returned a
-length 6 result (the number of Droids listed in <code>starwars</code>),
-causing an error.</p>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Formatter `attr(,"formatters")[[1]]()` must produce an output of the</span></span>
+<span><span class="co">#&gt;   same length of it's input.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> `attr(,"formatters")[[1]]()` recieved a length 6 input.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> `attr(,"formatters")[[1]]()` produced a length 87 output.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you highlight a vector using a formula (`.fns = ~...`) in</span></span>
+<span><span class="co">#&gt;   `dplyr::across()`?</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> vlightr `*_case()` functions are incompatible with this syntax.</span></span>
+<span><span class="co">#&gt;   # Good</span></span>
+<span><span class="co">#&gt;   dplyr::across(x, \(col) highlight_case(col, is.na(.x) ~ color("red")(.x)))</span></span>
+<span><span class="co">#&gt;   # Bad</span></span>
+<span><span class="co">#&gt;   dplyr::across(x, ~highlight_case(.x, is.na(.x) ~ color("red")(.x)))</span></span></code></pre></div>
+<p>Reading the end of the message, we see that first formatter
+<code>attr(,"formatters")[[1]]</code>, defined by <code>emph(.x)</code>,
+returned a length 87 result (the number of rows in
+<code>starwars</code>) when it should have returned a length 6 result
+(the number of Droids listed in <code>starwars</code>), causing an
+error.</p>
 <p>This happens because, when a formula lambda (e.g.
 <code>~templight_case(...)</code>) is used within <code><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across()</a></code>,
 the placeholder symbol <code>.x</code> is replaced (usually) with the
 name of the current column.</p>
 <p>For instance, when <code>name</code>, the first column in
 <code>starwars</code>, is mutated by the call to <code><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across()</a></code>,
-the expression <code>species == "Droid" ~ cli::bg_br_yellow(.x)</code>
-is substituted with the expression
-<code>species == "Droid" ~ cli::bg_br_yellow(name)</code>.</p>
+the expression <code>species == "Droid" ~ emph(.x)</code> is substituted
+with the expression <code>species == "Droid" ~ emph(name)</code>.</p>
 <p>When <code>templight_case()</code> converts the right-hand-side of
 this formula into a formatter function, it will look like
-<code>function(.x) cli::bg_br_yellow(name)</code>. This formatter will
-always be in terms of the column <code>name</code>, rather than in terms
-of the argument <code>.x</code>.</p>
+<code>function(.x) emph(name)</code>. This formatter will always be in
+terms of the column <code>name</code>, rather than in terms of the
+argument <code>.x</code>.</p>
 <p>Consequently, when the column <code>name</code> is conditionally
 formatted, the formatter function receives the names of 6 Droids to
-highlight yellow, but outputs <code>cli::bg_br_yellow(name)</code>
-instead, a length 87 vector of every character name in the
-<code>starwars</code> dataset. This is what causes the length error.</p>
-<p>We can remedy this in a several ways:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+highlight yellow, but outputs <code>emph(name)</code> instead, a length
+87 vector of every character name in the <code>starwars</code> dataset.
+This is what causes the length error.</p>
+<p>We can remedy this error in a several ways:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">starwars</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span></span>
 <span>      <span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html" class="external-link">where</a></span><span class="op">(</span><span class="va">is_highlightable</span><span class="op">)</span>,</span>
 <span>      <span class="co"># This works:</span></span>
-<span>      \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">templight_case</span><span class="op">(</span><span class="va">x</span>, <span class="va">species</span> <span class="op">==</span> <span class="st">"Droid"</span> <span class="op">~</span> <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">bg_br_yellow</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span>
+<span>      \<span class="op">(</span><span class="va">col</span><span class="op">)</span> <span class="fu">templight_case</span><span class="op">(</span><span class="va">col</span>, <span class="va">species</span> <span class="op">==</span> <span class="st">"Droid"</span> <span class="op">~</span> <span class="fu">emph</span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span>
 <span>      </span>
 <span>      <span class="co"># These also work:</span></span>
-<span>      <span class="co"># ~ templight_case(x, species == "Droid" ~ \(x) cli::bg_br_yellow(x))</span></span>
-<span>      <span class="co"># ~ templight(x, species == "Droid", ~ cli::bg_br_yellow(.x))</span></span>
+<span>      <span class="co"># ~ templight_case(.x, species == "Droid" ~ \(x) emph(x))</span></span>
+<span>      <span class="co"># ~ templight(.x, species == "Droid", ~ emph(.x))</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 87 × 4</span></span></span>
-<span><span class="co">#&gt;                  name       height         mass    hair_color</span></span>
-<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;hlght&lt;chr&gt;&gt;</span> <span style="color: #949494; font-style: italic;">&lt;hlght&lt;int&gt;&gt;</span> <span style="color: #949494; font-style: italic;">&lt;hlght&lt;dbl&gt;&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;hlght&lt;chr&gt;&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>     Luke Skywalker          172           77         blond</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>              <span style="background-color: #FFFF55;">C-3PO</span>          <span style="background-color: #FFFF55;">167</span>           <span style="background-color: #FFFF55;">75</span>            <span style="background-color: #FFFF55;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>              <span style="background-color: #FFFF55;">R2-D2</span>           <span style="background-color: #FFFF55;">96</span>           <span style="background-color: #FFFF55;">32</span>            <span style="background-color: #FFFF55;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>        Darth Vader          202          136          none</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>        Leia Organa          150           49         brown</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>          Owen Lars          178          120   brown, grey</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Beru Whitesun Lars          165           75         brown</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>              <span style="background-color: #FFFF55;">R5-D4</span>           <span style="background-color: #FFFF55;">97</span>           <span style="background-color: #FFFF55;">32</span>            <span style="background-color: #FFFF55;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>  Biggs Darklighter          183           84         black</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>     Obi-Wan Kenobi          182           77 auburn, white</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 77 more rows</span></span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 4</span></span></span>
+<span><span class="co">#&gt;             name       height         mass   hair_color</span></span>
+<span><span class="co">#&gt;     <span style="color: #949494; font-style: italic;">&lt;hlght&lt;chr&gt;&gt;</span> <span style="color: #949494; font-style: italic;">&lt;hlght&lt;int&gt;&gt;</span> <span style="color: #949494; font-style: italic;">&lt;hlght&lt;dbl&gt;&gt;</span> <span style="color: #949494; font-style: italic;">&lt;hlght&lt;chr&gt;&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Luke Skywalker          172           77        blond</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>      <span style="background-color: #FFFF55;">[ C-3PO ]</span>      <span style="background-color: #FFFF55;">[ 167 ]</span>       <span style="background-color: #FFFF55;">[ 75 ]</span>       <span style="background-color: #FFFF55;">[ NA ]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>      <span style="background-color: #FFFF55;">[ R2-D2 ]</span>       <span style="background-color: #FFFF55;">[ 96 ]</span>       <span style="background-color: #FFFF55;">[ 32 ]</span>       <span style="background-color: #FFFF55;">[ NA ]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>    Darth Vader          202          136         none</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>    Leia Organa          150           49        brown</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>      Owen Lars          178          120  brown, grey</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="obsolete-data-mask">Obsolete data mask<a class="anchor" aria-label="anchor" href="#obsolete-data-mask"></a>
+</h3>
+<p>A second, even more confusing error, occurs when the
+<code>formatters</code> supplied to <code>templight_case()</code>
+produces a result of the correct length. Instead of highlighting only
+droids, let’s see what happens when we attempt to highlight every column
+and row.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span></span>
+<span>  <span class="va">starwars</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span></span>
+<span>        <span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html" class="external-link">where</a></span><span class="op">(</span><span class="va">is_highlightable</span><span class="op">)</span>,</span>
+<span>        <span class="op">~</span><span class="fu">templight_case</span><span class="op">(</span><span class="va">.x</span>, <span class="cn">TRUE</span> <span class="op">~</span> <span class="fu">emph</span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error in format(x) : </span></span>
+<span><span class="co">#&gt;   Highlighted vector has a malformed `format()` method.</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Caused by error in `attr(,"formatters")[[1]]`:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Obsolete data mask.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Too late to resolve `name` after the end of `dplyr::mutate()`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you save an object that uses `name` lazily in a column in the</span></span>
+<span><span class="co">#&gt;   `dplyr::mutate()` expression ?</span></span></code></pre></div>
+<p>Just like in the previous example, <code>templight_case()</code> has
+created the formatter function <code>function(.x) emph(name)</code> in
+terms of the column <code>name</code>, instead of in terms of
+<code>.x</code>. Unlike in the previous example, because we’re
+highlighting every row in <code>starwars</code>, this formatter will
+return a vector of the correct length (i.e. equal to
+<code>nrow(starwars)</code>) when the highlighted vector is created
+within <code><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across()</a></code>.</p>
+<p>When the highlighted <code>starwars</code> tibble is formatted or
+printed, however, the column <code>name</code> no longer exists in the
+environment of the formatter function
+<code>function(.x) emph(name)</code> and thus can’t be evaluated,
+causing the obsolete data mask error.</p>
+<p>As before, we just need to replace the <code>~</code> with
+<code>\()</code> to resolve the issue.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">starwars</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span></span>
+<span>      <span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html" class="external-link">where</a></span><span class="op">(</span><span class="va">is_highlightable</span><span class="op">)</span>,</span>
+<span>      \<span class="op">(</span><span class="va">col</span><span class="op">)</span> <span class="fu">templight_case</span><span class="op">(</span><span class="va">col</span>, <span class="cn">TRUE</span> <span class="op">~</span> <span class="fu">emph</span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 4</span></span></span>
+<span><span class="co">#&gt;                 name       height         mass      hair_color</span></span>
+<span><span class="co">#&gt;         <span style="color: #949494; font-style: italic;">&lt;hlght&lt;chr&gt;&gt;</span> <span style="color: #949494; font-style: italic;">&lt;hlght&lt;int&gt;&gt;</span> <span style="color: #949494; font-style: italic;">&lt;hlght&lt;dbl&gt;&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;hlght&lt;chr&gt;&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="background-color: #FFFF55;">[ Luke Skywalker ]</span>      <span style="background-color: #FFFF55;">[ 172 ]</span>       <span style="background-color: #FFFF55;">[ 77 ]</span>       <span style="background-color: #FFFF55;">[ blond ]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>          <span style="background-color: #FFFF55;">[ C-3PO ]</span>      <span style="background-color: #FFFF55;">[ 167 ]</span>       <span style="background-color: #FFFF55;">[ 75 ]</span>          <span style="background-color: #FFFF55;">[ NA ]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>          <span style="background-color: #FFFF55;">[ R2-D2 ]</span>       <span style="background-color: #FFFF55;">[ 96 ]</span>       <span style="background-color: #FFFF55;">[ 32 ]</span>          <span style="background-color: #FFFF55;">[ NA ]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>    <span style="background-color: #FFFF55;">[ Darth Vader ]</span>      <span style="background-color: #FFFF55;">[ 202 ]</span>      <span style="background-color: #FFFF55;">[ 136 ]</span>        <span style="background-color: #FFFF55;">[ none ]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>    <span style="background-color: #FFFF55;">[ Leia Organa ]</span>      <span style="background-color: #FFFF55;">[ 150 ]</span>       <span style="background-color: #FFFF55;">[ 49 ]</span>       <span style="background-color: #FFFF55;">[ brown ]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>      <span style="background-color: #FFFF55;">[ Owen Lars ]</span>      <span style="background-color: #FFFF55;">[ 178 ]</span>      <span style="background-color: #FFFF55;">[ 120 ]</span> <span style="background-color: #FFFF55;">[ brown, grey ]</span></span></span></code></pre></div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

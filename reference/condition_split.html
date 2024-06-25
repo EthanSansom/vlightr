@@ -63,7 +63,7 @@ formatting are grouped together.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">condition_split</span><span class="op">(</span><span class="va">x</span>, unlit <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">condition_split</span><span class="op">(</span><span class="va">x</span>, unlit <span class="op">=</span> <span class="cn">TRUE</span>, no_cond <span class="op">=</span> <span class="cn">NA_character_</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -77,7 +77,30 @@ formatting are grouped together.</p>
 <dd><p><code>[logical(1)]</code></p>
 <p>Whether elements of the output list are un-highlighted. Defaults to <code>TRUE</code>.</p></dd>
 
+
+<dt>no_cond</dt>
+<dd><p><code>[character(1)]</code></p>
+<p>The name given to the group of elements which meet no condition.
+Defaults to <code>NA</code>.</p></dd>
+
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>A list of vectors containing the values for each group of elements in <code>x</code>. The
+elements of the list are named using the description (<code>attr(x, "description"</code>)
+corresponding to the conditions met by the group.</p>
+
+
+<p>If <code>unlit = FALSE</code>, the vectors in the list are highlighted (with the same
+conditional formatting as <code>x</code>). Otherwise, they are un-highlighted.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other condition utilities: 
+<code><a href="condition_id.html">condition_id</a>()</code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
