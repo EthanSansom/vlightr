@@ -30,7 +30,7 @@ to the text background or text of a character vector, specified by a:
 \itemize{
 \item recognized R color name (see \code{\link[grDevices:colors]{grDevices::colors()}})
 \item \code{cli} package color (e.g. \code{"yellow"}, \code{"br_blue"})
-\item 6- or 8-digit hexadecimal color string (e.g. \code{"⁠#ff0000"})
+\item 6- or 8-digit hexadecimal color string (e.g. "#ff0000")
 }
 
 For \code{style}, the text effect that the output function adds to the text of a

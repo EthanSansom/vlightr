@@ -13,7 +13,7 @@
 #'
 #' - recognized R color name (see [grDevices::colors()])
 #' - `cli` package color (e.g. `"yellow"`, `"br_blue"`)
-#' - 6- or 8-digit hexadecimal color string (e.g. `"⁠#ff0000"`)
+#' - 6- or 8-digit hexadecimal color string (e.g. "#ff0000")
 #'
 #' For `style`, the text effect that the output function adds to the text of a
 #' character vector, specified by a `cli` package style (e.g. `"bold"`,
@@ -236,7 +236,7 @@ make_fallback_color <- function(
           "Can't create a style {with_color} {.val {x}}. {.arg x} must be one of:",
           `*` = "a builtin {.pkg cli} style, e.g. {.val red} or {.val br_blue}",
           `*` = "an R colour name, see {.run grDevices::colors}",
-          `*` = "a 6- or 8-digit hexadecimal color string, e.g. ⁠#ff0000"
+          `*` = "a 6- or 8-digit hexadecimal color string"
         ),
         call = error_call,
         class = error_class
