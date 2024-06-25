@@ -535,8 +535,8 @@ starwars_hl %>% head()
 
 `templight()` stands for "temporary highlight" because the conditional 
 formatting created by `templight()` is only temporarily correct. Because of 
-this, these functions should are mostly useful for highlighting columns 
-immediately before a tibble is printed.
+this, it should only be used to highlight columns immediately before a tibble
+is printed.
 
 Consider what happens to the temporarily highlighted columns when we arrange
 the dataset by character height.
@@ -553,7 +553,7 @@ is changed.
 Nonetheless, `templight()` and `templight_case()` can be useful for calling
 attention to important observations without filtering out all other rows in a
 dataset. This is especially useful when exploring data interactively with 
-co-workers or peers (the reason that the first version of vlightr was written).
+co-workers or peers (and was the original inspiration for the vlightr package).
 
 ```{r}
 # Character's key to explaining Luke's troubled relationship with his father
