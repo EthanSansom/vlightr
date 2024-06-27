@@ -77,7 +77,22 @@ a default set is provided. This is useful for quick checks where the exact forma
 isn't important.
 
 ```{r}
-highlight(1:10, ~ .x %in% 3:5)
+highlight(1:10, list(~ .x %in% 3:5, ~ .x %in% 7:8))
+```
+
+If you're reading this within R, it's likely that you couldn't see the 
+conditional formatting in that last example, as it colors the text background
+of highlighted elements. To use a set of default `formatters` which doesn't rely
+on color, set option `vlightr.colorful_default_formatters` to any value other
+than `TRUE`.
+
+```{r}
+# Set default formatters to be non-colorful
+opts <- options(vlightr.colorful_default_formatters = FALSE)
+highlight(1:10, list(~ .x %in% 3:5, ~ .x %in% 7:8))
+
+# Reset options
+options(opts)
 ```
 
 Multiple `conditions` and `formatters` can be specified by supplying
