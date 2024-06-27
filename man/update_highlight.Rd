@@ -59,10 +59,10 @@ By default, the formatters are a list of \code{cli::bg_br_yellow}, \code{cli::bg
 \code{cli::bg_br_red}, \code{cli::bg_br_cyan}, \code{cli::bg_br_magenta}, and \code{cli::bg_br_blue},
 repeated to the length of \code{conditions}.
 
-If the option \code{vlightr.colorful_default_formatters} is set via \code{options()} to
+If the option \code{vlightr.colorful_default_formatters} is set via \code{\link[=options]{options()}} to
 anything other than \code{TRUE}, then the default \code{formatters} will append numbered
-annotations \code{"[1]"}, \code{"[2]"}, etc. to conditionally formatted elements, instead
-of using \verb{cli::bg_*} functions.}
+annotations \code{"[1]"}, \code{"[2]"}, etc. to conditionally formatted elements instead
+of coloring the text background.}
 
 \item{description}{\verb{[character / NULL]}
 

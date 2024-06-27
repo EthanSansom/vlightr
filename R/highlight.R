@@ -14,26 +14,46 @@
 #   vector `x` as input. That way, you can call `format(x)` as normal to conditionally
 #   format, or alter the formatting as you see fit.
 # - make the `highlight_format` a generic, so users can define it for other classes (like `ivs_format`)
+# - potentially export `cli::console_width()` and some `pillar::width()` functions,
+#   so that uses can put them within the `init_formatter` and `last_formatter`
+#
+# Here's the `pillar` tutorial: https://vctrs.r-lib.org/articles/pillar.html
+# - need to think of the nicest way to do this, I think I'll want to define a
+#   `pillar_shaft_highlight` class, then allow a `pillar_init_formatter` and
+#   `pillar_last_formatter` class to modify the behavior of the format method
+#
+# highlight(
+# x = logical(),
+# conditions = list(),
+# formatters = list(),
+# description = NULL,
+# precedence = NULL,
+# format_once = FALSE,
+# init_formatter = NULL,
+# last_formatter = NULL,
+# pillar_init_formatter = init_formatter,
+# pillar_last_formatter = last_formatter,
+# use_pillar = c("default", "min_width")
+# )
+#
+# Add a `pillar_init_formatter` and `pillar_last_formatter`. If
+# - `use_pillar == "default"`, these are used AS the `init_formatter` and `last_formatter`
+#   within the pillar. This will be the only format in the pillar
+# - `use_pillar == "min_width"`, these are used in a secondary format to handle
+#   variable width columns. If the width of `format(x)` is above a character limit,
+#   we'll use `format_pillar(x)` instead, which uses `pillar_init_formatter` and
+#   `pillar_last_formatter` instead of `init_formatter`, `last_formatter`
 
 # Short Term:
-# - go through all the error functions and pick how you want to describe things
-#   - is the argument `x` and name `x_name`, `arg`, `arg_name`?
-# - make sure that you run every example, to confirm there are no hidden errors
-# - finish the `conditions.R` script
+# - add a shim of {specifyr} for your basic error checking functions "standalone-specifyr"
+#   - you will need to depend on `checkmate` as well
 # - complete all function documentation
 # - add a once-per-session info message which is triggered by a use of
 #   `templight_case()` or `highlight_case()` within `dplyr::across()`, directing
 #   people to the word of warning section in the "Highlighting and dplyr" vignette.
-
-# Urgent:
-# Fix the `Highlighting Columns` section in `vlightr.Rmd` to use color AND wrap,
-# for non-website audiences.
-#
-# Use this function, also used in `highlighting-and-dplyr.Rmd`
-#> emph <- function(x, col = "bright_yellow", left = "[ ", right = " ]") {
-#>   background_fun <- background(col)
-#>   background_fun(paste0(left, x, right))
-#> }
+# - add tests!
+# - fix bug in `condition_id()` @examples which causes a warning to be thrown by
+#   `min` and `max` when a single NA element is assigned to `summary_hl`
 
 # constructor ------------------------------------------------------------------
 
@@ -68,9 +88,9 @@
 #' the case formula to be in terms of `.x` (and not `y`), this creates an invalid
 #' condition and formatter function within the highlighted vector (column) `y`.
 #'
-#' To avoid this behavior, either use functions (e.g. `\(x) is.na(x)`) within
-#' the `highlight_case()` formula, or use a lambda function instead of a formula
-#' within `across()`, like so:
+#' To avoid this behavior, either use functions (e.g. `\(x) is.na(x)`) in
+#' the `...` argument of `highlight_case()`, or use a lambda function instead
+#' of a formula within `across()`, like so:
 #'
 #' ```
 #'  across(
@@ -138,10 +158,10 @@
 #'  `cli::bg_br_red`, `cli::bg_br_cyan`, `cli::bg_br_magenta`, and `cli::bg_br_blue`,
 #'  repeated to the length of `conditions`.
 #'
-#'  If the option `vlightr.colorful_default_formatters` is set via `options()` to
+#'  If the option `vlightr.colorful_default_formatters` is set via [options()] to
 #'  anything other than `TRUE`, then the default `formatters` will append numbered
-#'  annotations `"[1]"`, `"[2]"`, etc. to conditionally formatted elements, instead
-#'  of using `cli::bg_*` functions.
+#'  annotations `"[1]"`, `"[2]"`, etc. to conditionally formatted elements instead
+#'  of coloring the text background.
 #'
 #' @param ... `[formula]`
 #'
@@ -620,8 +640,8 @@ new_highlight <- function(
     init_formatter,
     last_formatter
   ) {
-  # `new_vctr(.data)` un-classes `.data` (try `new_vctr(ivs::iv(1, 2))`). Using
-  # a record instead.
+  # `new_vctr(.data)` un-classes `.data` (try `new_vctr(ivs::iv(1, 2))`).
+  # Using a record instead.
   vctrs::new_rcrd(
     fields = list(.data = x),
     conditions = conditions,
@@ -677,8 +697,8 @@ default_formatters <- function(conditions) {
   } else {
     idx <- seq_along(conditions)
     formatters <- lapply(
-      sprintf(" ][%s]", formatC(idx, width = max(nchar(idx)), flag = "0")),
-      \(right) wrap(left = "[ ", right = right)
+      sprintf(" )[%s]", formatC(idx, width = max(nchar(idx)), flag = "0")),
+      \(right) wrap(left = "( ", right = right)
     )
   }
   formatters

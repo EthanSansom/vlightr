@@ -105,10 +105,10 @@ By default, the formatters are a list of \code{cli::bg_br_yellow}, \code{cli::bg
 \code{cli::bg_br_red}, \code{cli::bg_br_cyan}, \code{cli::bg_br_magenta}, and \code{cli::bg_br_blue},
 repeated to the length of \code{conditions}.
 
-If the option \code{vlightr.colorful_default_formatters} is set via \code{options()} to
+If the option \code{vlightr.colorful_default_formatters} is set via \code{\link[=options]{options()}} to
 anything other than \code{TRUE}, then the default \code{formatters} will append numbered
-annotations \code{"[1]"}, \code{"[2]"}, etc. to conditionally formatted elements, instead
-of using \verb{cli::bg_*} functions.}
+annotations \code{"[1]"}, \code{"[2]"}, etc. to conditionally formatted elements instead
+of coloring the text background.}
 
 \item{description, .description}{\verb{[character / NULL]}
 
@@ -214,9 +214,9 @@ The expression \code{is.na(.x) ~ paste0('<', .x, '>')} will be replaced with
 the case formula to be in terms of \code{.x} (and not \code{y}), this creates an invalid
 condition and formatter function within the highlighted vector (column) \code{y}.
 
-To avoid this behavior, either use functions (e.g. \verb{\\(x) is.na(x)}) within
-the \code{highlight_case()} formula, or use a lambda function instead of a formula
-within \code{across()}, like so:
+To avoid this behavior, either use functions (e.g. \verb{\\(x) is.na(x)}) in
+the \code{...} argument of \code{highlight_case()}, or use a lambda function instead
+of a formula within \code{across()}, like so:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{ across(
    y,
