@@ -4,30 +4,60 @@
 \alias{condition_id}
 \title{Identify elements of a highlighted vector which meet a condition(s)}
 \usage{
-condition_id(x, no_id = NA_character_)
+condition_id(x, no_cond = "")
 }
 \arguments{
 \item{x}{\verb{[vlightr_highlight]}
 
-A highlighted vector to ID.}
+A highlighted vector to identify.}
 
-\item{no_id}{\verb{[logical(1)]}
+\item{no_cond}{\verb{[logical(1)]}
 
-The identifier assigned to elements for which no condition returns \code{TRUE}.
-Defaults to \code{NA}.}
+The identifier assigned to elements which recieve no conditional formatting.
+Defaults to \code{""}.}
 }
 \description{
-\code{\link[=condition_id]{condition_id()}} identifies elements of a highlighted vector \code{x} by the
-conditions (\code{attr(x, "conditions")}) that each element meets. Each element's
-identifier is a comma separated string of descriptions
-(\code{attr(x, "description")}) of the conditions met by the element.
+\code{\link[=condition_id]{condition_id()}} identifies elements of a highlighted vector \code{x} which receive
+the same conditional formatting. Each element's identifier is a comma separated
+string of the condition descriptions (\code{attr(x, "description")}) corresponding
+to the conditions (\code{attr(x, "conditions")}) met by the element.
 }
 \examples{
-x <- highlight(1:5)
+# Define a highlight
+summary_hl <- highlight_case(
+  x = 1:5,
+  .x == min(.x, na.rm = TRUE) ~ paste0("(Min = ", .x, ")"),
+  .x == quantile(.x, 0.5, na.rm = TRUE) ~ paste0("(Mid = ", .x, ")"),
+  .x == max(.x, na.rm = TRUE) ~ paste0("(Max = ", .x, ")"),
+  .x > quantile(.x, 0.5, na.rm = TRUE) ~ paste("[ High", .x, "]"),
+  .x < quantile(.x, 0.5, na.rm = TRUE) ~ paste("[ Low", .x, "]"),
+  .description = c(
+    "Min",
+    "Middle",
+    "Max",
+    ">P50",
+    "<P50"
+  )
+)
+print(summary_hl)
 
+# Identify the formatting received by each element
+condition_id(summary_hl)
+
+# Identifies element's which meet multiple conditions
+summary_hl_multi <- update_highlight(summary_hl, format_once = FALSE)
+print(summary_hl_multi)
+condition_id(summary_hl_multi)
+
+# Identify elements which meet no condition
+summary_hl[[1]] <- hl(NA)
+condition_id(summary_hl)
+condition_id(summary_hl, no_cond = "No Condition")
 }
 \seealso{
 Other condition utilities: 
+\code{\link{condition_keep}()},
+\code{\link{condition_met}()},
 \code{\link{condition_split}()}
 }
 \concept{condition utilities}

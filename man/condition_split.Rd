@@ -2,9 +2,9 @@
 % Please edit documentation in R/condition.R
 \name{condition_split}
 \alias{condition_split}
-\title{Split a highlighted vector by conditions}
+\title{Split a highlighted vector by condition(s)}
 \usage{
-condition_split(x, unlit = TRUE, no_cond = NA_character_)
+condition_split(x, unlit = TRUE, no_cond = "")
 }
 \arguments{
 \item{x}{\verb{[vlightr_highlight]}
@@ -17,28 +17,46 @@ Whether elements of the output list are un-highlighted. Defaults to \code{TRUE}.
 
 \item{no_cond}{\verb{[character(1)]}
 
-The name given to the group of elements which meet no condition.
-Defaults to \code{NA}.}
+The name given to the group of elements which receive no conditional
+formatting. Defaults to \code{""} (i.e. unnamed).}
 }
 \value{
 A list of vectors containing the values for each group of elements in \code{x}. The
 elements of the list are named using the description (\verb{attr(x, "description"})
-corresponding to the conditions met by the group.
+corresponding to the conditions (\code{attr(x, "conditions")}) met by the group.
 
 If \code{unlit = FALSE}, the vectors in the list are highlighted (with the same
 conditional formatting as \code{x}). Otherwise, they are un-highlighted.
 }
 \description{
-\code{\link[=condition_split]{condition_split()}} divides a highlighted vector \code{x} into the groups defined
-by \code{attr(x, "conditions")}. Elements of \code{x} which receive the same conditional
-formatting are grouped together.
+\code{\link[=condition_split]{condition_split()}} divides a highlighted vector \code{x} into groups of elements
+which receive the same conditional formatting. It is a wrapper around
+\code{\link[base:split]{base::split()}}.
 }
 \examples{
-x <- highlight(1:5)
+# Define a highlight
+dummies <- highlight_case(
+  x = c(1L, 0L, NA, 1L),
+  .x == 1 ~ paste(.x, "[Yes]"),
+  .x == 0 ~ paste(.x, "[No]"),
+  is.na(.x) ~ "Unknown",
+  .description = c("Yes", "No", "Unknown")
+)
+print(dummies)
 
+# Group elements by conditional format
+condition_split(dummies)
+condition_split(dummies, unlit = FALSE)
+
+# The group of unformatted elements is unnamed by default
+dummies <- c(dummies, hl(2:4))
+condition_split(dummies)
+condition_split(dummies, no_cond = "Invalid Response")
 }
 \seealso{
 Other condition utilities: 
-\code{\link{condition_id}()}
+\code{\link{condition_id}()},
+\code{\link{condition_keep}()},
+\code{\link{condition_met}()}
 }
 \concept{condition utilities}
