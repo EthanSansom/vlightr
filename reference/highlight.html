@@ -168,8 +168,8 @@ By default, the formatters are a list of <code><a href="https://cli.r-lib.org/re
 repeated to the length of <code>conditions</code>.</p>
 <p>If the option <code>vlightr.colorful_default_formatters</code> is set via <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code> to
 anything other than <code>TRUE</code>, then the default <code>formatters</code> will append numbered
-annotations <code>"[1]"</code>, <code>"[2]"</code>, etc. to conditionally formatted elements, instead
-of using <code>cli::bg_*</code> functions.</p></dd>
+annotations <code>"[1]"</code>, <code>"[2]"</code>, etc. to conditionally formatted elements instead
+of coloring the text background.</p></dd>
 
 
 <dt>description, .description</dt>
@@ -255,9 +255,9 @@ within a lambda expression instead, e.g. <code>color("blue")(.x)</code>.</p>
 <code>is.na(y) ~ paste0('&lt;', y, '&gt;')</code> by <code>across()</code>. Because vlightr expects
 the case formula to be in terms of <code>.x</code> (and not <code>y</code>), this creates an invalid
 condition and formatter function within the highlighted vector (column) <code>y</code>.</p>
-<p>To avoid this behavior, either use functions (e.g. <code>\(x) is.na(x)</code>) within
-the <code>highlight_case()</code> formula, or use a lambda function instead of a formula
-within <code>across()</code>, like so:</p>
+<p>To avoid this behavior, either use functions (e.g. <code>\(x) is.na(x)</code>) in
+the <code>...</code> argument of <code>highlight_case()</code>, or use a lambda function instead
+of a formula within <code>across()</code>, like so:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a> <span class="fu">across</span>(</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>   y,</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>   \(col) <span class="fu">highlight_case</span>(col, <span class="fu">is.na</span>(.x) <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">'&lt;'</span>, .x, <span class="st">'&gt;'</span>))</span>
@@ -387,7 +387,7 @@ same conditional formatting as the input highlighted vector.</p></div>
 <span class="r-in"><span><span class="va">opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>vlightr.colorful_default_formatters <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">highlight</span><span class="op">(</span><span class="op">-</span><span class="fl">2</span><span class="op">:</span><span class="fl">2</span>, conditions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">~</span> <span class="va">.x</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op">&lt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;integer&gt;[5]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] [ -2 ][2] [ -1 ][2] 0         [ 1 ][1]  [ 2 ][1] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ( -2 )[2] ( -1 )[2] 0         ( 1 )[1]  ( 2 )[1] </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">opts</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

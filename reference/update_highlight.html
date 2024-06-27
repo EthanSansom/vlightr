@@ -124,8 +124,8 @@ By default, the formatters are a list of <code><a href="https://cli.r-lib.org/re
 repeated to the length of <code>conditions</code>.</p>
 <p>If the option <code>vlightr.colorful_default_formatters</code> is set via <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code> to
 anything other than <code>TRUE</code>, then the default <code>formatters</code> will append numbered
-annotations <code>"[1]"</code>, <code>"[2]"</code>, etc. to conditionally formatted elements, instead
-of using <code>cli::bg_*</code> functions.</p></dd>
+annotations <code>"[1]"</code>, <code>"[2]"</code>, etc. to conditionally formatted elements instead
+of coloring the text background.</p></dd>
 
 
 <dt>description</dt>
@@ -209,7 +209,7 @@ is returned as is after formatting.</p></dd>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">dummies_hl</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;highlight&lt;integer&gt;[5]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] <span style="background-color: #FFFF55;">1 [Yes]</span>    <span style="background-color: #FFFF55;">0 [No]</span>     <span style="background-color: #FFFF55;">Don't Know</span> <span style="background-color: #FFFF55;">0 [No]</span>     <span style="background-color: #FFFF55;">1 [Yes]</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] <span style="color: #FFFF55;">1 [Yes]</span>    <span style="color: #FFFF55;">0 [No]</span>     <span style="color: #FFFF55;">Don't Know</span> <span style="color: #FFFF55;">0 [No]</span>     <span style="color: #FFFF55;">1 [Yes]</span>   </span>
 <span class="r-in"><span><span class="fu">describe_highlight</span><span class="op">(</span><span class="va">dummies_hl</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> A conditionally formatted <span style="color: #0000BB;">&lt;integer&gt;</span> vector with 3 conditional formats:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 1. Set 0 to No</span>
@@ -217,9 +217,9 @@ is returned as is after formatting.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 3.  Otherwise, Don't Know</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Element formatted using:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • 1:  0 -&gt; <span style="background-color: #FFFF55;">0 [No]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • 2:  1 -&gt; <span style="background-color: #FFFF55;">1 [Yes]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • 3: NA -&gt; <span style="background-color: #FFFF55;">Don't Know</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 1:  0 -&gt; <span style="color: #FFFF55;">0 [No]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 2:  1 -&gt; <span style="color: #FFFF55;">1 [Yes]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • 3: NA -&gt; <span style="color: #FFFF55;">Don't Know</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Change the `formatters` and remove the `init_formatter`</span></span></span>
 <span class="r-in"><span><span class="fu">update_highlight</span><span class="op">(</span></span></span>
