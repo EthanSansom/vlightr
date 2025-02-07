@@ -2,17 +2,18 @@
 % Please edit documentation in R/style.R
 \name{stylers}
 \alias{stylers}
-\alias{bg}
 \alias{background}
+\alias{bg}
 \alias{color}
 \alias{colour}
 \alias{style}
 \alias{wrap}
+\alias{label}
 \title{Generate a formatter function to style text}
 \usage{
-bg(x)
-
 background(x)
+
+bg(x)
 
 color(x)
 
@@ -21,6 +22,8 @@ colour(x)
 style(x)
 
 wrap(left = "[", right = "]")
+
+label(string, left = "[", right = "]")
 }
 \arguments{
 \item{x}{\verb{[character(1)]}

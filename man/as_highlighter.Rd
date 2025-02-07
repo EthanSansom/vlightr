@@ -4,7 +4,7 @@
 \alias{as_highlighter}
 \title{Convert a highlighted vector into a highlighter}
 \usage{
-as_highlighter(x)
+as_highlighter(.x)
 }
 \arguments{
 \item{x}{\verb{[vlightr_highlight]}

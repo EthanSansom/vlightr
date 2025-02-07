@@ -2,27 +2,9 @@
 % Please edit documentation in R/highlight.R
 \name{highlighter}
 \alias{highlighter}
-\alias{highlighter_case}
 \title{Generate a highlight function with custom default arguments}
 \usage{
-highlighter(
-  conditions = list(),
-  formatters = list(),
-  description = NULL,
-  precedence = NULL,
-  format_once = FALSE,
-  init_formatter = NULL,
-  last_formatter = NULL
-)
-
-highlighter_case(
-  ...,
-  .description = NULL,
-  .precedence = NULL,
-  .format_once = TRUE,
-  .init_formatter = NULL,
-  .last_formatter = NULL
-)
+highlighter(.t, .f)
 }
 \arguments{
 \item{...}{\verb{[formula]}
