@@ -7,6 +7,47 @@
 highlighter(.t, .f)
 }
 \arguments{
+\item{.t}{\verb{[function / list]}
+
+Vectorized test functions that indicate which elements of \code{.x}
+to conditionally format. \code{.t} may be:
+\itemize{
+\item A named function, e.g. \code{is.na}
+\item An anonymous function, e.g. \verb{\\(x) 0 <= x & x <= 1}
+\item A purrr-style lambda, e.g. \code{~ nchar(.x) > 0}, \code{~ .h == 1}, \code{~ TRUE}
+\item A list of functions or lambdas, e.g. \code{list(~ .x < mean(.x), is.finite)}
+}
+
+Each function in \code{.t} will receive \code{.x} as it's input and must return
+a logical vector the same length as \code{.x} or of length 1 (in which case the
+result will be recycled to the length of \code{.x}).
+
+By default \code{.t} is the function \code{false_along()} which returns \code{FALSE} for
+every element of it's input. You can modify this default by setting the
+\code{vlightr.default_test} in \code{\link[=options]{options()}}.}
+
+\item{.f}{\verb{[function / list]}
+
+Vectorized character manipulation functions used to format \code{.x}. Can be a:
+\itemize{
+\item A named function, e.g. \link[cli:ansi-styles]{cli::style_bold}
+\item An anonymous function, e.g. \verb{\\(words) gsub("hi", "hey", words)}
+\item A purrr-style lambda, e.g. \code{~ paste0(.h, "!")}, \code{~ "fizz"}
+\item A list of functions or lambdas, e.g. \code{list(~ cli::col_red(.x), toupper)}
+}
+
+Each function in \code{.f} will receive a character vector (of variable length)
+as it's only argument. A formatter must return a character vector the same
+length as it's input or of length 1 (in which case the result is recycled to
+the length of the input character).
+
+ANSI string vectors (class \code{cli_ansi_string}) are also supported (see
+\link[cli:ansi-styles]{cli::ansi-styles} for details).
+
+By default \code{.f} is the function \verb{[cli::bg_br_yellow()]} which changes the
+background color of it's input text to bright yellow. You can modify this
+default by setting the \code{vlightr.default_formatter} in \code{\link[=options]{options()}}.}
+
 \item{...}{\verb{[formula]}
 
 This argument replaces the \code{formatters} and \code{conditions} arguments of
