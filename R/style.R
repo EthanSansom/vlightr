@@ -47,44 +47,55 @@
 #' embrace(c(2.2, 3.3, 4.4))
 NULL
 
+# todos ------------------------------------------------------------------------
+
+#### color_pattern(..., .nchar = 1L, .color_ws = FALSE)
+#
+# Just for fun I'd like an option to provide multiple colors, which are
+# repeated in an alternating pattern along all non-white-space characters
+# of a vector. Make a `background_pattern()` as well.
+#
+# - color_pattern("red", "green") -> Christmas
+# - color_pattern(!!!roygbiv)     -> Rainbow
+
 # cli --------------------------------------------------------------------------
 
 #' @name stylers
 #' @export
-bg <- function(x) {
+background <- function(x) {
   switch(
     check_is_string(x),
-    black = cli::col_black,
+    black = cli::bg_black,
     blue = cli::col_blue,
-    cyan = cli::col_cyan,
-    green = cli::col_green,
-    magenta = cli::col_magenta,
-    red = cli::col_red,
-    white = cli::col_white,
-    yellow = cli::col_yellow,
+    cyan = cli::bg_cyan,
+    green = cli::bg_green,
+    magenta = cli::bg_magenta,
+    red = cli::bg_red,
+    white = cli::bg_white,
+    yellow = cli::bg_yellow,
     bright_black = ,
-    br_black = cli::col_br_black,
+    br_black = cli::bg_br_black,
     bright_blue = ,
-    br_blue = cli::col_br_blue,
+    br_blue = cli::bg_br_blue,
     bright_cyan = ,
-    br_cyan = cli::col_br_cyan,
+    br_cyan = cli::bg_br_cyan,
     bright_green = ,
-    br_green = cli::col_br_green,
+    br_green = cli::bg_br_green,
     bright_magenta = ,
-    br_magenta = cli::col_br_magenta,
+    br_magenta = cli::bg_br_magenta,
     bright_red = ,
-    br_red = cli::col_br_red,
+    br_red = cli::bg_br_red,
     bright_white = ,
-    br_white = cli::col_br_white,
+    br_white = cli::bg_br_white,
     bright_yellow = ,
-    br_yellow = cli::col_br_yellow,
+    br_yellow = cli::bg_br_yellow,
     make_fallback_color(x, bg = TRUE)
   )
 }
 
 #' @name stylers
 #' @export
-background <- bg
+bg <- background
 
 #' @name stylers
 #' @export
@@ -157,6 +168,15 @@ wrap <- function(left = "[", right = "]") {
   left <- check_is_string(left)
   right <- check_is_string(right)
   return(function(x) paste0(left, x, right))
+}
+
+#' @name stylers
+#' @export
+label <- function(string, left = "[", right = "]") {
+  left <- check_is_string(left)
+  right <- check_is_string(right)
+  string <- check_is_string(string)
+  return(function(x) paste0(x, " ", left, string, right))
 }
 
 # helpers ----------------------------------------------------------------------

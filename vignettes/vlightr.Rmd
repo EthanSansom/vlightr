@@ -415,7 +415,7 @@ secret(c("This", "<is>", "a", "<secret>", "<.>"))
 ```{r}
 dollars <- highlighter_case(
   is.na(.x) ~ "NA",
-  .x > 0 ~ paste0("-$", .x),
+  .x < 0 ~ paste0("-$", .x),
   TRUE ~ paste0("$", .x),
   .init_formatter = \(x) sprintf("%.2f", abs(x))
 )

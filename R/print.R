@@ -31,6 +31,56 @@ print.vlightr_highlight <- function(
   invisible(x)
 }
 
+# TODO: Refine this a little bit, but I like the idea of using a `tibble()`
+print_highlights <- function(x) {
+
+  x <- check_is_highlight(x)
+  x_data <- get_data(x)
+  tests <- get_tests(x)
+
+  formatted <- format(x, .x_name = rlang::caller_arg(x))
+  formatted_with <- map(seq_along(x), \(x) numeric())
+
+  # TODO: We'll want a method for <highlight_case>
+  for (i in seq_along(tests)) {
+    formatted_at <- call_format_fun(
+      x = x_data,
+      fun = tests[[i]],
+      env = rlang::caller_env(),
+      fun_name = paste0("tests(", x_name, ")[[", i, "]]"),
+      fun_type = "test"
+    )
+    formatted_with[formatted_at] <- map(formatted_with[formatted_at], `c`, i)
+  }
+
+  unformatted_at <- map_lgl(formatted_with, rlang::is_empty)
+  if (all(unformatted_at)) {
+    print(
+      tibble::tibble(
+        `formatters()` = character(),
+        `hl_data()` = x_data[0],
+        `hl()` = x[0]
+      ),
+      width = cli::console_width()
+    )
+    return(invisible(x))
+  }
+
+  # Find unique combinations of tests used on each element of `x`
+  unique_formats_at <- which(!duplicated(formatted_with) & !unformatted_at)
+  formats_used <- map_chr(formatted_with[unique_formats_at], commas)
+
+  print(
+    tibble::tibble(
+      `formatters()` = formats_used,
+      `hl_data()` = x_data[unique_formats_at],
+      `hl()` = x[unique_formats_at]
+    )[order_ragged(formatted_with[unique_formats_at]), ],
+    width = cli::console_width()
+  )
+  return(invisible(x))
+}
+
 print_ansi <- function(
     x,
     width = cli::console_width(),

@@ -1,20 +1,30 @@
+# todos ------------------------------------------------------------------------
+
+#### Housekeeping:
+#
+# You got carried away with these errors... Search for their usage and trim
+# down to something more reasonable. Also, see how {rlang} does it's errors,
+# their system seems pretty slick.
+#
+# Also the messaging functions at the bottom!
+
 # check ------------------------------------------------------------------------
 
 check_is_highlightable <- function(
-    arg,
-    arg_name = rlang::caller_arg(arg),
+    x,
+    x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = "vlightr_error"
   ) {
-  if (is_highlightable(arg)) {
-    return(arg)
+  if (is_highlightable(x)) {
+    return(x)
   }
   stop_must_not(
-    arg,
+    x,
     must = "be a non-bare-list and non-dataframe vector",
-    not = "{.obj_type_friendly {arg}}",
+    not = "{.obj_type_friendly {x}}",
     bullets = c(i = "See {.help vctrs::obj_is_vector} for details on vectors."),
-    arg_name = arg_name,
+    x_name = x_name,
     error_class = error_class,
     error_call = error_call
   )
@@ -22,7 +32,7 @@ check_is_highlightable <- function(
 
 check_is_highlight <- function(
     arg,
-    arg_name = rlang::caller_arg(arg),
+    x_name = rlang::caller_arg(arg),
     error_call = rlang::caller_env(),
     error_class = "vlightr_error"
 ) {
@@ -31,7 +41,7 @@ check_is_highlight <- function(
       arg,
       must = "be a {.cls vlightr_highlight} vector",
       not = "a {.cls {class(arg)}}",
-      arg_name = arg_name,
+      x_name = x_name,
       error_call = error_call,
       error_class = error_class
     )
@@ -40,51 +50,58 @@ check_is_highlight <- function(
 }
 
 check_is_list_of_functionish <- function(
-    arg,
-    arg_name = rlang::caller_arg(arg),
+    x,
+    x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = "vlightr_error"
   ) {
 
-  if (is.function(arg) || rlang::is_formula(arg)) {
-    out <- list(rlang::as_function(arg, call = error_call))
-    return(out)
+  if (is.function(x) || rlang::is_formula(x)) {
+    return(list(check_is_functionish(x, x_name, error_call, error_class)))
   }
-  if (is.list(arg)) {
-    out <- vector("list", length(arg))
-    for (i in seq_along(out)) {
-      out[[i]] <- check_is_functionish(
-        arg = arg[[i]],
-        arg_name = paste0(arg_name, "[[", i, "]]"),
+
+  if (is.list(x)) {
+    return(mapply(
+      x = x,
+      x_name = paste0(x_name, "[[", seq_along(x), "]]"), # TODO: Make an `index_of()` function
+      MoreArgs = list(
         error_call = error_call,
         error_class = error_class
-      )
-    }
-    return(out)
+      ),
+      FUN = check_is_functionish,
+      SIMPLIFY = FALSE
+    ))
   }
+
   stop_must_not(
-    arg,
+    x,
     must = "a list of functions or one-sided formulas",
     not = "{.obj_type_friendly {arg}}",
-    arg_name = arg_name,
+    x_name = x_name,
     error_class = error_class,
     error_call = error_call
   )
 }
 
+# TODO: Error message here is weird, `highlight_lambda()` just says you need a
+# formula. Clean up this errors script!!!
 check_is_functionish <- function(
-    arg,
-    arg_name = rlang::caller_arg(arg),
+    x,
+    x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
-    error_class = "vlightr_error",
-    error_msg = NULL
+    error_class = "vlightr_error"
   ) {
+  if (is.function(x)) {
+    return(x)
+  }
   rlang::try_fetch(
-    rlang::as_function(x = arg, arg = arg_name, call = error_call),
+    highlight_lambda(x, x_name = x_name),
     error = function(cnd) {
       cli::cli_abort(
-        error_msg %||% "{.arg {arg_name}} must be a function or one-sided formula.",
-        parent = cnd,
+        c(
+          cnd$message,
+          i = "{.arg {x_name}} must be a function or a one-sided formula."
+        ),
         call = error_call,
         class = error_class
       )
@@ -92,82 +109,235 @@ check_is_functionish <- function(
   )
 }
 
+check_is_list_of_functionish <- function(
+    x,
+    x_name = rlang::caller_arg(x),
+    error_call = rlang::caller_env(),
+    error_class = "vlightr_error"
+) {
+  if (is.function(x) || rlang::is_formula(x)) {
+    return(list(check_is_functionish(x, x_name, error_call, error_class)))
+  }
+  if (is.list(x)) {
+    return(mapply(
+      x = x,
+      x_name = paste0(x_name, "[[", seq_along(x), "]]"), # TODO: Make an `index_of()` function
+      MoreArgs = list(
+        error_call = error_call,
+        error_class = error_class
+      ),
+      FUN = check_is_functionish,
+      SIMPLIFY = FALSE
+    ))
+  }
+  stop_must_not(
+    x,
+    must = "a list of functions or one-sided formulas",
+    not = "{.obj_type_friendly {x}}",
+    x_name = x_name,
+    error_class = error_class,
+    error_call = error_call
+  )
+}
+
+check_is_list_of_index <- function(
+    x,
+    x_name = rlang::caller_arg(x),
+    error_call = rlang::caller_env(),
+    error_class = "vlightr_error"
+) {
+  if (is.logical(x) || rlang::is_integerish(x)) {
+    return(list(x))
+  }
+  assert_is_a(
+    x,
+    is = is.list,
+    a = "a logical or integer-like vector (or list thereof)",
+    x_name = x_name, error_call = error_call, error_class = error_class
+  )
+  mapply(
+    x = x,
+    x_name = paste0(x_name, "[[", seq_along(x), "]]"),
+    MoreArgs = list(
+      is = \(x) is.logical(x) || rlang::is_integerish(x),
+      a = "a logical or integer-like vector",
+      error_call = error_call,
+      error_class = error_class
+    ),
+    FUN = check_is_a,
+    SIMPLIFY = FALSE
+  )
+}
+
+check_is_list_of_logical <- function(
+    x,
+    x_name = rlang::caller_arg(x),
+    error_call = rlang::caller_env(),
+    error_class = "vlightr_error"
+) {
+
+  if (is.logical(x)) {
+    return(list(x))
+  }
+
+  assert_is_a(
+    x,
+    is = is.list,
+    a = "a logical vector or list thereof",
+    x_name = x_name, error_call = error_call, error_class = error_class
+  )
+
+  mapply(
+    x = x,
+    x_name = paste0(x_name, "[[", seq_along(x), "]]"),
+    MoreArgs = list(
+      is = is.logical,
+      a = "a logical vector",
+      error_call = error_call,
+      error_class = error_class
+    ),
+    FUN = check_is_a,
+    SIMPLIFY = FALSE
+  )
+}
+
+check_is_a <- function(
+    x,
+    is,
+    a,
+    not = "{.obj_type_friendly {x}}",
+    x_name = rlang::caller_arg(x),
+    error_call = rlang::caller_env(),
+    error_class = "vlightr_error"
+  ) {
+  if (is(x)) {
+    return(x)
+  }
+  stop_must_be_a(
+    x = x,
+    a = a,
+    not = not,
+    x_name = x_name,
+    error_call = error_call,
+    error_class = error_class
+  )
+}
+
+assert_is_a <- function(
+    x,
+    is,
+    a,
+    not = NULL,
+    x_name = rlang::caller_arg(x),
+    error_call = rlang::caller_env(),
+    error_class = "vlightr_error"
+) {
+  if (!is(x)) {
+    stop_must_be_a(
+      x = x,
+      a = a,
+      not = not,
+      x_name = x_name,
+      error_call = error_call,
+      error_class = error_class
+    )
+  }
+}
+
+stop_must_be_a <- function(
+    x,
+    a,
+    not = NULL,
+    x_name = rlang::caller_arg(x),
+    error_call = rlang::caller_env(),
+    error_class = "vlightr_error"
+) {
+  cli::cli_abort(
+    paste0(
+      "{.arg {x_name}} must be ", a,
+      ", not ", not %||% "{.obj_type_friendly {x}}", "."
+    ),
+    call = error_call,
+    class = error_class
+  )
+}
+
 check_is_vector <- function(
-    arg,
+    x,
     cls,
     len = NULL,
     nas = TRUE,
     arg_must = NULL,
-    arg_name = rlang::caller_arg(arg),
+    x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = "vlightr_error"
   ) {
 
   is_valid_cls <- switch(
     cls,
-    character = is.character(arg),
-    numeric = is.numeric(arg),
-    integer = is.integer(arg),
-    complex = is.complex(arg),
-    logical = is.logical(arg),
-    raw = is.raw(arg),
-    list = is.list(arg),
-    inherits(arg, cls)
+    character = is.character(x),
+    numeric = is.numeric(x),
+    integer = is.integer(x),
+    complex = is.complex(x),
+    logical = is.logical(x),
+    raw = is.raw(x),
+    list = is.list(x),
+    inherits(x, cls)
   )
-  if (is_valid_cls && (is.null(len) || length(arg) == len) && (nas || !anyNA(arg))) {
-    return(arg)
+  if (is_valid_cls && (is.null(len) || length(x) == len) && (nas || !anyNA(x))) {
+    return(x)
   }
 
-  if (!inherits(arg, cls)) {
+  if (!inherits(x, cls)) {
     arg_must <- arg_must %||% paste("be", a_vector_friendly(cls, len, nas))
     cli::cli_abort(
       c(
-        paste0("{.arg {arg_name}} must ", arg_must, "."),
-        x = "{.arg {arg_name}} is class {.cls {class(arg)}}."
+        paste0("{.arg {x_name}} must ", arg_must, "."),
+        x = "{.arg {x_name}} is class {.cls {class(x)}}."
       ),
       call = error_call,
       class = error_class
     )
   }
   stop_wrong_len_nas(
-    arg = arg,
+    arg = x,
     arg_must = arg_must %||% paste("be", a_vector_friendly(cls, len, nas)),
     len = len,
     nas = nas,
-    arg_name = arg_name,
+    x_name = x_name,
     error_call = error_call,
     error_class = error_class
   )
 }
 
 check_is_count <- function(
-    arg,
-    arg_name = rlang::caller_arg(arg),
+    x,
+    x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = "highlightr_error"
   ) {
 
-  if (rlang::is_integerish(arg, n = 1) && !is.na(arg) && arg >= 0) {
-    return(arg)
+  if (rlang::is_integerish(x, n = 1) && !is.na(x) && x >= 0) {
+    return(x)
   }
 
   check_is_vector(
-    arg = arg,
+    x = x,
     cls = "numeric",
     len = 1,
     nas = FALSE,
     arg_must = "be a count.",
-    arg_name = arg_name,
+    x_name = x_name,
     error_call = error_call,
     error_class = error_class
   )
 
-  error_header <- "{.arg {arg_name}} must be a count."
-  if (arg < 0) {
+  error_header <- "{.arg {x_name}} must be a count."
+  if (x < 0) {
     cli::cli_abort(
       c(
         error_header,
-        x = "{.arg {arg_name}} is the negative number {arg}."
+        x = "{.arg {x_name}} is the negative number {x}."
       ),
       call = error_call,
       class = error_class
@@ -177,8 +347,8 @@ check_is_count <- function(
   cli::cli_abort(
     c(
       error_header,
-      i = "{.arg {arg_name} is the number {arg}.",
-      x = "Can't coerce {arg} to an integer without loss of precision."
+      i = "{.arg {x_name} is the number {x}.",
+      x = "Can't coerce {x} to an integer without loss of precision."
     ),
     call = error_call,
     class = error_class
@@ -186,61 +356,85 @@ check_is_count <- function(
 }
 
 check_is_string <- function(
-    arg,
-    arg_name = rlang::caller_arg(arg),
+    x,
+    x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = "vlightr_error"
   ) {
-  if (rlang::is_string(arg)) {
-    return(arg)
+  if (rlang::is_string(x)) {
+    return(x)
   }
   check_is_vector(
-    arg = arg,
+    x = x,
     cls = "character",
     len = 1,
     nas = FALSE,
     arg_must = "be a string.",
-    arg_name = arg_name,
+    x_name = x_name,
     error_call = error_call,
     error_class = error_class
   )
 }
 
 check_is_bool <- function(
-    arg,
-    arg_name = rlang::caller_arg(arg),
+    x,
+    x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = "vlightr_error"
   ) {
-  if (rlang::is_bool(arg)) {
-    return(arg)
+  if (rlang::is_bool(x)) {
+    return(x)
   }
   check_is_vector(
-    arg = arg,
+    x = x,
     cls = "logical",
     len = 1,
     nas = FALSE,
     arg_must = "be a single TRUE or FALSE value.",
-    arg_name = arg_name,
+    x_name = x_name,
     error_call = error_call,
     error_class = error_class
   )
 }
 
+# assert -----------------------------------------------------------------------
+
+assert_same_length <- function(
+    x,
+    y,
+    x_name = rlang::caller_arg(x),
+    y_name = rlang::caller_arg(y),
+    error_call = rlang::caller_env(),
+    error_class = "vlightr_error"
+) {
+  if (length(x) != length(y)) {
+    cli::cli_abort(
+      c(
+        "{.arg {x_name}} and {.arg {y_name}} must be the same length.",
+        `*` = paste0("{.arg {x_name}} is ", length_friendly(length(x)), "."),
+        `*` = paste0("{.arg {y_name}} is ", length_friendly(length(y)), ".")
+      ),
+      call = error_call,
+      class = error_class
+    )
+  }
+}
+
 # stop -------------------------------------------------------------------------
 
 stop_must_not <- function(
-    arg,
+    x,
     must,
     not,
     bullets = NULL,
-    arg_name = rlang::caller_arg(arg),
+    x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = "vlightr_error"
   ) {
+  if (rlang::is_missing(not)) not <- "{.obj_type_friendly {x}}"
   cli::cli_abort(
     c(
-      paste0("{.arg {arg_name}} must ", must, ", not ", not, "."),
+      paste0("{.arg {x_name}} must ", must, ", not ", not, "."),
       bullets
     ),
     call = error_call,
@@ -249,23 +443,23 @@ stop_must_not <- function(
 }
 
 stop_wrong_len_nas <- function(
-    arg,
+    x,
     arg_must,
     len = NULL,
     nas = TRUE,
-    arg_name = rlang::caller_arg(arg),
+    x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = "vlightr_error"
   ) {
 
-  arg_len <- length(arg)
+  arg_len <- length(x)
   len_bullet <- if (!is.null(len) && arg_len != len) {
-    paste0("{.arg {arg_name}} is ", length_n_friendly(arg_len), ".")
+    paste0("{.arg {x_name}} is ", length_n_friendly(arg_len), ".")
   }
 
   arg_nas <- is.na(arg)
   nas_bullet <- if (nas && any(arg_nas)) {
-    paste0("{.arg {arg_name}} is NA or NaN ", at_loc_friendly(arg_nas), ".")
+    paste0("{.arg {x_name}} is NA or NaN ", at_loc_friendly(arg_nas), ".")
   }
 
   if (is.null(arg_must)) {
@@ -274,7 +468,7 @@ stop_wrong_len_nas <- function(
   }
   cli::cli_abort(
     c(
-      paste0("{.arg {arg_name}} must ", arg_must, "."),
+      paste0("{.arg {x_name}} must ", arg_must, "."),
       x = len_bullet,
       x = nas_bullet
     ),
@@ -328,36 +522,25 @@ at_loc_friendly <- function(loc, n_max = 5) {
   }
 }
 
-a_length_n_friendly <- function(len) {
-  if (is.null(len)) {
-    "a"
-  } else if (length(len) == 2) {
-    paste0("a length [", len[[1]], "-", len[[2]], "]")
-  } else if (len == 1) {
-    paste0("a scalar")
-  } else if (len > 0) {
-    paste0(" a length ", len)
-  } else {
-    "an empty"
-  }
+a_length_friendly <- function(x) {
+  switch(
+    as.character(length(x)),
+    `0` = "an empty",
+    `1` = "a scalar",
+    paste("a length", length(x))
+  )
 }
 
-length_n_friendly <- function(len) {
-  if (is.null(len)) {
-    ""
-  } else if (length(len) == 2) {
-    paste0("length [", len[[1]], "-", len[[2]], "]")
-  } else if (len == 1) {
-    "length 1"
-  } else if (len > 0) {
+length_friendly <- function(len) {
+  switch(
+    as.character(len),
+    `0` = "empty",
     paste("length", len)
-  } else {
-    "empty"
-  }
+  )
 }
 
 a_vector_friendly <- function(cls, len = NULL, nas = FALSE) {
-  len_n <- if (is.null(len)) "a" else a_length_n_friendly(len)
+  len_n <- if (is.null(len)) "a" else a_length_friendly(len)
   non_na <- if (!nas) "non-NA/NaN" else ""
   paste(len_n, non_na, "{.cls {cls}} vector")
 }
