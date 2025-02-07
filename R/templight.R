@@ -1,6 +1,6 @@
 # templight --------------------------------------------------------------------
 
-#' @export
+# TODO: Document and export
 templight <- function(.x, .at, .f = getOption("vlightr.default_formatter")) {
   x <- check_is_highlightable(.x)
   tests <- check_is_list_of_index(.at) |> map(as_index_test)
@@ -13,10 +13,10 @@ templight <- function(.x, .at, .f = getOption("vlightr.default_formatter")) {
   )
 }
 
-#' @export
+# TODO: Document and export
 tl <- templight
 
-#' @export
+# TODO: Document and export
 templight_mult <- function(.x, ...) {
   rlang::check_required(.x)
   x <- check_is_highlightable(.x)
@@ -28,10 +28,10 @@ templight_mult <- function(.x, ...) {
   )
 }
 
-#' @export
+# TODO: Document and export
 tl_mult <- templight_mult
 
-#' @export
+# TODO: Document and export
 templight_case <- function(x, ...) {
   rlang::check_required(.x)
   x <- check_is_highlightable(.x)
@@ -48,8 +48,85 @@ templight_case <- function(x, ...) {
   )
 }
 
-#' @export
+# TODO: Document and export
 tl_case <- templight_case
+
+# TODO: Document and export
+is_templight <- function(x) {
+  inherits(x, "vlightr_templight")
+}
+
+# TODO: Document and export
+is_templight_case <- function(x) {
+  rlang::inherits_all(x, c("vlightr_templight", "vlightr_highlight_case"))
+}
+
+# templighter ------------------------------------------------------------------
+
+# TODO: Document and export
+new_templighter <- function(tests, formatters, subclass = character()) {
+  highlight_subclass <- gsub("highlighter", "highlight", subclass)
+  force(tests)
+  force(formatters)
+
+  out <- function(.x) {
+    rlang::check_required(.x)
+    x <- check_is_highlightable(.x)
+    validate_highlight(
+      x = new_highlight(
+        .x,
+        tests = tests,
+        formatters = formatters,
+        subclass = c("vlightr_templight", highlight_subclass)
+      ),
+      x_name = rlang::caller_arg(.x)
+    )
+  }
+  attr(out, "tests") <- tests
+  attr(out, "formatters") <- formatters
+  class(out) <- c(
+    "vlightr_templighter",
+    subclass,
+    "vlightr_highlighter",
+    "function"
+  )
+  out
+}
+
+# TODO: Document and export
+templighter <- function(.t, .at) {
+  rlang::check_required(.t)
+  rlang::check_required(.at)
+  tests <- check_is_list_of_index(.at) |> map(as_index_test)
+  formatters <- check_is_list_of_functionish(.f)
+  assert_same_length(tests, formatters, x_name = ".at", y_name = ".f")
+
+  new_templighter(tests = tests, formatters = formatters)
+}
+
+# TODO: Document and export
+templighter_mult <- function(...) {
+  funs <- prepare_templight_functions(...)
+  new_templighter(tests = funs$tests, formatters = funs$formatters)
+}
+
+# TODO: Document and export
+templighter_case <- function(...) {
+  funs <- prepare_templight_functions(...)
+  new_templighter(
+    tests = funs$tests,
+    formatters = funs$formatters,
+    subclass = "vlightr_highlighter_case"
+  )
+}
+
+is_templighter <- function(x) {
+  inherits(x, "vlightr_templighter")
+}
+
+is_templighter_case <- function(x) {
+  rlang::inherits_all(x, c("vlightr_templighter", "vlighter_highlighter_case"))
+}
 
 # templight helpers ------------------------------------------------------------
 
@@ -148,6 +225,4 @@ as_index_test <- function(indices) {
     seq_along(x) %in% indices
   }
 }
-
-# templighter ------------------------------------------------------------------
 
