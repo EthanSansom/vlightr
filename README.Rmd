@@ -24,9 +24,11 @@ asciicast::init_knitr_engine(
     library(vlightr)
     library(dplyr, warn.conflicts = FALSE)
     library(ivs)
-    highlight <- vlightr::highlight
-    bg <- vlightr::bg
-    options(cli.num_colors = cli::truecolor)
+    options(
+      vlightr.default_test = vlightr::false,
+      vlightr.default_formatter = vlightr::background("br_yellow"),
+      cli.num_colors = cli::truecolor
+    )
     set.seed(1)
   }),
   echo = TRUE,
@@ -63,7 +65,7 @@ Want to identify an element of a vector? Highlight it with `highlight()`.
 
 ```{asciicast max-values}
 x <- c(1, 8, 12, 4, 2)
-maximum_hl <- highlight(x, .t = ~ .x == max(.x), .f = ~ bg("br_yellow"))
+maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x), .f = ~ vlightr::bg("br_yellow"))
 print(maximum_hl)
 ```
 
@@ -71,7 +73,7 @@ Highlighted elements change as the highlighted vector changes, so you won’t lo
 
 ```{asciicast sort-demo}
 # `hl()` is shorthand for `highlight()`
-sort(maximum_hl + hl(10))
+sort(maximum_hl + vlightr::hl(10))
 ```
 
 Highlighted vectors can be used as tibble::tibble() columns too.
@@ -80,28 +82,32 @@ Highlighted vectors can be used as tibble::tibble() columns too.
 mtcars |>
 	as_tibble(rownames = "make") |>
 	mutate(
-		make = highlight(hair_color, ~ grepl("Mazda", .x), toupper),
-		vs = highlight_mult(am, 0 ~ label("automatic"), 1 ~ label("manual"))
+		make = vlightr::highlight(make, ~ grepl("Mazda", .x), toupper),
+		am = vlightr::highlight_mult(
+		  am, 
+		  0 ~ vlightr::label("automatic"), 
+		  1 ~ vlightr::label("manual")
+		)
 	) |>
-	select(make, mpg, disp, vs)
+	select(make, mpg, disp, am)
 ```
 
 Are you (or your boss) having a hard time finding that row you're looking for? Use `templight()` to temporarily highlight a vector by index instead of using a test 
 function.
 
-```{asciicast templight}
+```{r templight}
 mtcars |>
 	as_tibble(rownames = "make") |>
-	mutate(across(everything(), ~ templight(.x, make == "Datsun 710"))) |>
+	mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>
 	select(make, mpg, disp, vs)
 ```
 
 You can apply multiple conditional formats to a vector using `highlight_mult()`. The left-hand-side is you a test function or a literal value that you want to match and 
 the right-hand-side is your formatter function.
 
-```{asciicast highlight-mult}
+```{r highlight-mult}
 indicator <- highlight_mult(
-	x = c(1, 0, 1, 0, 0, NA, 5),
+	c(1, 0, 1, 0, 0, NA, 5),
 	is.na ~ color("red"),
 	0 ~ label("No"),
 	1 ~ label("Yes"),
@@ -112,9 +118,9 @@ print(indicator)
 
 Simplify the code above using `highligh_case()`, which provides a `dplyr::case_when()` style interface and conditionally formats elements using at most one formatter.
 
-```{asciicast highlight-case}
+```{r highlight-case}
 indicator <- highlight_case(
-	x = c(1, 0, 1, 0, 0, NA, 5),
+	c(1, 0, 1, 0, 0, NA, 5),
 	is.na ~ color("red"),
 	0 ~ label("No"),
 	1 ~ label("Yes"),
@@ -125,7 +131,7 @@ print(indicator)
 
 If you want to re-use a highlight, turn it into a `highlighter()`.
 
-```{asciicast highlighter}
+```{r highlighter}
 indicator_highlighter <- as_highlighter(indicator)
 indicator_highlighter(c(0, 1, NA, -9))
 ```
@@ -139,7 +145,7 @@ parallel start and end vectors.
 As a testament to the genericity of the `ivs::iv`, here is an ill-advised but 
 perfectly legal interval vector.
 
-```{asciicast ivs-inspo1}
+```{r ivs-inspo1}
 library(ivs)
 starts <- highlight(-3:2, ~ .x %% 2 == 0, ~ label("Even"))
 ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
@@ -148,12 +154,12 @@ ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 iv(starts, ends)
 ```
 
-```{asciicast ivs-inspo2}
+```{r ivs-inspo2}
 # Manipulate your iv()
 iv_groups(iv(starts, ends))
 ```
 
-```{asciicast ivs-inspo3}
+```{r ivs-inspo3}
 # Highlight your iv()
 highlight(
   iv(starts, ends), 

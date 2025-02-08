@@ -33,7 +33,7 @@ Want to identify an element of a vector? Highlight it with
 
 ``` r
 x <- c(1, 8, 12, 4, 2)
-maximum_hl <- highlight(x, .t = ~ .x == max(.x), .f = ~ bg("br_yellow"))
+maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x), .f = ~ vlightr::bg("br_yellow"))
 print(maximum_hl)
 ```
 
@@ -46,7 +46,7 @@ won’t lose them.
 
 ``` r
 # `hl()` is shorthand for `highlight()`
-sort(maximum_hl + hl(10))
+sort(maximum_hl + vlightr::hl(10))
 ```
 
 <picture>
@@ -59,10 +59,14 @@ Highlighted vectors can be used as tibble::tibble() columns too.
 mtcars |>
     as_tibble(rownames = "make") |>
     mutate(
-        make = highlight(hair_color, ~ grepl("Mazda", .x), toupper),
-        vs = highlight_mult(am, 0 ~ label("automatic"), 1 ~ label("manual"))
+        make = vlightr::highlight(make, ~ grepl("Mazda", .x), toupper),
+        am = vlightr::highlight_mult(
+          am, 
+          0 ~ vlightr::label("automatic"), 
+          1 ~ vlightr::label("manual")
+        )
     ) |>
-    select(make, mpg, disp, vs)
+    select(make, mpg, disp, am)
 ```
 
 <picture>
@@ -77,13 +81,23 @@ index instead of using a test function.
 ``` r
 mtcars |>
     as_tibble(rownames = "make") |>
-    mutate(across(everything(), ~ templight(.x, make == "Datsun 710"))) |>
+    mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>
     select(make, mpg, disp, vs)
+#> # A tibble: 32 × 4
+#>                 make        mpg       disp         vs
+#>           <vlghtr_t> <vlghtr_t> <vlghtr_t> <vlghtr_t>
+#>  1         Mazda RX4       21.0      160.0          0
+#>  2     Mazda RX4 Wag       21.0      160.0          0
+#>  3        Datsun 710       22.8      108.0          1
+#>  4    Hornet 4 Drive       21.4      258.0          1
+#>  5 Hornet Sportabout       18.7      360.0          0
+#>  6           Valiant       18.1      225.0          1
+#>  7        Duster 360       14.3      360.0          0
+#>  8         Merc 240D       24.4      146.7          1
+#>  9          Merc 230       22.8      140.8          1
+#> 10          Merc 280       19.2      167.6          1
+#> # ℹ 22 more rows
 ```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/templight-dark.svg">
-<img src="man/figures/README-/templight.svg" width="100%" /> </picture>
 
 You can apply multiple conditional formats to a vector using
 `highlight_mult()`. The left-hand-side is you a test function or a
@@ -92,19 +106,16 @@ formatter function.
 
 ``` r
 indicator <- highlight_mult(
-    x = c(1, 0, 1, 0, 0, NA, 5),
+    c(1, 0, 1, 0, 0, NA, 5),
     is.na ~ color("red"),
     0 ~ label("No"),
     1 ~ label("Yes"),
     !(.x %in% c(NA, 0, 1)) ~ paste(.x, "[?]")
 )
 print(indicator)
+#> <highlight<double>[7]>
+#> [1] 1 [Yes] 0 [No]  1 [Yes] 0 [No]  0 [No]  NA      5 [?]
 ```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlight-mult-dark.svg">
-<img src="man/figures/README-/highlight-mult.svg" width="100%" />
-</picture>
 
 Simplify the code above using `highligh_case()`, which provides a
 `dplyr::case_when()` style interface and conditionally formats elements
@@ -112,31 +123,25 @@ using at most one formatter.
 
 ``` r
 indicator <- highlight_case(
-    x = c(1, 0, 1, 0, 0, NA, 5),
+    c(1, 0, 1, 0, 0, NA, 5),
     is.na ~ color("red"),
     0 ~ label("No"),
     1 ~ label("Yes"),
     true ~ paste(.x, "[?]") # Use `true()` to provide a default formatter
 )
 print(indicator)
+#> <highlight_case<double>[7]>
+#> [1] 1 [Yes] 0 [No]  1 [Yes] 0 [No]  0 [No]  NA      5 [?]
 ```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlight-case-dark.svg">
-<img src="man/figures/README-/highlight-case.svg" width="100%" />
-</picture>
 
 If you want to re-use a highlight, turn it into a `highlighter()`.
 
 ``` r
 indicator_highlighter <- as_highlighter(indicator)
 indicator_highlighter(c(0, 1, NA, -9))
+#> <highlight_case<double>[4]>
+#> [1] 0 [No]  1 [Yes] NA      -9 [?]
 ```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlighter-dark.svg">
-<img src="man/figures/README-/highlighter.svg" width="100%" />
-</picture>
 
 ## Inspiration
 
@@ -155,20 +160,17 @@ ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
 # Make an iv() with highlighted `starts` and `ends`
 iv(starts, ends)
+#> <iv<highlight<double>>[6]>
+#> [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       
+#> [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])
 ```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo1-dark.svg">
-<img src="man/figures/README-/ivs-inspo1.svg" width="100%" /> </picture>
 
 ``` r
 # Manipulate your iv()
 iv_groups(iv(starts, ends))
+#> <iv<highlight<double>>[1]>
+#> [1] [-3, +8 [Even])
 ```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo2-dark.svg">
-<img src="man/figures/README-/ivs-inspo2.svg" width="100%" /> </picture>
 
 ``` r
 # Highlight your iv()
@@ -177,8 +179,7 @@ highlight(
   ~ (iv_end(.x) - iv_start(.x)) > hl(1),
   color("goldenrod")
 )
+#> <highlight<iv<highlight<double>>>[6]>
+#> [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       
+#> [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])
 ```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo3-dark.svg">
-<img src="man/figures/README-/ivs-inspo3.svg" width="100%" /> </picture>
