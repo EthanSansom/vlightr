@@ -65,7 +65,8 @@ Want to identify an element of a vector? Highlight it with `highlight()`.
 
 ```{asciicast max-values}
 x <- c(1, 8, 12, 4, 2)
-maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x), .f = ~ vlightr::bg("br_yellow"))
+# maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x), .f = ~ vlightr::bg("br_yellow"))
+maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x))
 print(maximum_hl)
 ```
 
@@ -78,14 +79,14 @@ sort(maximum_hl + vlightr::hl(10))
 
 Highlighted vectors can be used as tibble::tibble() columns too.
 
-```{asciicast tibble-demo}
+```{r tibble-demo}
 mtcars |>
 	as_tibble(rownames = "make") |>
 	mutate(
 		make = vlightr::highlight(make, ~ grepl("Mazda", .x), toupper),
 		am = vlightr::highlight_mult(
-		  am, 
-		  0 ~ vlightr::label("automatic"), 
+		  am,
+		  0 ~ vlightr::label("automatic"),
 		  1 ~ vlightr::label("manual")
 		)
 	) |>
@@ -95,7 +96,7 @@ mtcars |>
 Are you (or your boss) having a hard time finding that row you're looking for? Use `templight()` to temporarily highlight a vector by index instead of using a test 
 function.
 
-```{r templight}
+```{asciicast templight}
 mtcars |>
 	as_tibble(rownames = "make") |>
 	mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>

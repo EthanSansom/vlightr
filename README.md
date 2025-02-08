@@ -33,7 +33,8 @@ Want to identify an element of a vector? Highlight it with
 
 ``` r
 x <- c(1, 8, 12, 4, 2)
-maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x), .f = ~ vlightr::bg("br_yellow"))
+# maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x), .f = ~ vlightr::bg("br_yellow"))
+maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x))
 print(maximum_hl)
 ```
 
@@ -61,18 +62,27 @@ mtcars |>
     mutate(
         make = vlightr::highlight(make, ~ grepl("Mazda", .x), toupper),
         am = vlightr::highlight_mult(
-          am, 
-          0 ~ vlightr::label("automatic"), 
+          am,
+          0 ~ vlightr::label("automatic"),
           1 ~ vlightr::label("manual")
         )
     ) |>
     select(make, mpg, disp, am)
+#> # A tibble: 32 × 4
+#>                 make   mpg  disp            am
+#>            <hl<chr>> <dbl> <dbl>     <hl<dbl>>
+#>  1         MAZDA RX4  21    160     1 [manual]
+#>  2     MAZDA RX4 WAG  21    160     1 [manual]
+#>  3        Datsun 710  22.8  108     1 [manual]
+#>  4    Hornet 4 Drive  21.4  258  0 [automatic]
+#>  5 Hornet Sportabout  18.7  360  0 [automatic]
+#>  6           Valiant  18.1  225  0 [automatic]
+#>  7        Duster 360  14.3  360  0 [automatic]
+#>  8         Merc 240D  24.4  147. 0 [automatic]
+#>  9          Merc 230  22.8  141. 0 [automatic]
+#> 10          Merc 280  19.2  168. 0 [automatic]
+#> # ℹ 22 more rows
 ```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/tibble-demo-dark.svg">
-<img src="man/figures/README-/tibble-demo.svg" width="100%" />
-</picture>
 
 Are you (or your boss) having a hard time finding that row you’re
 looking for? Use `templight()` to temporarily highlight a vector by
@@ -83,21 +93,11 @@ mtcars |>
     as_tibble(rownames = "make") |>
     mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>
     select(make, mpg, disp, vs)
-#> # A tibble: 32 × 4
-#>                 make        mpg       disp         vs
-#>           <vlghtr_t> <vlghtr_t> <vlghtr_t> <vlghtr_t>
-#>  1         Mazda RX4       21.0      160.0          0
-#>  2     Mazda RX4 Wag       21.0      160.0          0
-#>  3        Datsun 710       22.8      108.0          1
-#>  4    Hornet 4 Drive       21.4      258.0          1
-#>  5 Hornet Sportabout       18.7      360.0          0
-#>  6           Valiant       18.1      225.0          1
-#>  7        Duster 360       14.3      360.0          0
-#>  8         Merc 240D       24.4      146.7          1
-#>  9          Merc 230       22.8      140.8          1
-#> 10          Merc 280       19.2      167.6          1
-#> # ℹ 22 more rows
 ```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/templight-dark.svg">
+<img src="man/figures/README-/templight.svg" width="100%" /> </picture>
 
 You can apply multiple conditional formats to a vector using
 `highlight_mult()`. The left-hand-side is you a test function or a
