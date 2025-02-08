@@ -79,7 +79,7 @@ sort(maximum_hl + vlightr::hl(10))
 
 Highlighted vectors can be used as tibble::tibble() columns too.
 
-```{r tibble-demo}
+```{r tibble}
 mtcars |>
 	as_tibble(rownames = "make") |>
 	mutate(
@@ -106,12 +106,12 @@ mtcars |>
 You can apply multiple conditional formats to a vector using `highlight_mult()`. The left-hand-side is you a test function or a literal value that you want to match and 
 the right-hand-side is your formatter function.
 
-```{r highlight-mult}
-indicator <- highlight_mult(
+```{asciicast highlight-mult}
+indicator <- vlightr::highlight_mult(
 	c(1, 0, 1, 0, 0, NA, 5),
-	is.na ~ color("red"),
-	0 ~ label("No"),
-	1 ~ label("Yes"),
+	is.na ~ vlightr::color("red"),
+	0 ~ vlightr::label("No"),
+	1 ~ vlightr::label("Yes"),
 	!(.x %in% c(NA, 0, 1)) ~ paste(.x, "[?]")
 )
 print(indicator)
@@ -119,21 +119,26 @@ print(indicator)
 
 Simplify the code above using `highligh_case()`, which provides a `dplyr::case_when()` style interface and conditionally formats elements using at most one formatter.
 
-```{r highlight-case}
-indicator <- highlight_case(
+```{asciicast highlight-case}
+indicator <- vlightr::highlight_case(
 	c(1, 0, 1, 0, 0, NA, 5),
-	is.na ~ color("red"),
-	0 ~ label("No"),
-	1 ~ label("Yes"),
-	true ~ paste(.x, "[?]") # Use `true()` to provide a default formatter
+	is.na ~ vlightr::color("red"),
+	0 ~ vlightr::label("No"),
+	1 ~ vlightr::label("Yes"),
+	vlightr::true ~ paste(.x, "[?]") # Use `true()` to provide a default formatter
 )
 print(indicator)
 ```
 
-If you want to re-use a highlight, turn it into a `highlighter()`.
+If you want to re-use a highlight, make a `highlighter()` and friends.
 
-```{r highlighter}
-indicator_highlighter <- as_highlighter(indicator)
+```{asciicast highlighter}
+indicator_highlighter <- vlightr::highlighter_case(
+	is.na ~ vlightr::color("red"),
+	0 ~ vlightr::label("No"),
+	1 ~ vlightr::label("Yes"),
+	vlightr::true ~ paste(.x, "[?]")
+)
 indicator_highlighter(c(0, 1, NA, -9))
 ```
 
@@ -146,25 +151,25 @@ parallel start and end vectors.
 As a testament to the genericity of the `ivs::iv`, here is an ill-advised but 
 perfectly legal interval vector.
 
-```{r ivs-inspo1}
+```{asciicast ivs-inspo1}
 library(ivs)
-starts <- highlight(-3:2, ~ .x %% 2 == 0, ~ label("Even"))
-ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
+starts <- vlightr::highlight(-3:2, ~ .x %% 2 == 0, ~ label("Even"))
+ends <- vlightr::highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
 # Make an iv() with highlighted `starts` and `ends`
 iv(starts, ends)
 ```
 
-```{r ivs-inspo2}
+```{asciicast ivs-inspo2}
 # Manipulate your iv()
 iv_groups(iv(starts, ends))
 ```
 
-```{r ivs-inspo3}
+```{asciicast ivs-inspo3}
 # Highlight your iv()
-highlight(
+vlightr::highlight(
   iv(starts, ends), 
   ~ (iv_end(.x) - iv_start(.x)) > hl(1),
-  color("goldenrod")
+  vlightr::color("goldenrod")
 )
 ```

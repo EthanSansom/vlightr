@@ -105,43 +105,57 @@ literal value that you want to match and the right-hand-side is your
 formatter function.
 
 ``` r
-indicator <- highlight_mult(
+indicator <- vlightr::highlight_mult(
     c(1, 0, 1, 0, 0, NA, 5),
-    is.na ~ color("red"),
-    0 ~ label("No"),
-    1 ~ label("Yes"),
+    is.na ~ vlightr::color("red"),
+    0 ~ vlightr::label("No"),
+    1 ~ vlightr::label("Yes"),
     !(.x %in% c(NA, 0, 1)) ~ paste(.x, "[?]")
 )
 print(indicator)
-#> <highlight<double>[7]>
-#> [1] 1 [Yes] 0 [No]  1 [Yes] 0 [No]  0 [No]  NA      5 [?]
 ```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlight-mult-dark.svg">
+<img src="man/figures/README-/highlight-mult.svg" width="100%" />
+</picture>
 
 Simplify the code above using `highligh_case()`, which provides a
 `dplyr::case_when()` style interface and conditionally formats elements
 using at most one formatter.
 
 ``` r
-indicator <- highlight_case(
+indicator <- vlightr::highlight_case(
     c(1, 0, 1, 0, 0, NA, 5),
-    is.na ~ color("red"),
-    0 ~ label("No"),
-    1 ~ label("Yes"),
-    true ~ paste(.x, "[?]") # Use `true()` to provide a default formatter
+    is.na ~ vlightr::color("red"),
+    0 ~ vlightr::label("No"),
+    1 ~ vlightr::label("Yes"),
+    vlightr::true ~ paste(.x, "[?]") # Use `true()` to provide a default formatter
 )
 print(indicator)
-#> <highlight_case<double>[7]>
-#> [1] 1 [Yes] 0 [No]  1 [Yes] 0 [No]  0 [No]  NA      5 [?]
 ```
 
-If you want to re-use a highlight, turn it into a `highlighter()`.
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlight-case-dark.svg">
+<img src="man/figures/README-/highlight-case.svg" width="100%" />
+</picture>
+
+If you want to re-use a highlight, make a `highlighter()` and friends.
 
 ``` r
-indicator_highlighter <- as_highlighter(indicator)
+indicator_highlighter <- vlightr::highlighter_case(
+    is.na ~ vlightr::color("red"),
+    0 ~ vlightr::label("No"),
+    1 ~ vlightr::label("Yes"),
+    vlightr::true ~ paste(.x, "[?]")
+)
 indicator_highlighter(c(0, 1, NA, -9))
-#> <highlight_case<double>[4]>
-#> [1] 0 [No]  1 [Yes] NA      -9 [?]
 ```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlighter-dark.svg">
+<img src="man/figures/README-/highlighter.svg" width="100%" />
+</picture>
 
 ## Inspiration
 
@@ -155,31 +169,35 @@ ill-advised but perfectly legal interval vector.
 
 ``` r
 library(ivs)
-starts <- highlight(-3:2, ~ .x %% 2 == 0, ~ label("Even"))
-ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
+starts <- vlightr::highlight(-3:2, ~ .x %% 2 == 0, ~ label("Even"))
+ends <- vlightr::highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
 # Make an iv() with highlighted `starts` and `ends`
 iv(starts, ends)
-#> <iv<highlight<double>>[6]>
-#> [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       
-#> [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])
 ```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo1-dark.svg">
+<img src="man/figures/README-/ivs-inspo1.svg" width="100%" /> </picture>
 
 ``` r
 # Manipulate your iv()
 iv_groups(iv(starts, ends))
-#> <iv<highlight<double>>[1]>
-#> [1] [-3, +8 [Even])
 ```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo2-dark.svg">
+<img src="man/figures/README-/ivs-inspo2.svg" width="100%" /> </picture>
 
 ``` r
 # Highlight your iv()
-highlight(
+vlightr::highlight(
   iv(starts, ends), 
   ~ (iv_end(.x) - iv_start(.x)) > hl(1),
-  color("goldenrod")
+  vlightr::color("goldenrod")
 )
-#> <highlight<iv<highlight<double>>>[6]>
-#> [1] [-3, -2 [Even])        [-2 [Even], -1)        [-1, +2 [Even])       
-#> [4] [0 [Even], +5)         [+1, +7)               [+2 [Even], +8 [Even])
 ```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo3-dark.svg">
+<img src="man/figures/README-/ivs-inspo3.svg" width="100%" /> </picture>
