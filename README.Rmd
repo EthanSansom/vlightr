@@ -106,7 +106,8 @@ function.
 mtcars |>
 	as_tibble(rownames = "make") |>
 	mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>
-	select(make, mpg, disp, vs)
+	select(make, mpg, disp, vs) |>
+  head(5)
 ```
 
 You can apply multiple conditional formats to a vector using `highlight_mult()`. The left-hand-side is you a test function or a literal value that you want to match and 

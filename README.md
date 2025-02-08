@@ -87,7 +87,8 @@ index instead of using a test function.
 mtcars |>
     as_tibble(rownames = "make") |>
     mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>
-    select(make, mpg, disp, vs)
+    select(make, mpg, disp, vs) |>
+  head(5)
 ```
 
 <picture>
