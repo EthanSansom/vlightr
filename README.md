@@ -156,7 +156,8 @@ indicator_highlighter(c(0, 1, NA, -9))
 ## Inspiration
 
 This package is heavily inspired by the
-[ivs](https://github.com/DavisVaughan/ivs) package, which implements
+[ivs](https://github.com/DavisVaughan/ivs) package, which (powered by
+the [vctrs](https://vctrs.r-lib.org/index.html) package) implements
 generic right-open intervals defined by a pair of parallel start and end
 vectors.
 
@@ -165,6 +166,8 @@ ill-advised but perfectly legal interval vector.
 
 ``` r
 library(ivs)
+
+# Prepare highlighted numeric start and end vectors
 starts <- vlightr::highlight(-3:2, ~ .x %% 2 == 0, ~ label("Even"))
 ends <- vlightr::highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
@@ -176,8 +179,9 @@ iv(starts, ends)
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo1-dark.svg">
 <img src="man/figures/README-/ivs-inspo1.svg" width="100%" /> </picture>
 
+The interval vector can be manipulated as you’d expect.
+
 ``` r
-# Manipulate your iv()
 iv_groups(iv(starts, ends))
 ```
 
@@ -185,8 +189,9 @@ iv_groups(iv(starts, ends))
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/ivs-inspo2-dark.svg">
 <img src="man/figures/README-/ivs-inspo2.svg" width="100%" /> </picture>
 
+And the interval vector can itself be highlighted.
+
 ``` r
-# Highlight your iv()
 vlightr::highlight(
   iv(starts, ends), 
   ~ (iv_end(.x) - iv_start(.x)) > hl(1),

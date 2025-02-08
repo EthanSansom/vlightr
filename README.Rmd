@@ -152,14 +152,17 @@ indicator_highlighter(c(0, 1, NA, -9))
 ## Inspiration
 
 This package is heavily inspired by the [ivs](https://github.com/DavisVaughan/ivs) 
-package, which implements generic right-open intervals defined by a pair of 
-parallel start and end vectors.
+package, which (powered by the [vctrs](https://vctrs.r-lib.org/index.html) package) 
+implements generic right-open intervals defined by a pair of parallel start and 
+end vectors.
 
 As a testament to the genericity of the `ivs::iv`, here is an ill-advised but 
 perfectly legal interval vector.
 
 ```{asciicast ivs-inspo1}
 library(ivs)
+
+# Prepare highlighted numeric start and end vectors
 starts <- vlightr::highlight(-3:2, ~ .x %% 2 == 0, ~ label("Even"))
 ends <- vlightr::highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
@@ -167,13 +170,15 @@ ends <- vlightr::highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 iv(starts, ends)
 ```
 
+The interval vector can be manipulated as you'd expect.
+
 ```{asciicast ivs-inspo2}
-# Manipulate your iv()
 iv_groups(iv(starts, ends))
 ```
 
+And the interval vector can itself be highlighted.
+
 ```{asciicast ivs-inspo3}
-# Highlight your iv()
 vlightr::highlight(
   iv(starts, ends), 
   ~ (iv_end(.x) - iv_start(.x)) > hl(1),
