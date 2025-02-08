@@ -41,7 +41,7 @@ asciicast::init_knitr_engine(
 
 <!-- badges: end -->
 
-{vlightr} is a package for highlighting vectors. It provides a <vlightr_highlight> superclass which enhances the `format()` and `print()` method of generic vectors.
+{vlightr} is a package for highlighting vectors. It provides a `<vlightr_highlight>` superclass which enhances the `format()` and `print()` method of generic vectors.
 
 
 ## Installation
@@ -103,7 +103,6 @@ Are you (or your boss) having a hard time finding that row you're looking for? U
 function.
 
 ```{asciicast templight}
-#' Rows: 5
 mtcars |>
 	as_tibble(rownames = "make") |>
 	mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>

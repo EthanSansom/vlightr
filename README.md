@@ -6,7 +6,7 @@ vlightr
 <!-- badges: end -->
 
 {vlightr} is a package for highlighting vectors. It provides a
-<vlightr_highlight> superclass which enhances the `format()` and
+`<vlightr_highlight>` superclass which enhances the `format()` and
 `print()` method of generic vectors.
 
 ## Installation
