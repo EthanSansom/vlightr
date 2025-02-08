@@ -277,14 +277,53 @@ highlight_functions <- function(x, as = c("functions", "highlighters")) {
 
 # tests ------------------------------------------------------------------------
 
-# TODO: Export and document
-false_along <- function(x) {
-  rep_len(FALSE, length(x))
+#' Return the value `TRUE`
+#'
+#' @description This function always returns the value `TRUE`.
+#' @param x Any object.
+#' @return The value `TRUE`.
+#'
+#' @examples
+#' # `true()` is useful for supplying a default formatter
+#' # to `highlight_case()`.
+#' levels <- highlight_case(
+#'   1:5,
+#'   1 ~ label("Low"),
+#'   2 ~ label("Mid"),
+#'   3 ~ label("High"),
+#'   true ~ label("?") # Label any value not in 1, 2, 3
+#' )
+#' print(levels)
+#'
+#' @export
+true <- function(x) {
+  TRUE
 }
 
-# TODO: Export and document
-true_along <- function(x) {
-  rep_len(TRUE, length(x))
+#' Return the value `FALSE`
+#'
+#' @description This function always returns the value `FALSE`.
+#' @param x Any object.
+#' @return The value `FALSE`.
+#'
+#' @examples
+#' # `false()` is useful for "turning-off" a conditional format
+#' odd_even <- highlight_mult(
+#'   1:6,
+#'   .x %% 2 == 0 ~ wrap("<", ">"),
+#'   .x %% 2 == 1 ~ wrap("[", "]")
+#' )
+#'
+#' # Even values are wrapped in "<>", odd in "[]"
+#' odd_even
+#'
+#' # Turn off the highlighting of odd values
+#' tests(odd_even)[[2]] <- false
+#' odd_even
+#'
+#' @export
+false <- function(x) {
+  FALSE
 }
 
 # misc -------------------------------------------------------------------------
