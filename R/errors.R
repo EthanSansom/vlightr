@@ -59,6 +59,46 @@ check_is_string <- function(
   )
 }
 
+check_is_count <- function(
+    x,
+    x_name = rlang::caller_arg(x),
+    error_call = rlang::caller_env(),
+    error_class = character()
+) {
+  if (rlang::is_scalar_integerish(x) && x >= 0) {
+    return(x)
+  }
+  if (length(x) != 1) {
+    cli::cli_abort(
+      c(
+        "{.arg {x_name}} must be a scalar non-negative whole number.",
+        x = "{.arg {x_name}} is {length_friendly(length(x))}."
+      ),
+      call = error_call,
+      class = c(error_class, "vlightr_error")
+    )
+  }
+  if (is.na(x) || rlang::is_integerish(x)) {
+    not <- if (is.na(x)) "an NA value" else "a negative number"
+    stop_must_not(
+      x,
+      must = "be a scalar non-negative whole number",
+      not = not,
+      x_name = x_name,
+      error_call = error_call,
+      error_class = error_class
+    )
+  }
+  cli::cli_abort(
+    c(
+      "{.arg {x_name}} must be a scalar non-negative whole number.",
+      x = "{.arg {x_name}} is the decimal number {x}."
+    ),
+    call = error_call,
+    class = c(error_class, "vlightr_error")
+  )
+}
+
 check_must_not <- function(
     x,
     test,
@@ -305,6 +345,10 @@ oxford <- function(x, sep = ", ", last = "or", n = NULL) {
 
 index_name <- function(x_name, indices) {
   paste0(x_name, "[[", indices, "]]")
+}
+
+dot_name <- function(indices) {
+  paste0("..", indices)
 }
 
 unplural <- function(x) {
