@@ -5,9 +5,10 @@ vlightr
 <!-- badges: start -->
 <!-- badges: end -->
 
-{vlightr} is a package for highlighting vectors. It provides a
-`<vlightr_highlight>` superclass which enhances the `format()` and
-`print()` method of generic vectors.
+{vlightr} (read, “vector-highlighter”) makes identifying key elements of
+vectors easier. It implements a `<vlightr_highlight>` vector superclass
+which enhances the `format()` and `print()` method of generic vectors,
+allowing vector elements to be conditionally formatted.
 
 ## Installation
 
@@ -155,13 +156,27 @@ indicator_highlighter(c(0, 1, NA, -9))
 
 ## Inspiration
 
-This package is heavily inspired by the
-[ivs](https://github.com/DavisVaughan/ivs) package, which (powered by
-the [vctrs](https://vctrs.r-lib.org/index.html) package) implements
-generic right-open intervals defined by a pair of parallel start and end
+The development of {vlightr} relied heavily on the following pacakges:
+
+- [purrr](https://purrr.tidyverse.org/), which inspired the user
+  interface of `highlight()`
+- [dplyr](https://dplyr.tidyverse.org/), whose `case_when()` inspired
+  `highlight_case()`
+- [magrittr](https://magrittr.tidyverse.org/), whose `%>%` made the
+  highlight pipe `%hl>%` possible
+- [vctrs](https://vctrs.r-lib.org/index.html), for making S3 vectors
+  easy to work with
+- [usethis](https://usethis.r-lib.org/) and
+  [pkgdown](https://pkgdown.r-lib.org/), which make every step of
+  R-package and R-package-website development easier
+
+This package is also heavily inspired by the
+[ivs](https://github.com/DavisVaughan/ivs) package, which (also powered
+by [vctrs](https://vctrs.r-lib.org/index.html)) implements generic
+right-open intervals defined by a pair of parallel start and end
 vectors.
 
-As a testament to the genericity of the `ivs::iv`, here is an
+As a testament to the genericity of the `<ivs_iv>`, here is an
 ill-advised but perfectly legal interval vector.
 
 ``` r
