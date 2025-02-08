@@ -1,3 +1,12 @@
+# todos ------------------------------------------------------------------------
+
+#### Error Messages:
+#
+# Test all kinds of error cases and dial in the error messages. We're really
+# relying on the error messages of the `format()` method, since that's how
+# we validate highlights.
+
+# format -----------------------------------------------------------------------
 
 #' @export
 format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
@@ -37,7 +46,6 @@ format.vlightr_highlight <- function(x, ..., .x_name = rlang::caller_arg(x)) {
 #' @export
 format.vlightr_highlight_case <- function(x, ..., .x_name = rlang::caller_arg(x)) {
 
-  x_name <- rlang::caller_arg(x)
   x_data <- get_data(x)
   if (rlang::is_empty(x_data)) {
     return(character())
@@ -47,7 +55,7 @@ format.vlightr_highlight_case <- function(x, ..., .x_name = rlang::caller_arg(x)
   env <- rlang::caller_env()
   tests <- get_tests(x)
   formatters <- get_formatters(x)
-  unformatted_at <- true_along(formatted)
+  unformatted_at <- rep_len(TRUE, length(formatted))
 
   for (i in seq_along(tests)) {
     test <- tests[[i]]
@@ -55,14 +63,14 @@ format.vlightr_highlight_case <- function(x, ..., .x_name = rlang::caller_arg(x)
     # to format case to apply a formatter to all elements. This if overrides the
     # default case behavior.
     if (identical(test, format_all)) {
-      format_at <- true_along(x_data)
+      format_at <- rep_len(TRUE, length(x_data))
     }
     else {
       format_at <- unformatted_at & call_format_fun(
         x = x_data,
         fun = test,
         env = env,
-        fun_name = paste0("tests(", x_name, ")[[", i, "]]"),
+        fun_name = paste0("tests(", .x_name, ")[[", i, "]]"),
         fun_type = "test"
       )
       unformatted_at <- unformatted_at & !format_at
@@ -73,7 +81,7 @@ format.vlightr_highlight_case <- function(x, ..., .x_name = rlang::caller_arg(x)
         x = formatted[format_at],
         fun = formatters[[i]],
         env = env,
-        fun_name = paste0("formatters(", x_name, ")[[", i, "]]"),
+        fun_name = paste0("formatters(", .x_name, ")[[", i, "]]"),
         fun_type = "formatter"
       )
     }
@@ -81,6 +89,8 @@ format.vlightr_highlight_case <- function(x, ..., .x_name = rlang::caller_arg(x)
 
   formatted
 }
+
+# format helpers ---------------------------------------------------------------
 
 call_format_fun <- function(
     x,
