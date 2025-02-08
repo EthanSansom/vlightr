@@ -26,7 +26,8 @@ asciicast::init_knitr_engine(
     library(ivs)
     options(
       vlightr.default_test = vlightr::false,
-      vlightr.default_formatter = vlightr::background("br_yellow"),
+      # This shows up better on github light and dark mode
+      vlightr.default_formatter = vlightr::color("goldenrod"),
       cli.num_colors = cli::truecolor
     )
     set.seed(1)
@@ -79,24 +80,30 @@ sort(maximum_hl + vlightr::hl(10))
 
 Highlighted vectors can be used as tibble::tibble() columns too.
 
-```{r tibble}
-mtcars |>
-	as_tibble(rownames = "make") |>
-	mutate(
-		make = vlightr::highlight(make, ~ grepl("Mazda", .x), toupper),
-		am = vlightr::highlight_mult(
-		  am,
-		  0 ~ vlightr::label("automatic"),
-		  1 ~ vlightr::label("manual")
-		)
-	) |>
-	select(make, mpg, disp, am)
+```{asciicast tibble}
+iris |>
+  as_tibble() |>
+  mutate(
+    species = vlightr::highlight_mult(
+      Species,
+      "setosa" ~ vlightr::color("purple"),
+      "versicolor" ~ vlightr::color("violet"),
+      "virginica" ~ vlightr::color("pink")
+    )
+  ) |>
+  group_by(species) |>
+  summarize(
+    avg_petal_length = vlightr::highlight(mean(Petal.Length), ~ .x == max(.x)),
+    avg_sepal_width = vlightr::highlight(mean(Sepal.Width), ~ .x == max(.x))
+  ) |>
+  ungroup()
 ```
 
 Are you (or your boss) having a hard time finding that row you're looking for? Use `templight()` to temporarily highlight a vector by index instead of using a test 
 function.
 
 ```{asciicast templight}
+#' Rows: 5
 mtcars |>
 	as_tibble(rownames = "make") |>
 	mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>

@@ -57,32 +57,27 @@ sort(maximum_hl + vlightr::hl(10))
 Highlighted vectors can be used as tibble::tibble() columns too.
 
 ``` r
-mtcars |>
-    as_tibble(rownames = "make") |>
-    mutate(
-        make = vlightr::highlight(make, ~ grepl("Mazda", .x), toupper),
-        am = vlightr::highlight_mult(
-          am,
-          0 ~ vlightr::label("automatic"),
-          1 ~ vlightr::label("manual")
-        )
-    ) |>
-    select(make, mpg, disp, am)
-#> # A tibble: 32 × 4
-#>                 make   mpg  disp            am
-#>            <hl<chr>> <dbl> <dbl>     <hl<dbl>>
-#>  1         MAZDA RX4  21    160     1 [manual]
-#>  2     MAZDA RX4 WAG  21    160     1 [manual]
-#>  3        Datsun 710  22.8  108     1 [manual]
-#>  4    Hornet 4 Drive  21.4  258  0 [automatic]
-#>  5 Hornet Sportabout  18.7  360  0 [automatic]
-#>  6           Valiant  18.1  225  0 [automatic]
-#>  7        Duster 360  14.3  360  0 [automatic]
-#>  8         Merc 240D  24.4  147. 0 [automatic]
-#>  9          Merc 230  22.8  141. 0 [automatic]
-#> 10          Merc 280  19.2  168. 0 [automatic]
-#> # ℹ 22 more rows
+iris |>
+  as_tibble() |>
+  mutate(
+    species = vlightr::highlight_mult(
+      Species,
+      "setosa" ~ vlightr::color("purple"),
+      "versicolor" ~ vlightr::color("violet"),
+      "virginica" ~ vlightr::color("pink")
+    )
+  ) |>
+  group_by(species) |>
+  summarize(
+    avg_petal_length = vlightr::highlight(mean(Petal.Length), ~ .x == max(.x)),
+    avg_sepal_width = vlightr::highlight(mean(Sepal.Width), ~ .x == max(.x))
+  ) |>
+  ungroup()
 ```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/tibble-dark.svg">
+<img src="man/figures/README-/tibble.svg" width="100%" /> </picture>
 
 Are you (or your boss) having a hard time finding that row you’re
 looking for? Use `templight()` to temporarily highlight a vector by
