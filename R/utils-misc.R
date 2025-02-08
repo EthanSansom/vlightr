@@ -18,8 +18,51 @@ map_chr <- function(.x, .f, ...) {
   vapply(.x, FUN = .f, FUN.VALUE = character(1L), ...)
 }
 
-compact <- function(.x) {
-  .x[!map_lgl(.x, is.null)]
+zip <- function(...) {
+  dots <- rlang::list2(...)
+  if (!rlang::is_dictionaryish(dots)) {
+    stop_internal("`...` must have unique names.")
+  } else if (rlang::is_empty(dots)) {
+    stop_internal("`...` is missing.")
+  } else if (length(unique(lengths(dots))) > 1) {
+    stop_internal("Elements of `...` must be of equal length.")
+  }
+  nms <- names(dots)
+  .mapply(
+    dots = dots,
+    FUN = \(...) rlang::set_names(list(...), nms),
+    MoreArgs = list()
+  )
+}
+
+unzip <- function(x) {
+  if (!is.list(x)) {
+    stop_internal("`x` must be a list, not {.obj_type_friendly {x}}.")
+  } else if (rlang::is_empty(x)) {
+    return(x)
+  } else if (!all(map_lgl(x, \(x_i) is.list(x_i) && rlang::is_dictionaryish(x_i)))) {
+    stop_internal("Elements of `x` must be uniquely named lists.")
+  } else if (!have_same_names(x)) {
+    stop_internal("Elements of `x` must have the same names.")
+  }
+  if (length(x) == 1) {
+    return(map(x[[1]], list))
+  }
+  nms <- names(x[[1]])
+  rlang::set_names(map(nms, \(nm) map(x, `[[`, nm)), nms)
+}
+
+have_same_names <- function(x) {
+  if (length(x) < 2) {
+    return(TRUE)
+  }
+  x_1 <- x[[1]]
+  all(
+    map_lgl(
+      x[-1],
+      \(x_i) length(x_1) == length(x_i) && setequal(names(x_1), names(x_i))
+    )
+  )
 }
 
 is_formula <- function(x) {
@@ -43,4 +86,11 @@ order_ragged <- function(x) {
   order2 <- function(...) order(..., na.last = FALSE)
   x_unragged <- do.call(rbind.data.frame, lapply(x, `length<-`, max(lengths(x))))
   do.call(order2, x_unragged)
+}
+
+# Use `%%` as you would in a zero-indexed language. E.g. the following call
+# `letters[mod_index(seq(52), length(letters))]` repeats the alphabet
+# twice starting from "a".
+mod_index <- function(i, n) {
+  (i - 1) %% n + 1
 }
