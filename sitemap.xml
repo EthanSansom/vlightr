@@ -1,84 +1,36 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/404.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/articles/highlighting-and-dplyr.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/articles/vlightr.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/as_highlighter.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/attr-setters.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/condition_id.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/condition_keep.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/condition_met.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/condition_split.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/grapes-hl-greater-than-grapes.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/highlight.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/highlighter.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/is_highlight.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/is_highlightable.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/is_highlighter.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/pipe.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/re_highlight.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/stylers.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/un_highlight.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/update_highlight.html</loc>
-  </url>
-  <url>
-    <loc>https://ethansansom.github.io/vlightr/reference/vlightr-package.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://ethansansom.github.io/vlightr/404.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/LICENSE-text.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/LICENSE.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/articles/index.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/articles/vlightr.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/authors.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/index.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/as_highlighter.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/false.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/formatters.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/grapes-hl-greater-than-grapes.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/highlight.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/highlight_functions.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/highlight_lambda.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/highlighter.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/index.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/is_highlight.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/is_highlight_case.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/is_highlightable.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/is_highlighter.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/is_templight.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/is_templight_case.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/is_templighter.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/is_templighter_case.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/pipe.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/re_highlight.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/stylers.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/templight.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/templighter.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/tests.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/true.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/un_highlight.html</loc></url>
+<url><loc>https://ethansansom.github.io/vlightr/reference/vlightr-package.html</loc></url>
 </urlset>
+
