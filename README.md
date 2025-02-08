@@ -5,15 +5,9 @@ vlightr
 <!-- badges: start -->
 <!-- badges: end -->
 
-vlightr is a package for conditionally formatting vectors. You can
-`highlight()` a vector to style, color, or otherwise re-format it’s
-elements when the vector is printed or formatted. Highlights are:
-
-- **Persistent**, meaning highlighted vectors can be manipulated (with
-  minimal legwork) while maintaining their custom formatting.
-- **Generic**, meaning that many vectors you’ll encounter in the wild
-  and all base atomic vectors (`"logical"`, `"integer"`, `"numeric"`,
-  `"complex"`, `"character"` and `"raw"`) can be highlighted.
+{vlightr} is a package for highlighting vectors. It provides a
+<vlightr_highlight> superclass which enhances the `format()` and
+`print()` method of generic vectors.
 
 ## Installation
 
@@ -31,200 +25,118 @@ devtools::install_github("EthanSansom/vlightr")
 
 ``` r
 library(vlightr)
-library(lubridate, warn.conflicts = FALSE)
-library(ivs)
+library(dplyr, warn.conflicts = FALSE)
 ```
 
-Quickly customize how a vector is printed.
+Want to identify an element of a vector? Highlight it with
+`highlight()`.
 
 ``` r
-dates <- lubridate::ymd("20240619") + lubridate::weeks(-3:2)
-
-format_roygbiv1 <- function(x) {
-  vroygbi <- c("violet", "red", "orange", "gold", "green", "blue", "purple")
-  crayons <- lapply(vroygbi, vlightr::color)
-  letters <- strsplit(as.character(x), "")[[1]]
-  letters |>
-    mapply(seq_along(letters), FUN = \(x, i) crayons[[i %% 7 + 1]](x)) |>
-    paste(collapse = "")
-}
-format_roygbiv <- function(x) sapply(x, format_roygbiv1)
-
-dates <- vlightr::highlight(dates, ~ lubridate::month(.x) == 6, format_roygbiv)
-print(dates)
+x <- c(1, 8, 12, 4, 2)
+maximum_hl <- highlight(x, .t = ~ .x == max(.x), .f = ~ bg("br_yellow"))
+print(maximum_hl)
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/june1-dark.svg">
-<img src="man/figures/README-/june1.svg" width="100%" /> </picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/max-values-dark.svg">
+<img src="man/figures/README-/max-values.svg" width="100%" /> </picture>
 
-And how a column is displayed.
+Highlighted elements change as the highlighted vector changes, so you
+won’t lose them.
 
 ``` r
-tibble::tibble(
-  month = lubridate::month(vlightr::ul(dates), label = TRUE),
-  date = dates
+# `hl()` is shorthand for `highlight()`
+sort(maximum_hl + hl(10))
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/sort-demo-dark.svg">
+<img src="man/figures/README-/sort-demo.svg" width="100%" /> </picture>
+
+Highlighted vectors can be used as tibble::tibble() columns too.
+
+``` r
+mtcars |>
+    as_tibble(rownames = "make") |>
+    mutate(
+        make = highlight(hair_color, ~ grepl("Mazda", .x), toupper),
+        vs = highlight_mult(am, 0 ~ label("automatic"), 1 ~ label("manual"))
+    ) |>
+    select(make, mpg, disp, vs)
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/tibble-demo-dark.svg">
+<img src="man/figures/README-/tibble-demo.svg" width="100%" />
+</picture>
+
+Are you (or your boss) having a hard time finding that row you’re
+looking for? Use `templight()` to temporarily highlight a vector by
+index instead of using a test function.
+
+``` r
+mtcars |>
+    as_tibble(rownames = "make") |>
+    mutate(across(everything(), ~ templight(.x, make == "Datsun 710"))) |>
+    select(make, mpg, disp, vs)
+```
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/templight-dark.svg">
+<img src="man/figures/README-/templight.svg" width="100%" /> </picture>
+
+You can apply multiple conditional formats to a vector using
+`highlight_mult()`. The left-hand-side is you a test function or a
+literal value that you want to match and the right-hand-side is your
+formatter function.
+
+``` r
+indicator <- highlight_mult(
+    x = c(1, 0, 1, 0, 0, NA, 5),
+    is.na ~ color("red"),
+    0 ~ label("No"),
+    1 ~ label("Yes"),
+    !(.x %in% c(NA, 0, 1)) ~ paste(.x, "[?]")
 )
+print(indicator)
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/june2-dark.svg">
-<img src="man/figures/README-/june2.svg" width="100%" /> </picture>
-
-### Highlight, Un-Highlight, Re-Highlight
-
-Highlighted vectors can’t be implicitly coerced or converted to another
-vector type. To use a function which expects the highlight’s underlying
-type (ex. a date) first `un_highlight()` (AKA `ul()`) to expose the
-highlighted data and then `re_highlight()` (AKA `rl()`) to re-apply the
-conditional formatting.
-
-``` r
-dates |>
-  vlightr::ul() |>
-  lubridate::rollback() |>
-  vlightr::rl(dates)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight1-dark.svg">
-<img src="man/figures/README-/rehighlight1.svg" width="100%" />
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlight-mult-dark.svg">
+<img src="man/figures/README-/highlight-mult.svg" width="100%" />
 </picture>
 
-The “highlight-pipe” `%hl>%` wraps the magrittr `%>%` to do this
-automatically.
+Simplify the code above using `highligh_case()`, which provides a
+`dplyr::case_when()` style interface and conditionally formats elements
+using at most one formatter.
 
 ``` r
-dates %hl>% lubridate::rollback()
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/rehighlight2-dark.svg">
-<img src="man/figures/README-/rehighlight2.svg" width="100%" />
-</picture>
-
-### Manipulate Highlighted Data
-
-Highlighted vectors are happy to be cast or coerced to other compatible
-highlights. The shorthand `hl()` is useful for quickly highlighting a
-vector for this purpose.
-
-``` r
-# Arithmetic
-dates + vlightr::hl(17)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/operation-dark.svg">
-<img src="man/figures/README-/operation.svg" width="100%" /> </picture>
-
-``` r
-# Assignment
-dates[[1]] <- vlightr::hl(NA)
-dates
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/assign-dark.svg">
-<img src="man/figures/README-/assign.svg" width="100%" /> </picture>
-
-``` r
-# Coercion
-c(dates, vlightr::hl(lubridate::ymd_hm("2020-06-01 12:00")))
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/coerce-dark.svg">
-<img src="man/figures/README-/coerce.svg" width="100%" /> </picture>
-
-### Multiple Conditional Formats
-
-Multiple conditions and formatters can be specified by supplying lists
-of functions or purrr-style lambdas. Elements of `x` for which
-`conditions[[i]](x)` is `TRUE` are formatted using the formatter
-function `formatters[[i]]`.
-
-``` r
-dummies <- vlightr::highlight(
-  x = c(1L, 0L, NA, 1L, 0L),
-  conditions = list(
-    is.na, 
-    ~ .x == 1, 
-    ~ .x == 0
-  ),
-  formatters = list(
-    vlightr::color("red"),
-    ~ paste(.x, "[Yes]"),
-    ~ paste(.x, "[No]")
-  )
+indicator <- highlight_case(
+    x = c(1, 0, 1, 0, 0, NA, 5),
+    is.na ~ color("red"),
+    0 ~ label("No"),
+    1 ~ label("Yes"),
+    true ~ paste(.x, "[?]") # Use `true()` to provide a default formatter
 )
-dummies
+print(indicator)
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/multiple-formats-dark.svg">
-<img src="man/figures/README-/multiple-formats.svg" width="100%" />
+<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlight-case-dark.svg">
+<img src="man/figures/README-/highlight-case.svg" width="100%" />
 </picture>
 
-`highlight_case()` provides a `dplyr::case_when()` inspired syntax for
-defining multiple conditional formats.
+If you want to re-use a highlight, turn it into a `highlighter()`.
 
 ``` r
-bad_words <- c("darn", "gosh")
-affirmations <- c("good job", "way-to-go")
-message <- c("hey", "good job", "but", "darn", "please", "don't", "say", "gosh")
-
-vlightr::highlight_case(
-  message,
-  .x %in% bad_words ~ strrep("X", nchar(.x)),
-  .x %in% affirmations ~ toupper(.x),
-  TRUE ~ cli::style_italic
-)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/case-syntax-dark.svg">
-<img src="man/figures/README-/case-syntax.svg" width="100%" />
-</picture>
-
-### Define Highlighter Functions
-
-Re-use the formatting of any highlighted vector by converting it into a
-highlighter.
-
-``` r
-dummy_highlighter <- vlightr::as_highlighter(dummies)
-dummy_highlighter(c(0, 1, NA))
+indicator_highlighter <- as_highlighter(indicator)
+indicator_highlighter(c(0, 1, NA, -9))
 ```
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/highlighter-dark.svg">
 <img src="man/figures/README-/highlighter.svg" width="100%" />
 </picture>
-
-### Highlight Arbitrary Vectors
-
-Highlights are generic, meaning that S3 and S4 vector classes from other
-packages are highlight-able.
-
-``` r
-today <- lubridate::ymd("2020-01-01")
-meeting_times <- lubridate::interval(
-  today + lubridate::hours(c(9, 11, 16)), 
-  today + lubridate::hours(c(10, 13, 17))
-)
-lunch_break <- lubridate::interval(
-  today + lubridate::hours(12), 
-  today + lubridate::hours(13)
-)
-is_during_lunch <- function(x) lubridate::int_overlaps(x, lunch_break)
-
-vlightr::highlight(meeting_times, is_during_lunch, cli::col_magenta)
-```
-
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/generic-dark.svg">
-<img src="man/figures/README-/generic.svg" width="100%" /> </picture>
 
 ## Inspiration
 
@@ -237,11 +149,12 @@ As a testament to the genericity of the `ivs::iv`, here is an
 ill-advised but perfectly legal interval vector.
 
 ``` r
-starts <- vlightr::highlight(-3:2, ~ .x %% 2 == 0, ~ paste(.x, "[Even]"))
-ends <- vlightr::highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
+library(ivs)
+starts <- highlight(-3:2, ~ .x %% 2 == 0, ~ label("Even"))
+ends <- highlight(c(-2, -1, 2, 5, 7, 8), ~ .x > 0, ~ paste0("+", .x))
 
-# A totally legitimate `iv`
-ivs::iv(starts, ends)
+# Make an iv() with highlighted `starts` and `ends`
+iv(starts, ends)
 ```
 
 <picture>
@@ -249,8 +162,8 @@ ivs::iv(starts, ends)
 <img src="man/figures/README-/ivs-inspo1.svg" width="100%" /> </picture>
 
 ``` r
-# We can even manipulate it
-ivs::iv_groups(ivs::iv(starts, ends))
+# Manipulate your iv()
+iv_groups(iv(starts, ends))
 ```
 
 <picture>
@@ -258,10 +171,10 @@ ivs::iv_groups(ivs::iv(starts, ends))
 <img src="man/figures/README-/ivs-inspo2.svg" width="100%" /> </picture>
 
 ``` r
-# Or highlight it...
-vlightr::highlight(
-  ivs::iv(starts, ends), 
-  ~ (ivs::iv_end(.x) - ivs::iv_start(.x)) > vlightr::hl(1),
+# Highlight your iv()
+highlight(
+  iv(starts, ends), 
+  ~ (iv_end(.x) - iv_start(.x)) > hl(1),
   color("goldenrod")
 )
 ```
