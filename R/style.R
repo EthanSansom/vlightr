@@ -1,10 +1,21 @@
+# todos ------------------------------------------------------------------------
+
+#### New helpers
+#
+# trim(nchar = 20, end = "...") - creates a function to trim x to a limit of
+# nchar if it’s above and insert an ending of end (e.g. “this is a long word and
+# will…”)
+#
+# pad(nchar = 10, align = "center", char = " ") - generates a padding function
+
+# stylers ----------------------------------------------------------------------
+
 #' Generate a formatter function to style text
 #'
 #' @description
 #'
-#' Function factors used to generate new formatting functions for use in the
-#' `formatters`, `init_formatter`, and `last_formatter` arguments of highlight
-#' functions (e.g. [highlight()], [highlighter()]).
+#' Function factories used to generate new formatting functions for use in
+#' [highlight()], [highlighter()], and friends.
 #'
 #' @param x `[character(1)]`
 #'
@@ -23,9 +34,14 @@
 #'
 #' @param left,right `[character(1)]`
 #'
-#' For `wrap()`, a prefix (`left`) or suffix `right` that the output function
+#' For `wrap()`, `label()` a prefix (`left`) or suffix `right` that the output function
 #' pastes onto a character vector. By default, `left` is `"["` and `right`
 #' is `"]"`.
+#'
+#' @param string `[character(1)]`
+#'
+#' For `label`, the label (as a word) that the output function pastes onto
+#' a character vector.
 #'
 #' @return
 #'
@@ -45,18 +61,15 @@
 #'
 #' embrace <- wrap("(", ")")
 #' embrace(c(2.2, 3.3, 4.4))
+#'
+#' yes <- label("Yes")
+#' yes(1)
 NULL
 
 # todos ------------------------------------------------------------------------
 
-#### color_pattern(..., .nchar = 1L, .color_ws = FALSE)
-#
-# Just for fun I'd like an option to provide multiple colors, which are
-# repeated in an alternating pattern along all non-white-space characters
-# of a vector. Make a `background_pattern()` as well.
-#
-# - color_pattern("red", "green") -> Christmas
-# - color_pattern(!!!roygbiv)     -> Rainbow
+#### Split up the documentation above to just include the `backgroun()` and
+# `color()` functions (+ rep and shorthands).
 
 # cli --------------------------------------------------------------------------
 
@@ -134,6 +147,40 @@ color <- function(x) {
 #' @export
 colour <- color
 
+# TODO: After testing, make a background version
+# TODO: Document and export
+color_rep <- function(...) {
+  # Allowing each `...` to be a character, makes calling with an external vector
+  # easier. E.g. `color_rep("orange", "black")` or `color_rep(halloween)`.
+  dots <- rlang::list2(...)
+  map(
+    seq_along(dots),
+    \(i) check_must_not(
+      x = dots[[i]],
+      x_name = dot_name(i),
+      test = is.character,
+      must = "be a character vector"
+    )
+  )
+  crayons <- map(vctrs::list_unchop(dots), color)
+  n_crayons <- length(crayons)
+  color_rep_scalar <- function(x) {
+    s <- strsplit(cli::ansi_strip(x), "")[[1]]
+    color_at <- nchar(trimws(s)) > 0
+    s[color_at] <- mapply(
+      s[color_at],
+      which(color_at),
+      FUN = \(letter, i) crayons[[mod_index(i, n_crayons)]](letter)
+    )
+    paste(s, collapse = "")
+  }
+  function(x) {
+    unname(map_chr(x, color_rep_scalar))
+  }
+}
+
+colour_rep <- color_rep
+
 # misc -------------------------------------------------------------------------
 
 #' @name stylers
@@ -199,13 +246,19 @@ make_fallback_color <- function(
         # to matrices is all that was removed, otherwise this is mostly the same.
         c(
           "Can't create a style {with_color} {.val {x}}. {.arg x} must be one of:",
-          `*` = "a builtin {.pkg cli} style, e.g. {.val red} or {.val br_blue}",
-          `*` = "an R colour name, see {.run grDevices::colors}",
-          `*` = "a 6- or 8-digit hexadecimal color string"
+          valid_colors_bullets()
         ),
         call = error_call,
         class = error_class
       )
     }
+  )
+}
+
+valid_colors_bullets <- function() {
+  c(
+    `*` = "a builtin {.pkg cli} style, e.g. {.val red} or {.val br_blue}",
+    `*` = "an R colour name, see {.run grDevices::colors}",
+    `*` = "a 6- or 8-digit hexadecimal color string"
   )
 }
