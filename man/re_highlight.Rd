@@ -18,17 +18,7 @@ formatting is combined with that of the highlights supplied to \code{...}.}
 
 \item{...}{\verb{[vlighter_highlight]}
 
-A highlighted vector used to highlight \code{x}. The \code{conditions}, \code{formatters},
-\code{description}, \code{precedence}, \code{format_once}, \code{init_formatter}, and
-\code{last_formatter} of each \code{...} argument are appended to that of \code{x}, if \code{x}
-is a highlighted vector, and are supplied to \code{highlight(x, ...)} otherwise.
-
-The \code{format_once} attribute of the output vector is set to \code{TRUE} if \code{format_once}
-is \code{TRUE} for any of \code{x} or \code{...}. Otherwise, \code{format_once} is set to \code{FALSE}.
-
-The \code{init_formatter} (\code{last_formatter}) is taken from \code{x}, if it is defined
-(i.e. not \code{NULL}), and is otherwise taken from the first argument in
-\code{...} for which an \code{init_formatter} (\code{last_formatter}) is defined.}
+A highlighted vector used to highlight \code{x}.}
 }
 \description{
 \code{re_highlight()} adds the conditional formatting of highlighted vectors in
@@ -45,55 +35,6 @@ highlighted vector \code{x_hl}.
 \code{re_highlight()} and \code{rl()} are synonyms.
 }
 \examples{
-# Restore a vector's conditional formatting after manipulating it
-praise <- c("is cool", "has great vibes", "can do anything")
-names <- "David|Aretha|Fats|Marvin|Lauryn"
-praise_names <- highlight(
-  c("Marvin", "House", "Fats", "Soup"),
-  conditions = ~ grepl(names, .x),
-  formatters = ~ paste(.x, rep_len(praise, length(.x)))
-)
-print(praise_names)
+# TODO
 
-new_names <- paste(
-  un_highlight(praise_names),
-  c("Gaye", "MD", "Domino", "Salad")
-)
-print(new_names)
-print(re_highlight(new_names, praise_names))
-
-# Add several conditional formats to an unhighlighted vector
-x <- highlight(1:5, ~ .x > 3, wrap("[", "]"))
-y <- highlight(1:5, ~ .x < 2, wrap("<", ">"))
-print(x)
-print(y)
-print(re_highlight(1:5, x, y))
-
-# Or add conditional formats to an already highlighted vector
-z <- highlight(1:5, ~ .x \%\% 2 == 0, wrap("(", ")"))
-print(z)
-print(re_highlight(z, x, y))
-
-## Restore the conditional formatting of multiple highlights
-positive_adjectives <- "(amazing|great|fantastic)"
-positive_phrases <- highlight(
-  c("that's amazing", "alright", "you're fantastic"),
-  conditions = ~ grepl(positive_adjectives, .x),
-  formatters = toupper
-)
-
-doubts <- "(but|maybe)"
-doubtful_phrases <- highlight(
-  c("but I can't go", "I'll be there", "maybe too fantastic"),
-  conditions = ~ grepl(doubts, .x),
-  formatters = ~ paste0(.x, "...")
-)
-
-# Highlights separately
-print(positive_phrases)
-print(doubtful_phrases)
-
-# Highlights combined
-paste0(ul(positive_phrases), ", ", ul(doubtful_phrases)) |>
-  re_highlight(positive_phrases, doubtful_phrases)
 }

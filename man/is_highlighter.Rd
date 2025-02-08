@@ -2,9 +2,12 @@
 % Please edit documentation in R/highlight.R
 \name{is_highlighter}
 \alias{is_highlighter}
+\alias{is_highlighter_case}
 \title{Test if the object is a highlighter}
 \usage{
 is_highlighter(x)
+
+is_highlighter_case(x)
 }
 \arguments{
 \item{x}{An object to test.}

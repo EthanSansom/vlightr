@@ -265,6 +265,14 @@ new_templighter <- function(tests, formatters, subclass = character()) {
 }
 
 # TODO: Document and export
+
+#' Make a temporary highlighter
+#'
+#' @description
+#'
+#' Makes a temporary highlighter.
+#'
+#' @export
 templighter <- function(.t, .at) {
   rlang::check_required(.t)
   rlang::check_required(.at)
@@ -275,13 +283,15 @@ templighter <- function(.t, .at) {
   new_templighter(tests = tests, formatters = formatters)
 }
 
-# TODO: Document and export
+#' @rdname templighter
+#' @export
 templighter_mult <- function(...) {
   funs <- prepare_templight_functions(...)
   new_templighter(tests = funs$test, formatters = funs$formatter)
 }
 
-# TODO: Document and export
+#' @rdname templighter
+#' @export
 templighter_case <- function(...) {
   funs <- prepare_templight_functions(...)
   new_templighter(

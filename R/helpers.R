@@ -62,70 +62,11 @@ ul <- un_highlight
 #'
 #' @param ... `[vlighter_highlight]`
 #'
-#' A highlighted vector used to highlight `x`. The `conditions`, `formatters`,
-#' `description`, `precedence`, `format_once`, `init_formatter`, and
-#' `last_formatter` of each `...` argument are appended to that of `x`, if `x`
-#' is a highlighted vector, and are supplied to `highlight(x, ...)` otherwise.
-#'
-#' The `format_once` attribute of the output vector is set to `TRUE` if `format_once`
-#' is `TRUE` for any of `x` or `...`. Otherwise, `format_once` is set to `FALSE`.
-#'
-#' The `init_formatter` (`last_formatter`) is taken from `x`, if it is defined
-#' (i.e. not `NULL`), and is otherwise taken from the first argument in
-#' `...` for which an `init_formatter` (`last_formatter`) is defined.
+#' A highlighted vector used to highlight `x`.
 #'
 #' @examples
-#' # Restore a vector's conditional formatting after manipulating it
-#' praise <- c("is cool", "has great vibes", "can do anything")
-#' names <- "David|Aretha|Fats|Marvin|Lauryn"
-#' praise_names <- highlight(
-#'   c("Marvin", "House", "Fats", "Soup"),
-#'   conditions = ~ grepl(names, .x),
-#'   formatters = ~ paste(.x, rep_len(praise, length(.x)))
-#' )
-#' print(praise_names)
+#' # TODO
 #'
-#' new_names <- paste(
-#'   un_highlight(praise_names),
-#'   c("Gaye", "MD", "Domino", "Salad")
-#' )
-#' print(new_names)
-#' print(re_highlight(new_names, praise_names))
-#'
-#' # Add several conditional formats to an unhighlighted vector
-#' x <- highlight(1:5, ~ .x > 3, wrap("[", "]"))
-#' y <- highlight(1:5, ~ .x < 2, wrap("<", ">"))
-#' print(x)
-#' print(y)
-#' print(re_highlight(1:5, x, y))
-#'
-#' # Or add conditional formats to an already highlighted vector
-#' z <- highlight(1:5, ~ .x %% 2 == 0, wrap("(", ")"))
-#' print(z)
-#' print(re_highlight(z, x, y))
-#'
-#' ## Restore the conditional formatting of multiple highlights
-#' positive_adjectives <- "(amazing|great|fantastic)"
-#' positive_phrases <- highlight(
-#'   c("that's amazing", "alright", "you're fantastic"),
-#'   conditions = ~ grepl(positive_adjectives, .x),
-#'   formatters = toupper
-#' )
-#'
-#' doubts <- "(but|maybe)"
-#' doubtful_phrases <- highlight(
-#'   c("but I can't go", "I'll be there", "maybe too fantastic"),
-#'   conditions = ~ grepl(doubts, .x),
-#'   formatters = ~ paste0(.x, "...")
-#' )
-#'
-#' # Highlights separately
-#' print(positive_phrases)
-#' print(doubtful_phrases)
-#'
-#' # Highlights combined
-#' paste0(ul(positive_phrases), ", ", ul(doubtful_phrases)) |>
-#'   re_highlight(positive_phrases, doubtful_phrases)
 #' @export
 re_highlight <- function(x, ...) {
 
@@ -135,16 +76,18 @@ re_highlight <- function(x, ...) {
       return(x)
     }
     return(
-      new_highlight(
-        check_is_highlightable(x),
-        tests = list(),
-        formatters = list()
+      validate_highlight(
+        new_highlight(
+          check_is_highlightable(x),
+          tests = list(),
+          formatters = list()
+        )
       )
     )
   }
 
   for (i in seq_along(dots)) {
-    check_is_highlight(dots[[i]], arg_name = paste0("..", i))
+    check_is_highlight(dots[[i]], x_name = dot_name(i))
   }
   if (is_highlight(x)) {
     dots <- append(list(x), dots)
@@ -153,15 +96,11 @@ re_highlight <- function(x, ...) {
     x <- check_is_highlightable(x)
   }
 
-  # TODO: We'll probably want a more custom error message for this, something
-  # that mentions the incompatibility of `x` and `...`.
-  validate_highlight(
-    new_highlight(
-      x = x,
-      tests = vctrs::vec_c(!!!map(dots, get_tests)),
-      formatters = vctrs::vec_c(!!!map(dots, get_formatters)),
-    ),
-    x_name = rlang::caller_arg(x)
+  # TODO: Make the error message correct!
+  restore_highlight(
+    x, !!!dots,
+    .x_name = "x",
+    .error_message = "Call produced a malformed {.cls vlightr_highlight} vector."
   )
 }
 
@@ -190,6 +129,7 @@ rl <- re_highlight
 #' `lhs %hl>% rhs` is equivalent to `re_highlight(un_highlight(lhs) %>% rhs, lhs)`.
 #'
 #' @examples
+#' # Make a highlighted vector
 #' x <- highlight(c(1L, 0L, NA, 0L), is.na, color("red"))
 #' print(x)
 #'
@@ -214,11 +154,21 @@ rl <- re_highlight
 # accessors --------------------------------------------------------------------
 
 # TODO: Document and Export
+
+#' Get or set the test functions of a highlight or highlighter
+#'
+#' @description
+#'
+#' Get or set the test functions of a highlight or highlighter
+#'
+#' @export
 tests <- function(x) {
   rlang::check_required(x)
   get_tests(check_is_highlight(x))
 }
 
+#' @rdname tests
+#' @export
 `tests<-` <- function(x, value) {
   rlang::check_required(x)
   rlang::check_required(value)
@@ -231,12 +181,21 @@ tests <- function(x) {
 }
 
 # TODO: Document and Export
+
+#' Get or set the formatter functions of a highlight or highlighter
+#'
+#' @description
+#'
+#' Get or set the formatter functions of a highlight or highlighter
+#'
+#' @export
 formatters <- function(x) {
   rlang::check_required(x)
   get_formatters(check_is_highlight(x))
 }
 
-# TODO: Document and Export
+#' @rdname formatters
+#' @export
 `formatters<-` <- function(x, value) {
   rlang::check_required(x)
   rlang::check_required(value)
@@ -249,6 +208,14 @@ formatters <- function(x) {
 }
 
 # TODO: Document and Export
+
+#' Get or set the test and formatter functions of a highlight or highlighter
+#'
+#' @description
+#'
+#' Get or set the test and formatter functions of a highlight or highlighter
+#'
+#' @export
 highlight_functions <- function(x, as = c("functions", "highlighters")) {
   rlang::check_required(x)
   x <- check_is_highlight(x)
@@ -261,7 +228,8 @@ highlight_functions <- function(x, as = c("functions", "highlighters")) {
   )
 }
 
-# TODO: Document and Export
+#' @rdname highlight_functions
+#' @export
 `highlight_functions<-` <- function(x, value) {
   rlang::check_required(x)
   rlang::check_required(value)
@@ -329,6 +297,14 @@ false <- function(x) {
 # misc -------------------------------------------------------------------------
 
 # TODO: Export and document
+
+#' Convert a one-sided formula to a function
+#'
+#' @description
+#'
+#' Convert a one-sided formula to a function
+#'
+#' @export
 highlight_lambda <- function(x, x_name = rlang::caller_arg(x)) {
   rlang::check_required(x, arg = x_name)
 

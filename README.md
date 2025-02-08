@@ -5,10 +5,11 @@ vlightr
 <!-- badges: start -->
 <!-- badges: end -->
 
-{vlightr} (read, “vector-highlighter”) makes identifying key elements of
-vectors easier. It implements a `<vlightr_highlight>` vector superclass
-which enhances the `format()` and `print()` method of generic vectors,
-allowing vector elements to be conditionally formatted.
+{vlightr} (read, “vector-highlighter”) makes it easy to identify
+elements of interest in a vector printed to the console. It implements a
+`<vlightr_highlight>` vector superclass which enhances the `format()`
+and `print()` methods of generic vectors, allowing you to specify a
+custom conditional formatting method for (almost) any vector type.
 
 ## Installation
 
@@ -34,7 +35,6 @@ Want to identify an element of a vector? Highlight it with
 
 ``` r
 x <- c(1, 8, 12, 4, 2)
-# maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x), .f = ~ vlightr::bg("br_yellow"))
 maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x))
 print(maximum_hl)
 ```
@@ -55,7 +55,7 @@ sort(maximum_hl + vlightr::hl(10))
 <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-/sort-demo-dark.svg">
 <img src="man/figures/README-/sort-demo.svg" width="100%" /> </picture>
 
-Highlighted vectors can be used as tibble::tibble() columns too.
+Highlighted vectors can be used as `tibble::tibble()` columns too.
 
 ``` r
 iris |>
@@ -82,13 +82,13 @@ iris |>
 
 Are you (or your boss) having a hard time finding that row you’re
 looking for? Use `templight()` to temporarily highlight a vector by
-index instead of using a test function.
+index.
 
 ``` r
 mtcars |>
-    as_tibble(rownames = "make") |>
-    mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>
-    select(make, mpg, disp, vs) |>
+  as_tibble(rownames = "make") |>
+  mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>
+  select(make, mpg, disp, vs) |>
   head(5)
 ```
 
@@ -127,7 +127,7 @@ indicator <- vlightr::highlight_case(
     is.na ~ vlightr::color("red"),
     0 ~ vlightr::label("No"),
     1 ~ vlightr::label("Yes"),
-    vlightr::true ~ paste(.x, "[?]") # Use `true()` to provide a default formatter
+    vlightr::true ~ paste(.x, "[?]") # Provide a default formatter
 )
 print(indicator)
 ```

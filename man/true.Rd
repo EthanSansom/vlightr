@@ -20,9 +20,9 @@ This function always returns the value \code{TRUE}.
 # to `highlight_case()`.
 levels <- highlight_case(
   1:5,
-  1 ~ "Low",
-  2 ~ "Mid",
-  3 ~ "High",
+  1 ~ label("Low"),
+  2 ~ label("Mid"),
+  3 ~ label("High"),
   true ~ label("?") # Label any value not in 1, 2, 3
 )
 print(levels)

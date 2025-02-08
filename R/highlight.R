@@ -540,7 +540,7 @@ new_highlighter <- function(tests, formatters, subclass = character()) {
 #' phrases <- c("hi all", "FANTASTIC", "I'm Dave")
 #' exclaim(phrases)
 #' question(phrases)
-#' question(punctuate)
+#' punctuate(phrases)
 #'
 #' # `highlighter_case()` uses the same matching behavior as
 #' # `highlight_case()`.
@@ -605,7 +605,8 @@ is_highlighter <- function(x) {
   inherits(x, "vlightr_highlighter")
 }
 
-# TODO: Export and Document
+#' @rdname is_highlighter
+#' @export
 is_highlighter_case <- function(x) {
   inherits(x, "vlightr_highlighter_case")
 }

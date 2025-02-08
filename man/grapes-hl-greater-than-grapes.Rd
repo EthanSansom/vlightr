@@ -20,6 +20,7 @@ the output value using \code{re_highlight(..., lhs)}.
 \code{lhs \%hl>\% rhs} is equivalent to \code{re_highlight(un_highlight(lhs) \%>\% rhs, lhs)}.
 }
 \examples{
+# Make a highlighted vector
 x <- highlight(c(1L, 0L, NA, 0L), is.na, color("red"))
 print(x)
 

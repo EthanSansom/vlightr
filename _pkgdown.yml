@@ -1,4 +1,75 @@
 url: https://ethansansom.github.io/vlightr/
+
 template:
   bootstrap: 5
 
+reference:
+- title: Highlight constructors
+- contents:
+  - highlight
+  - hl
+  - highlight_mult
+  - hl_mult
+  - highlight_case
+  - hl_case
+
+- title: Temporary highlight constructors
+- contents:
+  - templight
+  - tl
+  - templight_mult
+  - tl_mult
+  - templight_case
+  - tl_case
+
+- title: Highlighters
+- contents:
+  - highlighter
+  - highlighter
+  - highlighter_case
+  - templighter
+  - templighter
+  - templighter_case
+  - as_highlighter
+
+- title: Accessors
+- contents:
+  - tests
+  - formatters
+  - highlight_functions
+
+- title: Highlight, Un-light, Re-light
+- contents:
+  - un_highlight
+  - ul
+  - re_highlight
+  - rl
+  - "`%hl>%`"
+
+- title: Stylers
+- contents:
+  - color
+  - colour
+  - background
+  - bg
+  - style
+  - label
+  - wrap
+
+- title: Predicates
+- contents:
+  - is_highlightable
+  - is_highlight
+  - is_highlight_case
+  - is_templight
+  - is_templight_case
+  - is_highlighter
+  - is_highlighter_case
+  - is_templighter
+  - is_templighter_case
+
+- title: Miscellaneous
+- contents:
+  - "true"
+  - "false"
+  - highlight_lambda
