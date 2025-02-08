@@ -16,3 +16,13 @@ is_highlight(x)
 This function returns \code{TRUE} for highlighted vectors (class \code{vlightr_highlight})
 or subclasses thereof, and returns returns \code{FALSE} otherwise.
 }
+\examples{
+# The following are `FALSE`
+is_highlight(10)
+
+# The following are `TRUE`
+is_highlight(highlight(10))
+is_highlight(templight(10))
+is_highlight(highlight_case(10))
+
+}

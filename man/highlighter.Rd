@@ -2,15 +2,20 @@
 % Please edit documentation in R/highlight.R
 \name{highlighter}
 \alias{highlighter}
-\title{Generate a highlight function with custom default arguments}
+\alias{highlighter_mult}
+\alias{highlighter_case}
+\title{Generate a re-usable highlight function}
 \usage{
 highlighter(.t, .f)
+
+highlighter_mult(...)
+
+highlighter_case(...)
 }
 \arguments{
 \item{.t}{\verb{[function / list]}
 
-Vectorized test functions that indicate which elements of \code{.x}
-to conditionally format. \code{.t} may be:
+Vectorized test functions specified as:
 \itemize{
 \item A named function, e.g. \code{is.na}
 \item An anonymous function, e.g. \verb{\\(x) 0 <= x & x <= 1}
@@ -18,17 +23,13 @@ to conditionally format. \code{.t} may be:
 \item A list of functions or lambdas, e.g. \code{list(~ .x < mean(.x), is.finite)}
 }
 
-Each function in \code{.t} will receive \code{.x} as it's input and must return
-a logical vector the same length as \code{.x} or of length 1 (in which case the
-result will be recycled to the length of \code{.x}).
-
-By default \code{.t} is the function \code{false_along()} which returns \code{FALSE} for
-every element of it's input. You can modify this default by setting the
-\code{vlightr.default_test} in \code{\link[=options]{options()}}.}
+In the generated function, each function in \code{.t} will receive a vector \code{.x}
+as it's input and must return a logical vector the same length as \code{.x} or of
+length 1 (in which case the result will be recycled to the length of \code{.x}).}
 
 \item{.f}{\verb{[function / list]}
 
-Vectorized character manipulation functions used to format \code{.x}. Can be a:
+Vectorized character manipulation functions specified as:
 \itemize{
 \item A named function, e.g. \link[cli:ansi-styles]{cli::style_bold}
 \item An anonymous function, e.g. \verb{\\(words) gsub("hi", "hey", words)}
@@ -36,97 +37,93 @@ Vectorized character manipulation functions used to format \code{.x}. Can be a:
 \item A list of functions or lambdas, e.g. \code{list(~ cli::col_red(.x), toupper)}
 }
 
-Each function in \code{.f} will receive a character vector (of variable length)
-as it's only argument. A formatter must return a character vector the same
-length as it's input or of length 1 (in which case the result is recycled to
-the length of the input character).
+In the generated function, each formatter function in \code{.f} will receive a
+character vector (of variable length) as it's only argument. A formatter must
+return a character vector the same length as it's input or of length 1 (in
+which case the result is recycled to the length of the input character).}
 
-ANSI string vectors (class \code{cli_ansi_string}) are also supported (see
-\link[cli:ansi-styles]{cli::ansi-styles} for details).
+\item{...}{\verb{[formula / vlightr_highlighter]}
 
-By default \code{.f} is the function \verb{[cli::bg_br_yellow()]} which changes the
-background color of it's input text to bright yellow. You can modify this
-default by setting the \code{vlightr.default_formatter} in \code{\link[=options]{options()}}.}
+For \code{highlighter_mult()} and \code{highlighter_case()}, a two sided formula with
+a test on the left-hand-side and a formatter on the right-hand-side. This
+argument replaces the \code{.t} and \code{.f} arguments of \code{highlighter()}. The ith dot
+\code{..i} is roughly equivalent to \code{.t[[i]] ~ .f[[i]]}.
 
-\item{...}{\verb{[formula]}
-
-This argument replaces the \code{formatters} and \code{conditions} arguments of
-\code{highlighter()}. The i-th dot supplied is roughly equivalent to
-\code{conditions[[i]] ~ formatters[[i]]}.
-
-The left-hand-side and right-hand-side of the formula may be a:
-\itemize{
-\item Function, e.g. \code{rlang::is_string}, \code{toupper}
-\item A purrr-style lambda expression, e.g. \code{TRUE}, \code{paste(.x, "?")}
+See the \code{...} argument of \code{\link[=highlight]{highlight()}} for more details on valid arguments
+to supply to \code{...}.}
 }
-
-The left-hand-side and righ-hand-side of the formula may not be a call to a
-generator function (i.e. a function which returns another function). Examples
-include \code{\link[=wrap]{wrap()}}, \code{\link[=color]{color()}}, and \code{\link[=bg]{bg()}}. To use such a function, call it
-within a lambda expression instead, e.g. \code{color("blue")(.x)}.
-
-Examples of arguments to \code{...} include:
-\itemize{
-\item Colour \code{NA} values red: \code{is.na ~ cli::col_red}
-\item Add an exclamation mark: \code{toupper(.x) == .x ~ paste0(.x, "!")}
-\item Replace 1's with 2's: \code{.x == 1 ~ "2"}
-\item Colour the background yellow by default: \code{TRUE ~ bg("yellow")(.x)}
-}}
+\value{
+A function of class \code{vlightr_highlighter}. For \code{highlighter_case()}, a
+function of class \code{vlightr_highlighter/vlightr_highlighter_case}.
 }
 \description{
-Produces a partially applied version of the \code{\link[=highlight]{highlight()}} function, with
-specified arguments pre-filled. The resulting function can be used to highlight
-a vector \code{x} using a default conditional format.
+Generates a partially applied version of the \code{\link[=highlight]{highlight()}} function, with
+pre-supplied tests \code{.t} and formatters \code{.f}.
 
-Assuming that arguments \code{x}, \code{conditions}, and \code{formatters} are valid, the
-following are equivalent:
+The following calls produce equivalent highlighted vectors:
 \itemize{
-\item \code{highlight(x = x, conditions = conditions, formatters = formatters)}
-\item \code{highlighter(conditions = conditions, formatters = formatters)(x)}
+\item \code{highlight(.x = .x, .t = .t, .f = .f)}
+\item \code{highlighter(.t = .t, .f = .f)(.x = .x)}
 }
 
-The output function has the same arguments as \code{highlight()}. If arguments
-\code{conditions}, \code{formatters}, \code{description}, or \code{precedence} are supplied to
-a highlighter function, then the supplied arguments are appended to the pre-filled
-arguments prior to highlighting.
+This is useful for creating and storing a re-usable conditional format
+to apply to vectors.
 
-If arguments \code{format_once}, \code{init_formatter}, or \code{last_formatter} are supplied
-to a highlighter, then the supplied arguments override the pre-filled defaults.
+\code{highlighter_mult()} and \code{highlighter_case()} (corresponding to \code{highlight_mult()}
+and \code{hightlight_case()}) allow \code{.t} and \code{.f} to be supplied as two-sided
+formulas \code{.t ~ .f} using \code{\link[dplyr:case_when]{dplyr::case_when()}} style syntax.
 }
 \examples{
 # Mimic an existing highlighted vector
-dummy <- c(1L, NA, 0L, 1L, NA)
-dummy_hl <- highlight_case(
- dummy,
- .x == 0 ~ paste0(.x, "[No]"),
- .x == 1 ~ paste0(.x, "[Yes]"),
- is.na ~ cli::col_red
+indicator <- c(1, 0, 1, 0)
+indicator_hl <- highlight_mult(
+ indicator,
+ 0 ~ label("No"),
+ 1 ~ label("Yes")
 )
-dummy_hlghtr <- highlighter_case(
- .x == 0 ~ paste0(.x, "[No]"),
- .x == 1 ~ paste0(.x, "[Yes]"),
- is.na ~ cli::col_red
-)
-print(dummy_hl)
-print(dummy_hlghtr(dummy))
-
-# Apply a higlighter to a new vector
-dummy_hlghtr(c(-2L, -1L, 0L, 1L, 2L, NA))
-
-# Provide additional arguments to a highlighter
-dummy_hlghtr(
-  x = c(1L, NA, 2L, 0L, 1L, NA, 2L),
-  conditions = ~ .x == 2,
-  formatters = ~ paste(.x, "[Double Yes]")
+indicator_hltr <- highlighter_mult(
+ 0 ~ label("No"),
+ 1 ~ label("Yes")
 )
 
-# Override default highlighter arguments
-secret <- highlighter(
-  ~ grepl("^<.*>$", .x),
-  ~ strrep("x", nchar(.x) - 2L),
-  last_formatter = toupper
+# These print the same result
+print(indicator_hl)
+print(indicator_hltr(indicator))
+
+# You can add functionality to an existing highlighter by
+# providing it as an argument to `highlighter_mult()`.
+new_indicator_hltr <- highlighter_mult(
+  indicator_hltr,
+  5 ~ "Maybe",
+  is.na ~ "?"
 )
-message <- c("<A>", "Super", "<Secret>", "Message")
-secret(message)
-secret(message, last_formatter = tolower)
+x <- c(0, 1, NA, 5)
+indicator_hltr(x) # NA and 5 are un-formatted
+new_indicator_hltr(x) # NA and 5 are formatted
+
+# This is useful for composing highlighters
+exclaim <- highlighter(~ .x == toupper(.x), ~ paste0(.x, "!"))
+question <- highlighter(~ .x == tolower(.x), ~ paste0(.x, "?"))
+punctuate <- highlighter_mult(exclaim, question)
+
+# `punctuate()` applies the formatting of `exclaim()` and `question()`
+phrases <- c("hi all", "FANTASTIC", "I'm Dave")
+exclaim(phrases)
+question(phrases)
+question(punctuate)
+
+# `highlighter_case()` uses the same matching behavior as
+# `highlight_case()`.
+fullstop <- highlighter(~ TRUE, ~ paste0(.x, "."))
+punctuate_mult <- highlighter_mult(punctuate, fullstop)
+punctuate_case <- highlighter_case(punctuate, fullstop)
+
+# A period is added to every phrase, since the `fullstop()`
+# test always returns `TRUE`
+punctuate_mult(phrases)
+
+# A period is only added to elements of phrase not already
+# matched by a previous test.
+punctuate_case(phrases)
+
 }

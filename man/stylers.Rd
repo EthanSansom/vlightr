@@ -44,17 +44,21 @@ See \code{\link[cli:ansi-styles]{cli::style_bold()}} and friends for recognized 
 
 \item{left, right}{\verb{[character(1)]}
 
-For \code{wrap()}, a prefix (\code{left}) or suffix \code{right} that the output function
+For \code{wrap()}, \code{label()} a prefix (\code{left}) or suffix \code{right} that the output function
 pastes onto a character vector. By default, \code{left} is \code{"["} and \code{right}
 is \code{"]"}.}
+
+\item{string}{\verb{[character(1)]}
+
+For \code{label}, the label (as a word) that the output function pastes onto
+a character vector.}
 }
 \value{
 A function which returns a styled character or ANSI string vector.
 }
 \description{
-Function factors used to generate new formatting functions for use in the
-\code{formatters}, \code{init_formatter}, and \code{last_formatter} arguments of highlight
-functions (e.g. \code{\link[=highlight]{highlight()}}, \code{\link[=highlighter]{highlighter()}}).
+Function factories used to generate new formatting functions for use in
+\code{\link[=highlight]{highlight()}}, \code{\link[=highlighter]{highlighter()}}, and friends.
 }
 \examples{
 color_red <- color("red")
@@ -68,5 +72,8 @@ style_bold(c(TRUE, FALSE, NA))
 
 embrace <- wrap("(", ")")
 embrace(c(2.2, 3.3, 4.4))
+
+yes <- label("Yes")
+yes(1)
 }
 \concept{styles}
