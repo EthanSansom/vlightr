@@ -4,14 +4,72 @@
 \alias{templighter}
 \alias{templighter_mult}
 \alias{templighter_case}
-\title{Make a temporary highlighter}
+\title{Generate a re-usable temp-light function}
 \usage{
-templighter(.t, .at)
+templighter(.at, .f)
 
 templighter_mult(...)
 
 templighter_case(...)
 }
+\arguments{
+\item{.at}{\verb{[logical / integerish / list]}
+
+Locations of elements in \code{.x} which are conditionally formatted in the
+output function. \code{.at} may be supplied as a logical, integer, or whole-
+numbered (e.g. \code{1.0}, \code{2.00}) numeric vector. \code{.at} may also be a list of
+such vectors.
+
+By default, \code{.at} is an empty logical vector.}
+
+\item{.f}{\verb{[function / list]}
+
+Vectorized character manipulation functions specified as:
+\itemize{
+\item A named function, e.g. \link[cli:ansi-styles]{cli::style_bold}
+\item An anonymous function, e.g. \verb{\\(words) gsub("hi", "hey", words)}
+\item A purrr-style lambda, e.g. \code{~ paste0(.h, "!")}, \code{~ "fizz"}
+\item A list of functions or lambdas, e.g. \code{list(~ cli::col_red(.x), toupper)}
+}
+
+In the generated function, each formatter function in \code{.f} will receive a
+character vector (of variable length) as it's only argument. A formatter must
+return a character vector the same length as it's input or of length 1 (in
+which case the result is recycled to the length of the input character).}
+
+\item{...}{\verb{[formula / vlightr_templighter]}
+
+For \code{templighter_mult()} and \code{templighter_case()}, a two sided formula with
+locations on the left-hand-side and a formatter on the right-hand-side. This
+argument replaces the \code{.at} and \code{.f} arguments of \code{templighter()}. The ith dot
+\code{..i} is roughly equivalent to \code{.at[[i]] ~ .f[[i]]}.
+
+Arguments to \code{...} may also be functions made with \code{templighter()}, in which
+case the locations (e.g. \code{.at}) and formatters (e.g. \code{.f}) of the temp-lighter
+function are spliced into \code{...}.
+
+See the \code{...} argument of \code{\link[=templight]{templight()}} for more details on valid arguments
+to supply to \code{...}.}
+}
+\value{
+A function of class \code{vlightr_templighter}. For \code{templighter_case()}, a
+function of class \code{vlightr_templighter/vlightr_highlighter_case}.
+}
 \description{
-Makes a temporary highlighter.
+Generates a partially applied version of the \code{\link[=templight]{templight()}} function, with
+pre-supplied locations \code{.at} and formatters \code{.f}.
+
+The following calls produce equivalent temp-lighted vectors:
+\itemize{
+\item \code{templight(.x = .x, .at = .at, .f = .f)}
+\item \code{templighter(.t = .t, .at = .at)(.x = .x)}
+}
+
+\code{templighter_mult()} and \code{templighter_case()} (corresponding to \code{templight_mult()}
+and \code{templight_case()}) allow \code{.at} and \code{.f} to be supplied as two-sided
+formulas of the form \code{.at ~ .f}.
+}
+\examples{
+# TODO
+
 }

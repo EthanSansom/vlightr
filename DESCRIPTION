@@ -19,10 +19,9 @@ RoxygenNote: 7.2.1
 Imports: 
     cli,
     dplyr,
-    glue,
+    tibble,
     magrittr,
     rlang,
-    tibble,
     vctrs
 Suggests: 
     asciicast,

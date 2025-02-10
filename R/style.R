@@ -269,8 +269,8 @@ style <- function(x) {
 #'
 #' @export
 wrap <- function(left = "[", right = "]") {
-  left <- check_is_string(left)
-  right <- check_is_string(right)
+  left <- check_is_string(left, nochar_ok = TRUE)
+  right <- check_is_string(right, nochar_ok = TRUE)
   return(function(x) paste0(left, x, right))
 }
 
@@ -306,8 +306,8 @@ wrap <- function(left = "[", right = "]") {
 #'
 #' @export
 label <- function(string, left = "[", right = "]") {
-  left <- check_is_string(left)
-  right <- check_is_string(right)
+  left <- check_is_string(left, nochar_ok = TRUE)
+  right <- check_is_string(right, nochar_ok = TRUE)
   string <- check_is_string(string)
   return(function(x) paste0(x, " ", left, string, right))
 }

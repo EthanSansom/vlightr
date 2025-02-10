@@ -229,6 +229,9 @@ highlight_format.POSIXt <- function(x) {
   format(x, format = "%Y-%m-%d %H:%M:%S")
 }
 
+# TODO: This prints `-1 hours` for a 1 hour difference, but
+# we already have `<highlight<duration<hours>>[9]>` hours in
+# the ptype. Might be useful to keep for tibble columns however...
 highlight_format.difftime <- function(x) {
   format(x, trim = TRUE, scientific = FALSE)
 }

@@ -37,11 +37,12 @@ check_is_highlight <- function(
 
 check_is_string <- function(
     x,
+    nochar_ok = FALSE,
     x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = character()
   ) {
-  if (rlang::is_string(x) && x != "") {
+  if (rlang::is_string(x) && (nochar_ok || x != "")) {
     return(x)
   }
   if (is.character(x) && length(x) > 1) {
@@ -269,13 +270,23 @@ assert_same_length <- function(
 assert_arg_match_internal <- function(
     x,
     values,
+    subset = FALSE,
     x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env()
   ) {
-  if (!rlang::is_string(x) || x %notin% values) {
+  if (
+    (subset && !is.character(x)) ||
+    (!subset && !rlang::is_string(x)) ||
+    any(x %notin% values)
+  ) {
     values <- encodeString(values, quote = '"')
+    not <- if (!subset && rlang::is_string(x)) {
+      "the string {.val {x}}."
+    } else {
+      "{.obj_type_friendly {x}}."
+    }
     stop_internal(
-      "{.arg {x_name}} must be one of {.or {values}}, not {.obj_type_friendly {x}}.",
+      paste("{.arg {x_name}} must be one of {.or {values}}, not", not),
       error_call = error_call
     )
   }

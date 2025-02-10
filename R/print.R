@@ -42,8 +42,9 @@ print_highlights <- function(x) {
   x <- check_is_highlight(x)
   x_data <- get_data(x)
   tests <- get_tests(x)
+  x_name <- rlang::caller_arg(x)
 
-  formatted <- format(x, .x_name = rlang::caller_arg(x))
+  formatted <- format(x, .x_name = x_name)
   formatted_with <- map(seq_along(x), \(x) numeric())
 
   # TODO: We'll want a method for <highlight_case>

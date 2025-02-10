@@ -71,7 +71,7 @@ to apply to vectors.
 
 \code{highlighter_mult()} and \code{highlighter_case()} (corresponding to \code{highlight_mult()}
 and \code{hightlight_case()}) allow \code{.t} and \code{.f} to be supplied as two-sided
-formulas \code{.t ~ .f} using \code{\link[dplyr:case_when]{dplyr::case_when()}} style syntax.
+formulas of the form \code{.t ~ .f}.
 }
 \examples{
 # Mimic an existing highlighted vector

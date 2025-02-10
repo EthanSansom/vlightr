@@ -164,6 +164,73 @@ minimum_hl <- highlight(x, .t = ~ .x == min(.x), .f = wrap("<", ">"))
 print(sort(minimum_hl)) # <0> 1 2 3 4
 }\if{html}{\out{</div>}}
 }
+\examples{
+# Emphasize even elements of `z`
+z <- 1:6
+z_tl <- templight(z, .at = z \%\% 2 == 0, .f = wrap("<", ">"))
+print(z_tl)
+
+# Capitalize the first and third elements of `x`
+x <- letters[1:6]
+x_tl <- templight(x, .at = c(1, 3), .f = toupper)
+print(x_tl)
+
+# Retrieve a temp-lighted vector's data
+un_highlight(x_tl)
+
+# `templight()` is useful for highlighting columns of a
+# data.frame in reference to one another. Here, we
+# emphasize the rows of automatic (`am == 0`) cars.
+mtcars2 <- mtcars[1:5, c("mpg", "cyl", "am")]
+mtcars2$mpg <- templight(mtcars2$mpg, mtcars$am == 0, wrap())
+mtcars2$cyl <- templight(mtcars2$cyl, mtcars$am == 0, wrap())
+print(mtcars2)
+
+# data.frame does not render colored text when printed
+mtcars2 <- mtcars[1:5, c("mpg", "cyl", "am")]
+mtcars2$mpg <- templight(mtcars2$mpg, mtcars$am == 0, color("red"))
+mtcars2$cyl <- templight(mtcars2$cyl, mtcars$am == 0, color("red"))
+print(mtcars2)
+
+# The above does work in a `tibble()`. Note, if you're in
+# an environment where ANSI colored text is not supported
+# you will see no difference here.
+library(tibble)
+library(dplyr)
+
+as_tibble(mtcars, rownames = "model") |>
+  select(model, mpg, cyl, am) |>
+  mutate(across(c(mpg, cyl), ~ templight(.x, am == 0, color("red"))))
+
+# Indices in `.at` outside of a temp-lighted vector are ignored
+out_tl <- templight(1:3, .at = 6, .f = label("Out!"))
+print(out_tl)
+
+# If a temp-lighted grows to include these indices, then they
+# are formatted as usual.
+rep(out_tl, 2)
+
+# `.at` is not recycled. For example, `.at = TRUE`
+# is equivalent to `.at = 1`.
+templight(1:3, .at = TRUE, .f = wrap())
+
+# Use `templight_mult()` to add multiple conditional formats
+templight_mult(
+  letters[1:6],
+  grepl("[aeiou]", letters) ~ toupper,
+  c(1, 2, 3) ~ wrap("(", ")")
+)
+
+# `templight_case()` applies the conditional format
+# corresponding to the first `.at` selection matched by
+# an element.
+templight_case(
+  letters[1:6],
+  grepl("[aeiou]", letters) ~ toupper, # "a" is matched here
+  c(1, 2, 3) ~ wrap("(", ")") # "a" will not be matched here
+)
+
+}
 \seealso{
 \code{\link[=highlight]{highlight()}} for conditionally formatting elements of a vector \code{.x}
 for which a test \code{.t} returns \code{TRUE}.

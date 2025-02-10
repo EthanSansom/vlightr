@@ -6,39 +6,8 @@
 \usage{
 as_highlighter(.x)
 }
-\arguments{
-\item{x}{\verb{[vlightr_highlight]}
-
-A highlighted vector to convert to a highlighter (class \code{vlightr_highlighter})
-function. See \code{\link[=highlighter]{highlighter()}} for details.}
-}
-\value{
-A highlighter function with the same \code{conditions}, \code{formatters}, \code{description},
-\code{precedence}, \code{format_once}, \code{init_formatter}, and \code{last_formatter} as \code{x}.
-}
 \description{
 Convert a highlighted vector \code{x} (class \code{vlightr_highlight}) into a highlighter
 function (class \code{vlightr_highligher}) which applies the same conditional
 formatting as that of \code{x}.
-}
-\examples{
-# Highlight a vector
-dummy <- highlight_case(
- x = c(1L, NA, 0L, 1L, NA),
- .x == 0 ~ paste0(.x, "[No]"),
- .x == 1 ~ paste0(.x, "[Yes]"),
- is.na ~ cli::col_red,
- .description = c(
-    "Responded No",
-    "Responded Yes",
-    "No Response"
-  )
-)
-print(dummy)
-describe_highlight(dummy)
-
-# Convert the highlighted vector into a highlighter function
-dummy_hlghtr <- as_highlighter(dummy)
-print(dummy_hlghtr(c(0L, 1L, NA, 2L)))
-describe_highlight(dummy_hlghtr(c(0L, 1L, NA, 2L)))
 }

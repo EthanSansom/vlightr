@@ -1,3 +1,8 @@
+# todos ------------------------------------------------------------------------
+
+#### Documentation:
+# - document all accessors
+
 # un-light and re-light --------------------------------------------------------
 
 #' Unclass a highlighted vector
@@ -153,6 +158,8 @@ rl <- re_highlight
 
 # accessors --------------------------------------------------------------------
 
+# TODO: Document accessors!
+
 #' Get or set the formatter functions of a highlighted or temp-lighted vector or
 #' a highlighter or temp-lighter function
 #'
@@ -230,7 +237,7 @@ tests <- function(x) {
   get_tests(x)
 }
 
-#' @rdname tests
+#' @rdname highlight_functions
 #' @export
 `tests<-` <- function(x, value) {
   rlang::check_required(x)

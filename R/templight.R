@@ -1,3 +1,7 @@
+# todos ------------------------------------------------------------------------
+
+#### P-type abbreviation, fix the vctrs header and abbriated header for templight
+
 # templight --------------------------------------------------------------------
 
 #' Conditionally format a vector by location
@@ -144,6 +148,9 @@
 #' # The above does work in a `tibble()`. Note, if you're in
 #' # an environment where ANSI colored text is not supported
 #' # you will see no difference here.
+#' library(tibble)
+#' library(dplyr)
+#'
 #' as_tibble(mtcars, rownames = "model") |>
 #'   select(model, mpg, cyl, am) |>
 #'   mutate(across(c(mpg, cyl), ~ templight(.x, am == 0, color("red"))))
@@ -286,7 +293,7 @@ is_templight <- function(x) {
 #' is_templight_case(templight_case(10))
 #'
 #' # Vectors highlighted using the `templigher_case()` or highlighter are
-#' class `vlightr_templight/vlightr_highlight_case`.
+#' # class `vlightr_templight/vlightr_highlight_case`.
 #' templighter <- templighter_case()
 #' is_templight_case(templighter(10))
 #'
@@ -380,9 +387,9 @@ new_templighter <- function(tests, formatters, subclass = character()) {
 #' # TODO
 #'
 #' @export
-templighter <- function(.t, .at) {
-  rlang::check_required(.t)
+templighter <- function(.at, .f) {
   rlang::check_required(.at)
+  rlang::check_required(.f)
   tests <- check_is_list_of_index(.at) |> map(as_index_test)
   formatters <- check_is_list_of_functionish(.f)
   assert_same_length(tests, formatters, x_name = ".at", y_name = ".f")

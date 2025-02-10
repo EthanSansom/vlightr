@@ -8,9 +8,26 @@
 # `tibble(x = hl(1:10, ~ x > 5, color("yellow"))` should look nice by
 # default.
 
+#### Attempt to intercept bad expressions supplied to `.f` and `.t`.
+#
+# If you forget the `~` then you get a cryptic error message.
+# `.x > 10` instead of `~ .x > 10`, I think it's an easy mistake to make.
+
+#### Attributes handling
+#
+# Change the `attr()` method to attach attributes to the underlying data,
+# this way we let {vctrs} handle their maintenance.
+
 # highlight --------------------------------------------------------------------
 
 new_highlight <- function(x, tests, formatters, subclass = character()) {
+  if (!rlang::is_empty(subclass)) {
+    assert_arg_match_internal(
+      subclass,
+      values = c("vlightr_templight", "vlightr_highlight_case"),
+      subset = TRUE
+    )
+  }
   # `vctrs::new_vctr(.data)` un-classes `.data`, so using a record instead.
   # For example, try `vctrs::new_vctr(.data = ivs::iv(1, 2))`.
   vctrs::new_rcrd(
@@ -23,7 +40,7 @@ new_highlight <- function(x, tests, formatters, subclass = character()) {
 
 validate_highlight <- function(
     x,
-    x_name = rlang::caller_arg(arg),
+    x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
     error_class = character(),
     error_message = NULL
@@ -35,7 +52,7 @@ validate_highlight <- function(
   # Set the context for newly created highlights within `dplyr::across()` so we
   # can add an `across_error_hint()` for common failure cases. If `format()` is
   # successful we return `x`.
-  context$in_across <- in_across()
+  context$in_across <- isTRUE(in_across())
   rlang::try_fetch(
     {
       format(x, .x_name = x_name)
@@ -422,6 +439,9 @@ is_highlight_case <- function(x) {
 # highlighter ------------------------------------------------------------------
 
 new_highlighter <- function(tests, formatters, subclass = character()) {
+  if (!rlang::is_empty(subclass)) {
+    assert_arg_match_internal(subclass, "vlightr_highlighter_case")
+  }
   highlight_subclass <- gsub("highlighter", "highlight", subclass)
   force(tests)
   force(formatters)
@@ -461,7 +481,7 @@ new_highlighter <- function(tests, formatters, subclass = character()) {
 #'
 #' `highlighter_mult()` and `highlighter_case()` (corresponding to `highlight_mult()`
 #' and `hightlight_case()`) allow `.t` and `.f` to be supplied as two-sided
-#' formulas `.t ~ .f` using [dplyr::case_when()] style syntax.
+#' formulas of the form `.t ~ .f`.
 #'
 #' @param .t `[function / list]`
 #'
@@ -611,6 +631,8 @@ is_highlighter_case <- function(x) {
   inherits(x, "vlightr_highlighter_case")
 }
 
+# TODO: Document!!!
+
 #' Convert a highlighted vector into a highlighter
 #'
 #' @description
@@ -619,36 +641,6 @@ is_highlighter_case <- function(x) {
 #' function (class `vlightr_highligher`) which applies the same conditional
 #' formatting as that of `x`.
 #'
-#' @param x `[vlightr_highlight]`
-#'
-#' A highlighted vector to convert to a highlighter (class `vlightr_highlighter`)
-#' function. See [highlighter()] for details.
-#'
-#' @return
-#'
-#' A highlighter function with the same `conditions`, `formatters`, `description`,
-#' `precedence`, `format_once`, `init_formatter`, and `last_formatter` as `x`.
-#'
-#' @examples
-#' # Highlight a vector
-#' dummy <- highlight_case(
-#'  x = c(1L, NA, 0L, 1L, NA),
-#'  .x == 0 ~ paste0(.x, "[No]"),
-#'  .x == 1 ~ paste0(.x, "[Yes]"),
-#'  is.na ~ cli::col_red,
-#'  .description = c(
-#'     "Responded No",
-#'     "Responded Yes",
-#'     "No Response"
-#'   )
-#' )
-#' print(dummy)
-#' describe_highlight(dummy)
-#'
-#' # Convert the highlighted vector into a highlighter function
-#' dummy_hlghtr <- as_highlighter(dummy)
-#' print(dummy_hlghtr(c(0L, 1L, NA, 2L)))
-#' describe_highlight(dummy_hlghtr(c(0L, 1L, NA, 2L)))
 #' @export
 as_highlighter <- function(.x) {
   rlang::check_required(.x)
@@ -881,7 +873,7 @@ vec_math.vlightr_highlight <- function(.fn, x, ...) {
 # x + y
 
 restore_highlight <- function(
-    x,
+    .x,
     ...,
     .x_name = rlang::caller_arg(x),
     .error_call = rlang::caller_env(),
@@ -890,7 +882,7 @@ restore_highlight <- function(
   ) {
 
   x <- check_is_highlightable(
-    x = x,
+    x = .x,
     x_name = .x_name,
     error_call = .error_call,
     error_class = .error_class
@@ -926,8 +918,8 @@ restore_highlight <- function(
   validate_highlight(
     new_highlight(
       x = x,
-      t = funs$test,
-      f = funs$formatter,
+      tests = funs$test,
+      formatters = funs$formatter,
       subclass = subclass
     ),
     x_name = .x_name,

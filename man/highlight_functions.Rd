@@ -3,12 +3,20 @@
 \name{highlight_functions}
 \alias{highlight_functions}
 \alias{highlight_functions<-}
-\title{Get or set the test and formatter functions of a highlight or highlighter}
+\alias{tests}
+\alias{tests<-}
+\title{Get or set the test and formatter functions of a highlighted vector or
+highlighter function}
 \usage{
-highlight_functions(x, as = c("functions", "highlighters"))
+highlight_functions(x, as_list_of = c("list", "highlighter"))
 
 highlight_functions(x) <- value
+
+tests(x)
+
+tests(x) <- value
 }
 \description{
-Get or set the test and formatter functions of a highlight or highlighter
+Get or set the test and formatter functions of a highlighted vector or
+highlighter function
 }

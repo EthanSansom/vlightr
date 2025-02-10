@@ -27,7 +27,7 @@ is_templight_case(highlight_case(10))
 is_templight_case(templight_case(10))
 
 # Vectors highlighted using the `templigher_case()` or highlighter are
-class `vlightr_templight/vlightr_highlight_case`.
+# class `vlightr_templight/vlightr_highlight_case`.
 templighter <- templighter_case()
 is_templight_case(templighter(10))
 

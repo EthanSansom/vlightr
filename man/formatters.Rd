@@ -3,12 +3,14 @@
 \name{formatters}
 \alias{formatters}
 \alias{formatters<-}
-\title{Get or set the formatter functions of a highlight or highlighter}
+\title{Get or set the formatter functions of a highlighted or temp-lighted vector or
+a highlighter or temp-lighter function}
 \usage{
 formatters(x)
 
 formatters(x) <- value
 }
 \description{
-Get or set the formatter functions of a highlight or highlighter
+Get or set the test and formatter functions of a highlighted vector or
+highlighter function
 }
