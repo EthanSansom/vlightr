@@ -10,12 +10,21 @@
 
 # stylers ----------------------------------------------------------------------
 
-#' Generate a formatter function to style text
+#' Generate a formatter function to color text
 #'
 #' @description
 #'
-#' Function factories used to generate new formatting functions for use in
-#' [highlight()], [highlighter()], and friends.
+#' `color()`, `color_rep()`, `background()`, and `background_rep()` generate
+#' a function that colors the text or background of an input string. `style()`
+#' generates a function that bolds, underlines, or otherwise styles an input
+#' string. These function factories are useful for quickly creating new formatting
+#' functions for use in [highlight()], [highlighter()], and friends.
+#'
+#' `color()` and `background()` color the input character vector with a single
+#' color. `color_rep()` and `background_rep()` color the input vector with a
+#' repeating pattern of colors.
+#'
+#' `colour()` is a synonym for `color()` and `bg()` a synonym for `background()`.
 #'
 #' @param x `[character(1)]`
 #'
@@ -26,26 +35,22 @@
 #' - `cli` package color (e.g. `"yellow"`, `"br_blue"`)
 #' - 6- or 8-digit hexadecimal color string (e.g. "#ff0000")
 #'
-#' For `style`, the text effect that the output function adds to the text of a
-#' character vector, specified by a `cli` package style (e.g. `"bold"`,
+#' For `style`, the text decoration that the output function adds to the text of
+#' a character vector, specified by a `cli` package style (e.g. `"bold"`,
 #' `"italic"`, `"underline"`).
 #'
 #' See [cli::style_bold()] and friends for recognized `cli` styles and colors.
 #'
-#' @param left,right `[character(1)]`
+#' @param ... `[character]`
 #'
-#' For `wrap()`, `label()` a prefix (`left`) or suffix `right` that the output function
-#' pastes onto a character vector. By default, `left` is `"["` and `right`
-#' is `"]"`.
+#' For `background_rep()` and `color_rep()`, the alternating series of colors that
+#' the output function applies to the background or text of a character vector.
 #'
-#' @param string `[character(1)]`
-#'
-#' For `label`, the label (as a word) that the output function pastes onto
-#' a character vector.
+#' All inputs to `...` are concatenated into one character vector.
 #'
 #' @return
 #'
-#' A function which returns a styled character or ANSI string vector.
+#' A function which returns a styled ANSI string vector.
 #'
 #' @family styles
 #' @name stylers
@@ -59,17 +64,13 @@
 #' style_bold <- style("bold")
 #' style_bold(c(TRUE, FALSE, NA))
 #'
-#' embrace <- wrap("(", ")")
-#' embrace(c(2.2, 3.3, 4.4))
+#' halloween <- color_rep("orange", "black")
+#' halloween("Trick or treat?")
 #'
-#' yes <- label("Yes")
-#' yes(1)
+#' waldo <- background_rep("red", "white")
+#' waldo(c("I can't", "find", "him"))
+#'
 NULL
-
-# todos ------------------------------------------------------------------------
-
-#### Split up the documentation above to just include the `backgroun()` and
-# `color()` functions (+ rep and shorthands).
 
 # cli --------------------------------------------------------------------------
 
@@ -147,8 +148,8 @@ color <- function(x) {
 #' @export
 colour <- color
 
-# TODO: After testing, make a background version
-# TODO: Document and export
+#' @name stylers
+#' @export
 color_rep <- function(...) {
   # Allowing each `...` to be a character, makes calling with an external vector
   # easier. E.g. `color_rep("orange", "black")` or `color_rep(halloween)`.
@@ -179,9 +180,39 @@ color_rep <- function(...) {
   }
 }
 
+#' @name stylers
+#' @export
 colour_rep <- color_rep
 
-# misc -------------------------------------------------------------------------
+#' @name stylers
+#' @export
+background_rep <- function(...) {
+  dots <- rlang::list2(...)
+  map(
+    seq_along(dots),
+    \(i) check_must_not(
+      x = dots[[i]],
+      x_name = dot_name(i),
+      test = is.character,
+      must = "be a character vector"
+    )
+  )
+  crayons <- map(vctrs::list_unchop(dots), background)
+  n_crayons <- length(crayons)
+  background_rep_scalar <- function(x) {
+    s <- strsplit(cli::ansi_strip(x), "")[[1]]
+    color_at <- nchar(trimws(s)) > 0
+    s[color_at] <- mapply(
+      s[color_at],
+      which(color_at),
+      FUN = \(letter, i) crayons[[mod_index(i, n_crayons)]](letter)
+    )
+    paste(s, collapse = "")
+  }
+  function(x) {
+    unname(map_chr(x, background_rep_scalar))
+  }
+}
 
 #' @name stylers
 #' @export
@@ -209,7 +240,33 @@ style <- function(x) {
   )
 }
 
-#' @name stylers
+# misc -------------------------------------------------------------------------
+
+#' Generate a formatter function which prefixes and suffixes a vector
+#'
+#' @description
+#'
+#' `wrap()` generates a function that pastes a prefix `left` and a suffix `right`
+#' onto every element of an input vector using [paste0()].
+#'
+#' @param left,right `[character(1)]`
+#'
+#' A prefix (`left`) or suffix (`right`) that the output function pastes onto a
+#' character vector. By default, `left` is `"["` and `right` is `"]"`.
+#'
+#' @return
+#'
+#' A function that pastes a prefix and suffix onto it's input.
+#'
+#' @examples
+#' default <- wrap()
+#' pointy <- wrap("<", ">")
+#' question <- wrap("", "?")
+#'
+#' default(1:5)
+#' pointy(c("a", "b", "c"))
+#' question(c("who", "what", "where", "why"))
+#'
 #' @export
 wrap <- function(left = "[", right = "]") {
   left <- check_is_string(left)
@@ -217,7 +274,36 @@ wrap <- function(left = "[", right = "]") {
   return(function(x) paste0(left, x, right))
 }
 
-#' @name stylers
+#' Generate a formatter function which labels a vector
+#'
+#' @description
+#'
+#' `label()` generates a function that pastes a label onto the end of every
+#' element of it's input vector using [paste0()].
+#'
+#' @param string `[character(1)]`
+#'
+#' The word used to label the vector.
+#'
+#' @param left,right `[character(1)]`
+#'
+#' A prefix (`left`) or suffix (`right`) that the output function pastes around
+#' the label's `string`. By default, `left` is `"["` and `right` is `"]"`.
+#'
+#' @return
+#'
+#' A function that pastes a label onto it's input.
+#'
+#' @examples
+#' high <- label("high")
+#' low <- label("low")
+#' unsure <- label("?", "<<", ">>")
+#'
+#' high(5)
+#' low(1)
+#' unsure(c(7, -9, NA))
+#' unsure(letters[1:5])
+#'
 #' @export
 label <- function(string, left = "[", right = "]") {
   left <- check_is_string(left)

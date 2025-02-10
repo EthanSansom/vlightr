@@ -153,44 +153,18 @@ rl <- re_highlight
 
 # accessors --------------------------------------------------------------------
 
-# TODO: Document and Export
-
-#' Get or set the test functions of a highlight or highlighter
+#' Get or set the formatter functions of a highlighted or temp-lighted vector or
+#' a highlighter or temp-lighter function
 #'
 #' @description
 #'
-#' Get or set the test functions of a highlight or highlighter
-#'
-#' @export
-tests <- function(x) {
-  rlang::check_required(x)
-  get_tests(check_is_highlight(x))
-}
-
-#' @rdname tests
-#' @export
-`tests<-` <- function(x, value) {
-  rlang::check_required(x)
-  rlang::check_required(value)
-  x <- check_is_highlight(x)
-  value <- check_is_list_of_functionish(value)
-  assert_same_length(value, get_tests(x), x_name = "value", y_name = "tests(x)")
-
-  attr(x, "tests") <- value
-  validate_highlight(x)
-}
-
-# TODO: Document and Export
-
-#' Get or set the formatter functions of a highlight or highlighter
-#'
-#' @description
-#'
-#' Get or set the formatter functions of a highlight or highlighter
+#' Get or set the test and formatter functions of a highlighted vector or
+#' highlighter function
 #'
 #' @export
 formatters <- function(x) {
   rlang::check_required(x)
+  x <- check_is_highlight(x)
   get_formatters(check_is_highlight(x))
 }
 
@@ -207,25 +181,30 @@ formatters <- function(x) {
   validate_highlight(x)
 }
 
-# TODO: Document and Export
-
-#' Get or set the test and formatter functions of a highlight or highlighter
+#' Get or set the test and formatter functions of a highlighted vector or
+#' highlighter function
 #'
 #' @description
 #'
-#' Get or set the test and formatter functions of a highlight or highlighter
+#' Get or set the test and formatter functions of a highlighted vector or
+#' highlighter function
 #'
 #' @export
-highlight_functions <- function(x, as = c("functions", "highlighters")) {
+highlight_functions <- function(x, as_list_of = c("list", "highlighter")) {
   rlang::check_required(x)
-  x <- check_is_highlight(x)
-  as <- rlang::arg_match(as)
+  assert_can_access(x, type = "highlight", access = "get_multi")
+  as_list_of <- rlang::arg_match(as_list_of)
   funs <- get_highlight_functions(x)
-  switch(
-    as,
-    functions = funs,
-    highlighters = map(funs, \(fun) highlighter(fun$test, fun$formatter))
-  )
+
+  if (as_list_of == "list") {
+    return(funs)
+  }
+  subclass <- if (is_vlightr_case(x)) {
+    "vlightr_highlighter_case"
+  } else {
+    character()
+  }
+  map(funs, \(fun) new_highlighter(fun$test, fun$formatter, subclass = subclass))
 }
 
 #' @rdname highlight_functions
@@ -233,7 +212,7 @@ highlight_functions <- function(x, as = c("functions", "highlighters")) {
 `highlight_functions<-` <- function(x, value) {
   rlang::check_required(x)
   rlang::check_required(value)
-  x <- check_is_highlight(x)
+  assert_can_access(x, type = "highlight", access = "set_multi")
   highlighters <- check_is_list_of_highlighter(value)
 
   tests <- vctrs::list_unchop(map(highlighters, get_tests))
@@ -241,6 +220,142 @@ highlight_functions <- function(x, as = c("functions", "highlighters")) {
   attr(x, "tests") <- tests
   attr(x, "formatters") <- formatters
   validate_highlight(x)
+}
+
+#' @rdname highlight_functions
+#' @export
+tests <- function(x) {
+  rlang::check_required(x)
+  assert_can_access(x, type = "highlight", access = "get_test")
+  get_tests(x)
+}
+
+#' @rdname tests
+#' @export
+`tests<-` <- function(x, value) {
+  rlang::check_required(x)
+  rlang::check_required(value)
+  assert_can_access(x, type = "highlight", access = "set_test")
+  value <- check_is_list_of_functionish(value)
+  assert_same_length(value, get_tests(x), x_name = "value", y_name = "tests(x)")
+
+  attr(x, "tests") <- value
+  validate_highlight(x)
+}
+
+#' Get or set the locations and formatter functions of a temp-lighted vector or
+#' temp-lighter function.
+#'
+#' @description
+#'
+#' Get or set the test and formatter functions of a temp-light or temp-lighter
+#'
+#' @export
+templight_functions <- function(x, as_list_of = c("list", "templighter")) {
+  rlang::check_required(x)
+  assert_can_access(x, type = "templight", access = "get_multi")
+
+  # Allowing `"highlighter"` here since it's annoying to force the use of
+  # `"templighter"` when it's clear what the caller is looking for. Not
+  # including the option in the formals so that it's clear you will be receiving
+  # a list of templighter functions and not highlighter functions.
+  as_list_of <- rlang::arg_match0(as_list_of, c("list", "templighter", "highlighter"))
+
+  # `new_templighter()` expects the tests are already functions, so we can use
+  # `get_highlight_functions()`.
+  funs <- get_highlight_functions(x)
+
+  if (as_list_of == "list") {
+    return(funs)
+  }
+  subclass <- if (is_vlightr_case(x)) {
+    "vlightr_highlighter_case"
+  } else {
+    character()
+  }
+  map(funs, \(fun) new_templighter(fun$test, fun$formatter, subclass = subclass))
+}
+
+#' @rdname templight_functions
+#' @export
+`templight_functions<-` <- function(x, value) {
+  rlang::check_required(x)
+  rlang::check_required(value)
+  assert_can_access(x, type = "templight", access = "set_multi")
+  highlighters <- check_is_list_of_highlighter(value)
+
+  tests <- vctrs::list_unchop(map(highlighters, get_tests))
+  formatters <- vctrs::list_unchop(map(highlighters, get_formatters))
+  attr(x, "tests") <- tests
+  attr(x, "formatters") <- formatters
+  validate_highlight(x)
+}
+
+#' @rdname templight_functions
+#' @export
+locations <- function(x) {
+  rlang::check_required(x)
+  assert_can_access(x, type = "templight", access = "get_test")
+  get_locations(x)
+}
+
+#' @rdname templight_functions
+#' @export
+locations <- function(x) {
+  rlang::check_required(x)
+  assert_can_access(x, type = "templight", access = "set_test")
+  get_locations(x)
+}
+
+# Re-direct the caller to the correct accessor if they try to use a templight
+# (highlight) accessor on a highlight (templight) object.
+assert_can_access <- function(
+    x,
+    type = c("highlight", "templight"),
+    access = c("get_test", "set_test", "get_mult", "set_mult")
+  ) {
+
+  assert_arg_match_internal(type, c("highlight", "templight"))
+  assert_arg_match_internal(access, c("get_test", "set_test", "get_mult", "set_mult"))
+
+  multi <- access %in% c("get_mult", "set_mult")
+  access <- gsub("(_test|_mult)", "", access)
+
+  if (type == "templight") {
+    test <- \(x) is_templight(x) || is_templighter(x)
+    alt_elements_of_a <- if (multi) {
+      "test and formatter functions of a"
+    } else {
+      "test functions of a"
+    }
+    alt_fun <- if (multi) "highlight_functions" else "tests"
+    alt_vec_cls <- "vlightr_highlight"
+    alt_fun_cls <- "vlightr_highlighter"
+  } else {
+    test <- \(x) is_highlight(x) || is_highlighter(x)
+    alt_elements_of_a <- if (multi) {
+      "locations of elements highlighted by a"
+    } else {
+      "formatter functions and locations of elements highlighted by a"
+    }
+    alt_fun <- if (multi) "templight_functions" else "locations"
+    alt_vec_cls <- "vlightr_templight"
+    alt_fun_cls <- "vlightr_templighter"
+  }
+
+  error_bullets <- c(i = paste(
+    "See {.fun {alt_fun}} to {access} the {alt_elements_of_a}",
+    "{.cls {alt_vec_cls}} vector or {.cls {alt_fun_cls}} function."
+  ))
+  vec_cls <- paste0("vlightr_", type)
+  fun_cls <- paste0("vlightr_", type, "er")
+  check_must_not(
+    x,
+    test = test,
+    must = "be a {.cls {vec_cls}} vector or {.cls {fun_cls}} function",
+    error_bullets = error_bullets,
+    error_call = rlang::caller_env()
+  )
 }
 
 # tests ------------------------------------------------------------------------
@@ -356,4 +471,30 @@ highlight_lambda <- function(x, x_name = rlang::caller_arg(x)) {
 #' @export
 is_highlightable <- function(x) {
   vctrs::obj_is_vector(x) && !is.data.frame(x) && !rlang::is_bare_list(x)
+}
+
+#' Test if the object is a highlight-case or temp-light-case vector or a
+#' highlighter-case or temp-lighter-case function
+#'
+#' @description
+#'
+#' This function returns `TRUE` for objects inheriting the following classes:
+#' * `"vlightr_highlight_case"`
+#' * `"vlightr_highlighter_case"`
+#'
+#' These includes objects created by `templight_case()` and `templighter_case()`.
+#'
+#' This function returns `FALSE` if `x` is any other object.
+#'
+#' @param x
+#'
+#' An object to test.
+#'
+#' @return
+#'
+#' `TRUE` if `x` is a {vlightr} "case" object, `FALSE` otherwise.
+#'
+#' @export
+is_vlightr_case <- function(x) {
+  is_highlight_case(x) || is_highlighter_case(x)
 }

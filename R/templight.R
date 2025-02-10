@@ -89,7 +89,9 @@
 #'  of the temp-lighter are spliced into `...`.
 #'
 #'  In the case of `templight_case()`, elements of `.x` can be conditionally
-#'  formatted at most once, similar to the behavior of [dplyr::case_when()].
+#'  formatted at most once. An element of `.x` at index `i` will be formatted
+#'  using the formatter corresponding to the first `.at` selection where `i`
+#'  appears.
 #'
 #' @return
 #'
@@ -112,7 +114,67 @@
 #' [color()] and friends for generating formatter functions for use in `.f`.
 #'
 #' @examples
-#' # TODO
+#' # Emphasize even elements of `z`
+#' z <- 1:6
+#' z_tl <- templight(z, .at = z %% 2 == 0, .f = wrap("<", ">"))
+#' print(z_tl)
+#'
+#' # Capitalize the first and third elements of `x`
+#' x <- letters[1:6]
+#' x_tl <- templight(x, .at = c(1, 3), .f = toupper)
+#' print(x_tl)
+#'
+#' # Retrieve a temp-lighted vector's data
+#' un_highlight(x_tl)
+#'
+#' # `templight()` is useful for highlighting columns of a
+#' # data.frame in reference to one another. Here, we
+#' # emphasize the rows of automatic (`am == 0`) cars.
+#' mtcars2 <- mtcars[1:5, c("mpg", "cyl", "am")]
+#' mtcars2$mpg <- templight(mtcars2$mpg, mtcars$am == 0, wrap())
+#' mtcars2$cyl <- templight(mtcars2$cyl, mtcars$am == 0, wrap())
+#' print(mtcars2)
+#'
+#' # data.frame does not render colored text when printed
+#' mtcars2 <- mtcars[1:5, c("mpg", "cyl", "am")]
+#' mtcars2$mpg <- templight(mtcars2$mpg, mtcars$am == 0, color("red"))
+#' mtcars2$cyl <- templight(mtcars2$cyl, mtcars$am == 0, color("red"))
+#' print(mtcars2)
+#'
+#' # The above does work in a `tibble()`. Note, if you're in
+#' # an environment where ANSI colored text is not supported
+#' # you will see no difference here.
+#' as_tibble(mtcars, rownames = "model") |>
+#'   select(model, mpg, cyl, am) |>
+#'   mutate(across(c(mpg, cyl), ~ templight(.x, am == 0, color("red"))))
+#'
+#' # Indices in `.at` outside of a temp-lighted vector are ignored
+#' out_tl <- templight(1:3, .at = 6, .f = label("Out!"))
+#' print(out_tl)
+#'
+#' # If a temp-lighted grows to include these indices, then they
+#' # are formatted as usual.
+#' rep(out_tl, 2)
+#'
+#' # `.at` is not recycled. For example, `.at = TRUE`
+#' # is equivalent to `.at = 1`.
+#' templight(1:3, .at = TRUE, .f = wrap())
+#'
+#' # Use `templight_mult()` to add multiple conditional formats
+#' templight_mult(
+#'   letters[1:6],
+#'   grepl("[aeiou]", letters) ~ toupper,
+#'   c(1, 2, 3) ~ wrap("(", ")")
+#' )
+#'
+#' # `templight_case()` applies the conditional format
+#' # corresponding to the first `.at` selection matched by
+#' # an element.
+#' templight_case(
+#'   letters[1:6],
+#'   grepl("[aeiou]", letters) ~ toupper, # "a" is matched here
+#'   c(1, 2, 3) ~ wrap("(", ")") # "a" will not be matched here
+#' )
 #'
 #' @export
 templight <- function(
@@ -236,6 +298,9 @@ is_templight_case <- function(x) {
 # templighter ------------------------------------------------------------------
 
 new_templighter <- function(tests, formatters, subclass = character()) {
+  if (!rlang::is_empty(subclass)) {
+    assert_arg_match_internal(subclass, "vlightr_highlighter_case")
+  }
   highlight_subclass <- gsub("highlighter", "highlight", subclass)
   force(tests)
   force(formatters)
@@ -264,13 +329,55 @@ new_templighter <- function(tests, formatters, subclass = character()) {
   out
 }
 
-# TODO: Document and export
+# TODO: Finish examples
 
-#' Make a temporary highlighter
+#' Generate a re-usable temp-light function
 #'
 #' @description
 #'
-#' Makes a temporary highlighter.
+#' Generates a partially applied version of the [templight()] function, with
+#' pre-supplied locations `.at` and formatters `.f`.
+#'
+#' The following calls produce equivalent temp-lighted vectors:
+#'  * `templight(.x = .x, .at = .at, .f = .f)`
+#'  * `templighter(.t = .t, .at = .at)(.x = .x)`
+#'
+#' `templighter_mult()` and `templighter_case()` (corresponding to `templight_mult()`
+#' and `templight_case()`) allow `.at` and `.f` to be supplied as two-sided
+#' formulas of the form `.at ~ .f`.
+#'
+#' @inheritParams highlighter
+#'
+#' @param .at `[logical / integerish / list]`
+#'
+#'  Locations of elements in `.x` which are conditionally formatted in the
+#'  output function. `.at` may be supplied as a logical, integer, or whole-
+#'  numbered (e.g. `1.0`, `2.00`) numeric vector. `.at` may also be a list of
+#'  such vectors.
+#'
+#'  By default, `.at` is an empty logical vector.
+#'
+#' @param ... `[formula / vlightr_templighter]`
+#'
+#'  For `templighter_mult()` and `templighter_case()`, a two sided formula with
+#'  locations on the left-hand-side and a formatter on the right-hand-side. This
+#'  argument replaces the `.at` and `.f` arguments of `templighter()`. The ith dot
+#'  `..i` is roughly equivalent to `.at[[i]] ~ .f[[i]]`.
+#'
+#'  Arguments to `...` may also be functions made with `templighter()`, in which
+#'  case the locations (e.g. `.at`) and formatters (e.g. `.f`) of the temp-lighter
+#'  function are spliced into `...`.
+#'
+#'  See the `...` argument of [templight()] for more details on valid arguments
+#'  to supply to `...`.
+#'
+#' @return
+#'
+#' A function of class `vlightr_templighter`. For `templighter_case()`, a
+#' function of class `vlightr_templighter/vlightr_highlighter_case`.
+#'
+#' @examples
+#' # TODO
 #'
 #' @export
 templighter <- function(.t, .at) {
@@ -340,7 +447,7 @@ prepare_templight_functions <- function(...) {
   formulas_at <- map_lgl(dots, is_formula)
   templighters_at <- map_lgl(dots, is_templighter)
 
-  if (!all(formulas_at | highlighters_at)) {
+  if (!all(formulas_at | templighters_at)) {
     invalid_at <- which.min(formulas_at | templighters_at)
     cli::cli_abort(
       c(
@@ -354,7 +461,7 @@ prepare_templight_functions <- function(...) {
 
   # Each highlighter may contain multiples pairs of tests and formatters which
   # need to be split apart without altering the order of user-supplied `...`.
-  if (any(highlighters_at)) {
+  if (any(templighters_at)) {
     # The second `map(mapply())` makes all elements of `out` a list of lists, which
     # we flatten uniformly with `vctrs::list_unchop()` so that every element of
     # `out` is a list.
@@ -366,7 +473,7 @@ prepare_templight_functions <- function(...) {
       MoreArgs = list(error_call = rlang::caller_env()),
       SIMPLIFY = FALSE
     ), list)
-    out[highlighters_at] <- map(dots[highlighters_at], get_highlight_functions)
+    out[templighters_at] <- map(dots[templighters_at], get_highlight_functions)
     out <- vctrs::list_unchop(out)
   }
   else {
@@ -435,4 +542,14 @@ as_index_test <- function(indices) {
   function(x) {
     seq_along(x) %in% indices
   }
+}
+
+# Get the `indices` stored in the environment of a function generated with
+# `as_index_test()`
+get_locations <- function(x) {
+  map(attr(x, "tests"), \(test) rlang::fn_env(test)$indices)
+}
+
+get_templight_functions <- function(x) {
+  zip(location = get_locations(x), formatter = attr(x, "formatters"))
 }
