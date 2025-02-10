@@ -4,7 +4,7 @@ check_is_highlightable <- function(
     x,
     x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
-    error_class = "vlightr_error"
+    error_class = "vlightr_non_highlightable_error"
   ) {
   check_must_not(
     x,
@@ -129,11 +129,11 @@ check_is_list_of_functionish <- function(
     x,
     x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
-    error_class = character()
+    error_class = "vlightr_input_type_error"
 ) {
   out <- check_is_list_of(
     x,
-    test = \(x) is.function(x) || rlang::is_formula(x),
+    test = \(x) is.function(x) || is_one_sided_formula(x),
     of_whats = "functions or one-sided formulas",
     x_name = x_name,
     error_call = error_call,
@@ -178,7 +178,7 @@ check_is_list_of_index <- function(
     x,
     x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
-    error_class = character()
+    error_class = "vlightr_input_type_error"
 ) {
   check_is_list_of(
     x,
@@ -194,7 +194,7 @@ check_is_list_of_highlighter <- function(
     x,
     x_name = rlang::caller_arg(x),
     error_call = rlang::caller_env(),
-    error_class = character()
+    error_class = "vlightr_input_type_error"
 ) {
   check_is_list_of(
     x,
@@ -251,7 +251,7 @@ assert_same_length <- function(
     x_name = rlang::caller_arg(x),
     y_name = rlang::caller_arg(y),
     error_call = rlang::caller_env(),
-    error_class = character()
+    error_class = "vlightr_input_size_error"
 ) {
   if (length(x) != length(y)) {
     cli::cli_abort(
@@ -262,6 +262,21 @@ assert_same_length <- function(
       ),
       call = error_call,
       class = c(error_class, "vlightr_error")
+    )
+  }
+}
+
+assert_arg_match_internal <- function(
+    x,
+    values,
+    x_name = rlang::caller_arg(x),
+    error_call = rlang::caller_env()
+  ) {
+  if (!rlang::is_string(x) || x %notin% values) {
+    values <- encodeString(values, quote = '"')
+    stop_internal(
+      "{.arg {x_name}} must be one of {.or {values}}, not {.obj_type_friendly {x}}.",
+      error_call = error_call
     )
   }
 }
