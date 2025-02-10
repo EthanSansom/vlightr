@@ -1,22 +1,24 @@
+# TODO: Document this!
+
 #' @export
 print.vlightr_highlight <- function(
     x,
     ...,
     n = getOption("max.print"),
-    align = c("left", "right", "center")
+    align = c("left", "right", "center"),
+    quoted = FALSE
   ) {
 
-  # Defining the entire `print` method so that `format(x)` can error before
-  # `vctrs::obj_print_header(x)` has printed the header.
   formatted <- format(x, .x_name = rlang::caller_arg(x))
   n <- check_is_count(n)
+  align <- rlang::arg_match(align)
   n_fmt <- length(formatted)
   if (n_fmt > n) {
     length(formatted) <- n
-    print_more <- cli::col_silver(cli::format_inline(
-      "[ Omitted {n_fmt - n} element{?s}. ",
+    print_more <- cli::format_inline(
+      "[ Printed `n = {n}` element{?s}, omitted {n_fmt - n}. ",
       "Use {.code print(n = ...)} to see more. ]"
-    ))
+    )
   } else {
     print_more <- NULL
   }
@@ -24,8 +26,11 @@ print.vlightr_highlight <- function(
   vctrs::obj_print_header(x)
   print_ansi(
     x = formatted,
-    align = rlang::arg_match(align),
-    encode_string = is.character(get_data(x)),
+    # TODO: Check which direction the default print method aligns different
+    # objects. For example, I think numeric is usually right aligned. Make
+    # the default option a function of `get_data(x)` switching on type.
+    align = align,
+    encode_string = quoted && is.character(get_data(x)),
     suffix = print_more
   )
   invisible(x)
@@ -57,8 +62,9 @@ print_highlights <- function(x) {
   if (all(unformatted_at)) {
     print(
       tibble::tibble(
+        location = character(),
         `formatters()` = character(),
-        `hl_data()` = x_data[0],
+        `ul()` = x_data[0],
         `hl()` = x[0]
       ),
       width = cli::console_width()
@@ -72,8 +78,10 @@ print_highlights <- function(x) {
 
   print(
     tibble::tibble(
+      # `location` is more readable left-aligned as a <chr> column
+      location = as.character(unique_formats_at),
       `formatters()` = formats_used,
-      `hl_data()` = x_data[unique_formats_at],
+      `ul()` = x_data[unique_formats_at],
       `hl()` = x[unique_formats_at]
     )[order_ragged(formatted_with[unique_formats_at]), ],
     width = cli::console_width()
@@ -85,7 +93,7 @@ print_ansi <- function(
     x,
     width = cli::console_width(),
     sep = " ",
-    align = c("left", "right", "center"),
+    align = "left",
     encode_string = FALSE,
     suffix = NULL,
     error_call = rlang::caller_env()
@@ -108,9 +116,15 @@ print_ansi <- function(
     return(invisible())
   }
 
-  # TODO: `encodeString` escapes the backslashes in ANSI escape sequences. Find
-  #       a way to get around this.
-  if (encode_string) x <- paste0('"', x, '"')
+  # `encodeString()` escapes the backslashes in ANSI escape sequences. For now,
+  # wrapping ANSI styled text in quotes. See if a better solution exists.
+  if (encode_string) {
+    if (any(cli::ansi_has_any(x))) {
+      x <- paste0('"', x, '"')
+    } else {
+      x <- encodeString(x, quote = '"')
+    }
+  }
   # `nchar(NA)` is NA, so treating NA values as the string "NA" instead. Otherwise,
   # NA values are formatted incorrectly.
   x[is.na(x)] <- "NA"
@@ -118,7 +132,8 @@ print_ansi <- function(
   prefix_width <- nchar(length(x)) + 2
   sep_width <- nchar(sep)
 
-  n_per_line <- floor((width - prefix_width + sep_width) / (element_width + sep_width))
+  # `max()` to prevent `n_per_line <- 0` when really wide elements are present
+  n_per_line <- max(1, floor((width - prefix_width + sep_width) / (element_width + sep_width)))
   n <- length(x)
 
   # Prefix width was set under the assumption that the largest prefix would be
