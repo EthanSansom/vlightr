@@ -6,10 +6,11 @@
 \alias{bg}
 \alias{color}
 \alias{colour}
+\alias{color_rep}
+\alias{colour_rep}
+\alias{background_rep}
 \alias{style}
-\alias{wrap}
-\alias{label}
-\title{Generate a formatter function to style text}
+\title{Generate a formatter function to color text}
 \usage{
 background(x)
 
@@ -19,11 +20,13 @@ color(x)
 
 colour(x)
 
+color_rep(...)
+
+colour_rep(...)
+
+background_rep(...)
+
 style(x)
-
-wrap(left = "[", right = "]")
-
-label(string, left = "[", right = "]")
 }
 \arguments{
 \item{x}{\verb{[character(1)]}
@@ -36,29 +39,34 @@ to the text background or text of a character vector, specified by a:
 \item 6- or 8-digit hexadecimal color string (e.g. "#ff0000")
 }
 
-For \code{style}, the text effect that the output function adds to the text of a
-character vector, specified by a \code{cli} package style (e.g. \code{"bold"},
+For \code{style}, the text decoration that the output function adds to the text of
+a character vector, specified by a \code{cli} package style (e.g. \code{"bold"},
 \code{"italic"}, \code{"underline"}).
 
 See \code{\link[cli:ansi-styles]{cli::style_bold()}} and friends for recognized \code{cli} styles and colors.}
 
-\item{left, right}{\verb{[character(1)]}
+\item{...}{\verb{[character]}
 
-For \code{wrap()}, \code{label()} a prefix (\code{left}) or suffix \code{right} that the output function
-pastes onto a character vector. By default, \code{left} is \code{"["} and \code{right}
-is \code{"]"}.}
+For \code{background_rep()} and \code{color_rep()}, the alternating series of colors that
+the output function applies to the background or text of a character vector.
 
-\item{string}{\verb{[character(1)]}
-
-For \code{label}, the label (as a word) that the output function pastes onto
-a character vector.}
+All inputs to \code{...} are concatenated into one character vector.}
 }
 \value{
-A function which returns a styled character or ANSI string vector.
+A function which returns a styled ANSI string vector.
 }
 \description{
-Function factories used to generate new formatting functions for use in
-\code{\link[=highlight]{highlight()}}, \code{\link[=highlighter]{highlighter()}}, and friends.
+\code{color()}, \code{color_rep()}, \code{background()}, and \code{background_rep()} generate
+a function that colors the text or background of an input string. \code{style()}
+generates a function that bolds, underlines, or otherwise styles an input
+string. These function factories are useful for quickly creating new formatting
+functions for use in \code{\link[=highlight]{highlight()}}, \code{\link[=highlighter]{highlighter()}}, and friends.
+
+\code{color()} and \code{background()} color the input character vector with a single
+color. \code{color_rep()} and \code{background_rep()} color the input vector with a
+repeating pattern of colors.
+
+\code{colour()} is a synonym for \code{color()} and \code{bg()} a synonym for \code{background()}.
 }
 \examples{
 color_red <- color("red")
@@ -70,10 +78,11 @@ background_yellow(LETTERS[1:3])
 style_bold <- style("bold")
 style_bold(c(TRUE, FALSE, NA))
 
-embrace <- wrap("(", ")")
-embrace(c(2.2, 3.3, 4.4))
+halloween <- color_rep("orange", "black")
+halloween("Trick or treat?")
 
-yes <- label("Yes")
-yes(1)
+waldo <- background_rep("red", "white")
+waldo(c("I can't", "find", "him"))
+
 }
 \concept{styles}

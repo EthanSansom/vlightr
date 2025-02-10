@@ -106,7 +106,9 @@ supplied instead of a formula, in which case the arguments \code{.at} and \code{
 of the temp-lighter are spliced into \code{...}.
 
 In the case of \code{templight_case()}, elements of \code{.x} can be conditionally
-formatted at most once, similar to the behavior of \code{\link[dplyr:case_when]{dplyr::case_when()}}.}
+formatted at most once. An element of \code{.x} at index \code{i} will be formatted
+using the formatter corresponding to the first \code{.at} selection where \code{i}
+appears.}
 }
 \value{
 A vector of class \code{vlightr_templight}. For \code{templight_case()}, the a
@@ -161,10 +163,6 @@ minimum_hl <- highlight(x, .t = ~ .x == min(.x), .f = wrap("<", ">"))
 # The minimum element of `x` is still highlighted after sorting
 print(sort(minimum_hl)) # <0> 1 2 3 4
 }\if{html}{\out{</div>}}
-}
-\examples{
-# TODO
-
 }
 \seealso{
 \code{\link[=highlight]{highlight()}} for conditionally formatting elements of a vector \code{.x}

@@ -6,10 +6,11 @@ vlightr
 <!-- badges: end -->
 
 {vlightr} (read, “vector-highlighter”) makes it easy to identify
-elements of interest in a vector printed to the console. It implements a
-`<vlightr_highlight>` vector superclass which enhances the `format()`
-and `print()` methods of generic vectors, allowing you to specify a
-custom conditional formatting method for (almost) any vector type.
+elements of interest in a vector printed to the console. {vlightr}
+implements a `<vlightr_highlight>` vector superclass which enhances the
+`format()` and `print()` methods of generic vectors, allowing you to
+specify a custom conditional formatting method for (almost) any vector
+type in R.
 
 ## Installation
 
@@ -34,6 +35,7 @@ Want to identify an element of a vector? Highlight it with
 `highlight()`.
 
 ``` r
+# Highlight the maximum element of `x`
 x <- c(1, 8, 12, 4, 2)
 maximum_hl <- vlightr::highlight(x, .t = ~ .x == max(.x))
 print(maximum_hl)
@@ -86,9 +88,9 @@ index.
 
 ``` r
 mtcars |>
-  as_tibble(rownames = "make") |>
-  mutate(across(everything(), ~ vlightr::templight(.x, make == "Datsun 710"))) |>
-  select(make, mpg, disp, vs) |>
+  as_tibble(rownames = "model") |>
+  mutate(across(everything(), ~ vlightr::templight(.x, model == "Datsun 710"))) |>
+  select(model, mpg, disp, vs) |>
   head(5)
 ```
 
@@ -97,17 +99,17 @@ mtcars |>
 <img src="man/figures/README-/templight.svg" width="100%" /> </picture>
 
 You can apply multiple conditional formats to a vector using
-`highlight_mult()`. The left-hand-side is you a test function or a
-literal value that you want to match and the right-hand-side is your
-formatter function.
+`highlight_mult()`. The left-hand-side is a test function or a literal
+value that you want to match and the right-hand-side is a formatter
+function.
 
 ``` r
 indicator <- vlightr::highlight_mult(
-    c(1, 0, 1, 0, 0, NA, 5),
-    is.na ~ vlightr::color("red"),
-    0 ~ vlightr::label("No"),
-    1 ~ vlightr::label("Yes"),
-    !(.x %in% c(NA, 0, 1)) ~ paste(.x, "[?]")
+    c(1, 0, 1, NA, 5),
+    is.na ~ vlightr::color("red"), # Color NA values red
+    0 ~ vlightr::label("No"),      # Label 0 as "No"
+    1 ~ vlightr::label("Yes"),     # Label 1 as "Yes"
+    !(.x %in% c(NA, 0, 1)) ~ paste(.x, "[?]") # Label others with "?"
 )
 print(indicator)
 ```
@@ -117,9 +119,8 @@ print(indicator)
 <img src="man/figures/README-/highlight-mult.svg" width="100%" />
 </picture>
 
-Simplify the code above using `highligh_case()`, which provides a
-`dplyr::case_when()` style interface and conditionally formats elements
-using at most one formatter.
+`highlight_case()` provides a `dplyr::case_when()` style interface and
+conditionally formats elements using at most one formatter.
 
 ``` r
 indicator <- vlightr::highlight_case(
@@ -137,7 +138,7 @@ print(indicator)
 <img src="man/figures/README-/highlight-case.svg" width="100%" />
 </picture>
 
-If you want to re-use a highlight, make a `highlighter()` and friends.
+To re-use a conditional format, make a `highlighter()` function.
 
 ``` r
 indicator_highlighter <- vlightr::highlighter_case(
@@ -156,7 +157,7 @@ indicator_highlighter(c(0, 1, NA, -9))
 
 ## Inspiration
 
-The development of {vlightr} relied heavily on the following pacakges:
+The development of {vlightr} relied heavily on the following packages:
 
 - [purrr](https://purrr.tidyverse.org/), which inspired the user
   interface of `highlight()`
@@ -164,6 +165,8 @@ The development of {vlightr} relied heavily on the following pacakges:
   `highlight_case()`
 - [magrittr](https://magrittr.tidyverse.org/), whose `%>%` made the
   highlight pipe `%hl>%` possible
+- [cli](https://cli.r-lib.org/index.html), which is responsible for all
+  of the colored text produced by {vlightr}
 - [vctrs](https://vctrs.r-lib.org/index.html), for making S3 vectors
   easy to work with
 - [usethis](https://usethis.r-lib.org/) and

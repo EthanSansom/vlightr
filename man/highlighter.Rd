@@ -110,7 +110,7 @@ punctuate <- highlighter_mult(exclaim, question)
 phrases <- c("hi all", "FANTASTIC", "I'm Dave")
 exclaim(phrases)
 question(phrases)
-question(punctuate)
+punctuate(phrases)
 
 # `highlighter_case()` uses the same matching behavior as
 # `highlight_case()`.

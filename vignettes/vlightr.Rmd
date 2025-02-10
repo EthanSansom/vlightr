@@ -21,7 +21,7 @@ library(dplyr, warn.conflicts = FALSE)
 library(ivs)
 ```
 
-vlightr makes it easy to identify the elements of a vector that you care
+{vlightr} makes it easy to identify the elements of a vector that you care
 about.
 
 ```{r}
@@ -30,8 +30,10 @@ above_mean <- highlight(1:10, ~ .x > mean(.x), ~ paste0("[", .x, "]"))
 print(above_mean)
 ```
 
-Including observations in a tibble.
+Including observations in a `tibble::tibble().
 
 ```{r}
-tibble(x = above_mean[1:5])
+tibble::tibble(x = above_mean[1:5])
 ```
+
+

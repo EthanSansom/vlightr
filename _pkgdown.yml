@@ -35,8 +35,10 @@ reference:
 - title: Accessors
 - contents:
   - tests
+  - locations
   - formatters
   - highlight_functions
+  - templight_functions
 
 - title: Highlight, Un-light, Re-light
 - contents:
@@ -50,8 +52,11 @@ reference:
 - contents:
   - color
   - colour
+  - color_rep
+  - colour_rep
   - background
   - bg
+  - background_rep
   - style
   - label
   - wrap
@@ -67,6 +72,7 @@ reference:
   - is_highlighter_case
   - is_templighter
   - is_templighter_case
+  - is_vlightr_case
 
 - title: Miscellaneous
 - contents:
